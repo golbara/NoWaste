@@ -3,6 +3,12 @@ from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from .models import *
 
+class LoginSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Customer
+        Fields = ['password', 'email']
+
 class CreateUserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, style={'input_type': 'password'},
                                         required=True, allow_blank=False, allow_null=False,
