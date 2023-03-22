@@ -17,10 +17,10 @@ class Customer(models.Model):
         ("male", "Male"), 
         ("female", "Female"), 
     )
-    gender = models.CharField(max_length=255,choices=gender_CHoice)
-    date_of_birth = models.DateField(null=True)
+    gender = models.CharField(max_length=255,choices=gender_CHoice,blank=True)
+    date_of_birth = models.DateField(null=True,blank=True)
     password = models.CharField(max_length=8,validators=[MinLengthValidator(4)])
-    wallet_balance = models.DecimalField(decimal_places=2, default=0,max_digits= 20)
+    wallet_balance = models.DecimalField(decimal_places=2, default=0,max_digits= 20,null= True)
     list_of_favorites_res = models.ManyToManyField(Restaurant, related_name='cust_favor_list')
 
     def __str__(self) -> str:

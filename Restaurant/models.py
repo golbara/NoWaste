@@ -29,6 +29,7 @@ class Food_Specifics(models.Model):
     price = models.DecimalField(decimal_places=2,max_digits=20)
     ingredients = models.CharField(max_length=1024, null=True)
     FoodID = models.ForeignKey(Food, on_delete=models.CASCADE)
+    # Food_pic = models.ImageField(upload_to='Food_pics/', blank=True, null=True)
     ResID = models.ForeignKey(Restaurant, on_delete=models.CASCADE)
     class Meta:
         unique_together = ('FoodID', 'ResID',)
