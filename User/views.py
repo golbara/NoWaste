@@ -8,12 +8,15 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.decorators import action
+from rest_framework import permissions
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import action, permission_classes
 from .serializers import *
 from .models import *
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
-
+from rest_framework.authtoken.serializers import AuthTokenSerializer
+from django.contrib.auth import login, authenticate, logout
 
 class SignUpView(APIView):
 
@@ -30,21 +33,35 @@ class SignUpView(APIView):
         return Response(serializer.data)
 
 
-class Login(ObtainAuthToken):
+class LoginView(APIView):
     serializer_class = LoginSerializer
-
+    permission_classes = (permissions.AllowAny,)
     def post(self, request, *args, **kwargs):
         # serializer = self.serializer_class(data=request.data,
         #                                    context={'request': request})
-        email = request.data.get('email')
+        # serializer = LoginSerializer(data=request.data)
+        # serializer.is_valid()
+        userName = request.data.get('userName')
         password = request.data.get('password')
                 # authenticate user
-        user = authenticate(email = email, password=password)
+        user = authenticate(userName = userName, password=password)
+        # user2 = serializer.validated_data
         if not user:
             return Response({'error': 'Invalid username or password'}, status=status.HTTP_401_UNAUTHORIZED)
         token, created = Token.objects.get_or_create(user=user)
+        login(request, user)
         return Response({
             'token': token.key,
             'user_id': user.pk,
             'email': user.email
         })
+    def get(self,request):
+        serializer = LoginSerializer()
+        return Response(serializer.data)
+
+@permission_classes((IsAuthenticated,))
+class LogoutView(APIView):
+    def post(self, request):
+        request.user.auth_token.delete()
+        return Response("User successfully logged out.", status = status.HTTP_200_OK)
+
