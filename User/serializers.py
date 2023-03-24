@@ -17,7 +17,9 @@ class CreateUserSerializer(serializers.ModelSerializer):
         model = Customer
         fields = ['first_name', 'last_name', 'userName', 'password', 'email','phoneNumber']
 
-    # def create(self, validated_data):
-    #     new_user = Customer.objects.create(**validated_data)
-    #     new_user.set_password(validated_data['password'])
-    #     return new_user
+
+class CustomerSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Customer
+        fields = '*'

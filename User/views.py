@@ -1,6 +1,7 @@
 
 from django.shortcuts import get_object_or_404,render, redirect
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.mixins import UpdateModelMixin
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -33,7 +34,7 @@ class LoginView(APIView):
     def post(self, request, *args, **kwargs):
         email = request.data.get('email')
         password = request.data.get('password')
-        user = Customer.objects.get(email = email,password = password)
+        user = get_object_or_404(Customer, email = email , password = password)
         if not user:
             return Response({'error': 'Invalid email or password'}, status=status.HTTP_401_UNAUTHORIZED)
         token, created = Token.objects.get_or_create(user=user)
@@ -53,3 +54,30 @@ class LogoutView(APIView):
         request.user.auth_token.delete()
         return Response("User successfully logged out.", status = status.HTTP_200_OK)
 
+
+    
+class CustomerViewSet(ModelViewSet,UpdateModelMixin):
+    """
+    A viewset for viewing and editing user instances.
+    """
+    serializer_class =CustomerSerializer
+    queryset = Customer.objects.all()
+
+    def create(self, request):
+        queryset = Customer.objects.all()
+        serializer = CustomerSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None):
+        queryset = Customer.objects.all()
+        user = get_object_or_404(queryset, pk=pk)
+        serializer = CustomerSerializer(user)
+        return Response(serializer.data)
+    def update(self, request, pk=None):
+        super().update(request,pk = pk)
+
+    def partial_update(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+
+    def destroy(self, request, pk=None):
+        super().destroy(request= request ,pk = pk)
