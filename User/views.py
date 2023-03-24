@@ -1,9 +1,5 @@
 
 from django.shortcuts import get_object_or_404,render, redirect
-from django.contrib.auth.tokens import default_token_generator
-from django.contrib.auth import authenticate
-from django.core.validators import EmailValidator
-from django.views.generic import View, UpdateView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -14,8 +10,6 @@ from rest_framework.decorators import action, permission_classes
 from .serializers import *
 from .models import *
 from rest_framework.authtoken.models import Token
-from rest_framework.authtoken.views import ObtainAuthToken
-from rest_framework.authtoken.serializers import AuthTokenSerializer
 from django.contrib.auth import login, authenticate, logout
 
 class SignUpView(APIView):
@@ -37,17 +31,11 @@ class LoginView(APIView):
     serializer_class = LoginSerializer
     permission_classes = (permissions.AllowAny,)
     def post(self, request, *args, **kwargs):
-        # serializer = self.serializer_class(data=request.data,
-        #                                    context={'request': request})
-        # serializer = LoginSerializer(data=request.data)
-        # serializer.is_valid()
-        userName = request.data.get('userName')
+        email = request.data.get('email')
         password = request.data.get('password')
-                # authenticate user
-        user = authenticate(userName = userName, password=password)
-        # user2 = serializer.validated_data
+        user = Customer.objects.get(email = email,password = password)
         if not user:
-            return Response({'error': 'Invalid username or password'}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({'error': 'Invalid email or password'}, status=status.HTTP_401_UNAUTHORIZED)
         token, created = Token.objects.get_or_create(user=user)
         login(request, user)
         return Response({

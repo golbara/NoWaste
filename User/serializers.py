@@ -7,7 +7,7 @@ class LoginSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Customer
-        fields = ['password', 'userName']
+        fields = ['password', 'email']
 
 class CreateUserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, style={'input_type': 'password'},
