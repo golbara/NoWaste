@@ -17,6 +17,8 @@ from django.contrib.sites.shortcuts import get_current_site
 from rest_framework import generics
 from django.urls import reverse
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.template.loader import render_to_string
+import random
 
 
 class SignUpView(APIView):
@@ -30,12 +32,11 @@ class SignUpView(APIView):
             user = Customer.objects.get(email = user_data['email'])
 
             token = RefreshToken.for_user(user).access_token
-            
-            current_site = get_current_site(request).domain
-            relativeLink = reverse('email-verify')
-            absurl = 'http://' + current_site + relativeLink + "?token="+str(token)
-            data = {'to_email':user.email,'domain':absurl, 'subject': 'Verify your email'}
-            # print(user.email)
+            vc_code = random.randrange(100000, 999999)
+            template = render_to_string('email_template.html',
+                                    {'name': user.first_name + " " + user.last_name,
+                                     'code': vc_code})
+            data = {'to_email':user.email,'body':template, 'subject': 'Welcome to NoWaste!(Verify your email)'}
             Util.send_email(data)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
             # AFTER EMAIL VERIFIACITON , THE TOKEN SET for the user 
