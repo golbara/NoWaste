@@ -10,8 +10,14 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action, permission_classes
 from .serializers import *
 from .models import *
+from .utils import Util
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import login, authenticate, logout
+from django.contrib.sites.shortcuts import get_current_site
+from rest_framework import generics
+from django.urls import reverse
+from rest_framework_simplejwt.tokens import RefreshToken
+
 
 class SignUpView(APIView):
 
@@ -20,12 +26,28 @@ class SignUpView(APIView):
         if serializer.is_valid():
             #if(# email verification):
             serializer.save()
+            user_data = serializer.data
+            user = Customer.objects.get(email = user_data['email'])
+
+            token = RefreshToken.for_user(user).access_token
+            
+            current_site = get_current_site(request).domain
+            relativeLink = reverse('email-verify')
+            absurl = 'http://' + current_site + relativeLink + "?token="+str(token)
+            data = {'to_email':user.email,'domain':absurl, 'subject': 'Verify your email'}
+            # print(user.email)
+            Util.send_email(data)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
             # AFTER EMAIL VERIFIACITON , THE TOKEN SET for the user 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     def get(self,request):
         serializer = CreateUserSerializer()
         return Response(serializer.data)
+
+class VerifyEmail(generics.GenericAPIView):
+    def get(self):
+        pass
+    
 
 
 class LoginView(APIView):
