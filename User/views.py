@@ -15,10 +15,13 @@ from rest_framework.authtoken.models import Token
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.sites.shortcuts import get_current_site
 from rest_framework import generics
+from rest_framework import viewsets
 from django.urls import reverse
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.template.loader import render_to_string
-import random
+from django.core.validators import EmailValidator
+from django.forms import ValidationError
+import random , string
 
 
 class SignUpView(APIView):
@@ -26,29 +29,59 @@ class SignUpView(APIView):
     def post(self, request):
         serializer = CreateUserSerializer(data=request.data)
         if serializer.is_valid():
-            #if(# email verification):
-            serializer.save()
-            user_data = serializer.data
-            user = Customer.objects.get(email = user_data['email'])
-
-            token = RefreshToken.for_user(user).access_token
             vc_code = random.randrange(100000, 999999)
+            user_data = serializer.data
             template = render_to_string('email_template.html',
-                                    {'name': user.first_name + " " + user.last_name,
-                                     'code': vc_code})
-            data = {'to_email':user.email,'body':template, 'subject': 'Welcome to NoWaste!(Verify your email)'}
+                        {'name': user_data['first_name'] + " " + user_data['last_name'],
+                            'code': vc_code})
+            data = {'to_email':user_data['email'],'body':template, 'subject': 'Welcome to NoWaste!(Verify your email)'}
             Util.send_email(data)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            if (VerifyEmail(request, vc_code)):
+                serializer.save()
+                user = Customer.objects.get(email = user_data['email'])
+                token = RefreshToken.for_user(user).access_token
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
             # AFTER EMAIL VERIFIACITON , THE TOKEN SET for the user 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     def get(self,request):
         serializer = CreateUserSerializer()
         return Response(serializer.data)
 
+
 class VerifyEmail(generics.GenericAPIView):
-    def get(self):
+    def get(self, request):
         pass
-    
+    def post(self, request):
+        data = request.data
+        # if(data['vc_code'] == vc_code):
+            #mitoone vc_code baraye har user be model ezafe beshe.
+            # pass
+
+# class SignUpView(APIView):
+
+#     def post(self, request):
+#         serializer = CreateUserSerializer(data=request.data)
+#         if serializer.is_valid():
+#             #if(# email verification):
+#             serializer.save()
+#             user_data = serializer.data
+#             user = Customer.objects.get(email = user_data['email'])
+
+#             token = RefreshToken.for_user(user).access_token
+#             vc_code = random.randrange(100000, 999999)
+#             template = render_to_string('email_template.html',
+#                                     {'name': user.first_name + " " + user.last_name,
+#                                      'code': vc_code})
+#             data = {'to_email':user.email,'body':template, 'subject': 'Welcome to NoWaste!(Verify your email)'}
+#             Util.send_email(data)
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#             # AFTER EMAIL VERIFIACITON , THE TOKEN SET for the user 
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     def get(self,request):
+#         serializer = CreateUserSerializer()
+#         return Response(serializer.data)
+#     def verifyEmail(self, request, currect_vc):
+#         # if 
 
 
 class LoginView(APIView):
@@ -104,3 +137,30 @@ class CustomerViewSet(ModelViewSet,UpdateModelMixin):
 
     def destroy(self, request, pk=None):
         super().destroy(request= request ,pk = pk)
+
+
+class ForgotPasswordViewSet(APIView):
+    def post(self, request):
+        serializer = ForgotPasswordSerializer()
+        validate_email = EmailValidator()
+        email = request.data.get('email')
+        try:
+            validate_email.__call__(email)
+        except ValidationError as e:
+            return Response(e.message, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            user = Customer.objects.get(email=email)
+        except Customer.DoesNotExist:
+            return Response("There is not any user with the given email" , status=status.HTTP_404_NOT_FOUND)
+        newPassword = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
+        user.password = newPassword
+        user.save()
+        template = render_to_string('forgotpass_template.html',
+            {'name': str(user.first_name) + " " + str(user.last_name),
+                'code': newPassword})
+        data = {'to_email':user.email,'body':template, 'subject': 'NoWaste forgot password'}
+        Util.send_email(data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    def get(self, request):
+        serializer = ForgotPasswordSerializer()
+        return Response(serializer.data)

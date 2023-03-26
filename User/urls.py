@@ -8,5 +8,6 @@ urlpatterns = [
     # path('logout/', LogoutView.as_view(), name='logout'),
     # path('editProfile/', CustomerViewSet.as_view(), name='editpro'),
     path('email-verify/', VerifyEmail.as_view(), name='email-verify'),
+    path('forgot-password/', ForgotPasswordViewSet.as_view(), name='forgot-password'),
 
 ]
