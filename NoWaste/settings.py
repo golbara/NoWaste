@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -45,6 +46,11 @@ INSTALLED_APPS = [
     # 'rest_framework.authtoken',
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -61,7 +67,7 @@ ROOT_URLCONF = "NoWaste.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -130,15 +136,21 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-# AUTHENTICATION_BACKENDS = (
-#         'django.contrib.auth.backends.ModelBackend',
-#     )
+AUTHENTICATION_BACKENDS = (
+        'django.contrib.auth.backends.ModelBackend',
+    )
 AUTH_USER_MODEL = 'User.Customer'
 
-# REST_AUTH_TOKEN_MODEL = "accounts.models.Token"
-# REST_AUTH_TOKEN_CREATOR = "accounts.utils.custom_create_token"
 
+EMAIL_USE_TLS = True
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'NoWaste.39@gmail.com'
+EMAIL_HOST_PASSWORD = 'tznlpoehlwahkjtg'
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 CORS_ORIGIN_ALLOW_ALL = False
 CORS_ORIGIN_WHITELIST = (
        'http://127.0.0.1',
 )
+
