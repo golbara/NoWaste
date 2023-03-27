@@ -12,6 +12,8 @@ from .serializers import *
 from .models import *
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import login, authenticate, logout
+from .authentication import create_access_token
+import jwt,json
 
 class SignUpView(APIView):
 
@@ -34,28 +36,45 @@ class LoginView(APIView):
     def post(self, request, *args, **kwargs):
         email = request.data.get('email')
         password = request.data.get('password')
-        user = get_object_or_404(Customer, email = email , password = password)
-        if not user:
+        try :
+            user = Customer.objects.get( email = email , password = password)
+            print(user)
+        except not user :
+            print(":)")
             return Response({'error': 'Invalid email or password'}, status=status.HTTP_401_UNAUTHORIZED)
-        token, created = Token.objects.get_or_create(user=user)
-        login(request, user)
-        return Response({
-            'token': token.key,
-            'user_id': user.pk,
-            'email': user.email
-        })
+        payload = { 'password':password,'email':email}
+        jwt_token = {'token':jwt.encode(payload,"SECRET_kEY")}
+        print(f'access_token:{jwt_token}')
+        response = Response()
+        response.set_cookie(key= 'jwt_token',value= jwt_token['token'],httponly= True)
+        response.data =jwt_token
+        return response
     def get(self,request):
         serializer = LoginSerializer()
         return Response(serializer.data)
 
 @permission_classes((IsAuthenticated,))
 class LogoutView(APIView):
-    def post(self, request):
-        request.user.auth_token.delete()
-        return Response("User successfully logged out.", status = status.HTTP_200_OK)
+    # This function delete token from database
+    def delete_token(self ,token):
+        try:
+            token_obj = Token.objects.get(token=token)
+            token_obj.delete()
+        except :
+            pass
+    def get(self, request):
+        response = Response()
+        token = request.COOKIES.get('jwt_token')
+        # delete token from database
+        self.delete_token(token)
+        # delete cookie
+        response.delete_cookie(key='jwt_token')
+        print(response.cookies)
+        return Response({'message':"User successfully logged out."}, status=status.HTTP_200_OK)
 
 
-    
+
+
 class CustomerViewSet(ModelViewSet,UpdateModelMixin):
     """
     A viewset for viewing and editing user instances.

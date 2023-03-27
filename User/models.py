@@ -3,28 +3,19 @@ from django.core.validators import MinValueValidator,MinLengthValidator,RegexVal
 from Restaurant.models import *
 from django.conf import settings
 from django.db.models.signals import post_save
-from django.dispatch import receiver
-from rest_framework.authtoken.models import Token
-
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
-from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
 
 from .managers import CustomUserManager
-
-
-class Customer(AbstractBaseUser, PermissionsMixin):
-# class Customer(models.Model):
-    email = models.EmailField(_("email address"), unique=True)
+class Customer(AbstractBaseUser):
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
-    objects = CustomUserManager
+    # objects = CustomUserManager
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     address = models.CharField(max_length=255)
     userName = models.CharField(max_length=255, unique=True)
-    # email = models.EmailField(max_length=255, unique=True)
+    email = models.EmailField(unique= True)
     email_confirmed = models.BooleanField(default=False)
     phoneNumber = models.CharField(max_length=11,validators=[RegexValidator(regex='^09\d{9}$', 
                                                        message='Phone number must be entered in the format: "09123456789". Up to 15 digits allowed.')])
