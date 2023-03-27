@@ -24,28 +24,28 @@ from django.forms import ValidationError
 import random , string
 
 
-class SignUpView(APIView):
+# class SignUpView(APIView):
 
-    def post(self, request):
-        serializer = CreateUserSerializer(data=request.data)
-        if serializer.is_valid():
-            vc_code = random.randrange(100000, 999999)
-            user_data = serializer.data
-            template = render_to_string('email_template.html',
-                        {'name': user_data['first_name'] + " " + user_data['last_name'],
-                            'code': vc_code})
-            data = {'to_email':user_data['email'],'body':template, 'subject': 'Welcome to NoWaste!(Verify your email)'}
-            Util.send_email(data)
-            if (VerifyEmail(request, vc_code)):
-                serializer.save()
-                user = Customer.objects.get(email = user_data['email'])
-                token = RefreshToken.for_user(user).access_token
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            # AFTER EMAIL VERIFIACITON , THE TOKEN SET for the user 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    def get(self,request):
-        serializer = CreateUserSerializer()
-        return Response(serializer.data)
+#     def post(self, request):
+#         serializer = CreateUserSerializer(data=request.data)
+#         if serializer.is_valid():
+#             vc_code = random.randrange(100000, 999999)
+#             user_data = serializer.data
+#             template = render_to_string('email_template.html',
+#                         {'name': user_data['first_name'] + " " + user_data['last_name'],
+#                             'code': vc_code})
+#             data = {'to_email':user_data['email'],'body':template, 'subject': 'Welcome to NoWaste!(Verify your email)'}
+#             Util.send_email(data)
+#             if (VerifyEmail()):
+#                 serializer.save()
+#                 user = Customer.objects.get(email = user_data['email'])
+#                 token = RefreshToken.for_user(user).access_token
+#                 return Response(serializer.data, status=status.HTTP_201_CREATED)
+#             # AFTER EMAIL VERIFIACITON , THE TOKEN SET for the user 
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     def get(self,request):
+#         serializer = CreateUserSerializer()
+#         return Response(serializer.data)
 
 
 class VerifyEmail(generics.GenericAPIView):
@@ -53,35 +53,36 @@ class VerifyEmail(generics.GenericAPIView):
         pass
     def post(self, request):
         data = request.data
+        return True
         # if(data['vc_code'] == vc_code):
             #mitoone vc_code baraye har user be model ezafe beshe.
             # pass
 
-# class SignUpView(APIView):
+class SignUpView(APIView):
 
-#     def post(self, request):
-#         serializer = CreateUserSerializer(data=request.data)
-#         if serializer.is_valid():
-#             #if(# email verification):
-#             serializer.save()
-#             user_data = serializer.data
-#             user = Customer.objects.get(email = user_data['email'])
+    def post(self, request):
+        serializer = CreateUserSerializer(data=request.data)
+        if serializer.is_valid():
+            #if(# email verification):
+            serializer.save()
+            user_data = serializer.data
+            user = Customer.objects.get(email = user_data['email'])
 
-#             token = RefreshToken.for_user(user).access_token
-#             vc_code = random.randrange(100000, 999999)
-#             template = render_to_string('email_template.html',
-#                                     {'name': user.first_name + " " + user.last_name,
-#                                      'code': vc_code})
-#             data = {'to_email':user.email,'body':template, 'subject': 'Welcome to NoWaste!(Verify your email)'}
-#             Util.send_email(data)
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-#             # AFTER EMAIL VERIFIACITON , THE TOKEN SET for the user 
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-#     def get(self,request):
-#         serializer = CreateUserSerializer()
-#         return Response(serializer.data)
-#     def verifyEmail(self, request, currect_vc):
-#         # if 
+            token = RefreshToken.for_user(user).access_token
+            vc_code = random.randrange(100000, 999999)
+            template = render_to_string('email_template.html',
+                                    {'name': user.first_name + " " + user.last_name,
+                                     'code': vc_code})
+            data = {'to_email':user.email,'body':template, 'subject': 'Welcome to NoWaste!(Verify your email)'}
+            Util.send_email(data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            # AFTER EMAIL VERIFIACITON , THE TOKEN SET for the user 
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def get(self,request):
+        serializer = CreateUserSerializer()
+        return Response(serializer.data)
+    # def verifyEmail(self, request, currect_vc):
+    #     # if 
 
 
 class LoginView(APIView):
