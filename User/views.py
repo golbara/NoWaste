@@ -12,6 +12,7 @@ from .serializers import *
 from .models import *
 from .utils import Util
 from rest_framework.authtoken.models import Token
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import generics
 from django.template.loader import render_to_string
 from django.core.validators import EmailValidator
@@ -54,6 +55,7 @@ class VerifyEmail(generics.GenericAPIView):
             #mitoone vc_code baraye har user be model ezafe beshe.
             # pass
 
+
 class SignUpView(APIView):
 
     def post(self, request):
@@ -62,12 +64,13 @@ class SignUpView(APIView):
             #if(# email verification):
             serializer.save()
             user_data = serializer.data
-            user = Customer.objects.get(email = user_data['email'])
+            if (user_data['role'] == "Customer"):
+                user = Customer.objects.get(email = user_data['email'])
 
-            token = RefreshToken.for_user(user).access_token
+                token = RefreshToken.for_user(user).access_token
             vc_code = random.randrange(100000, 999999)
             template = render_to_string('email_template.html',
-                                    {'name': user.first_name + " " + user.last_name,
+                                    {'name': user.Name,
                                      'code': vc_code})
             data = {'to_email':user.email,'body':template, 'subject': 'Welcome to NoWaste!(Verify your email)'}
             Util.send_email(data)
@@ -77,6 +80,31 @@ class SignUpView(APIView):
     def get(self,request):
         serializer = CreateUserSerializer()
         return Response(serializer.data)
+
+
+# class SignUpView(APIView):
+
+#     def post(self, request):
+#         serializer = CreateUserSerializer(data=request.data)
+#         if serializer.is_valid():
+#             #if(# email verification):
+#             serializer.save()
+#             user_data = serializer.data
+#             user = Customer.objects.get(email = user_data['email'])
+
+#             token = RefreshToken.for_user(user).access_token
+#             vc_code = random.randrange(100000, 999999)
+#             template = render_to_string('email_template.html',
+#                                     {'name': user.first_name + " " + user.last_name,
+#                                      'code': vc_code})
+#             data = {'to_email':user.email,'body':template, 'subject': 'Welcome to NoWaste!(Verify your email)'}
+#             Util.send_email(data)
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#             # AFTER EMAIL VERIFIACITON , THE TOKEN SET for the user 
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     def get(self,request):
+#         serializer = CreateUserSerializer()
+#         return Response(serializer.data)
     # def verifyEmail(self, request, currect_vc):
     #     # if 
 

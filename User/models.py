@@ -11,10 +11,13 @@ class Customer(AbstractBaseUser):
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
     # objects = CustomUserManager
-    first_name = models.CharField(max_length=255)
-    last_name = models.CharField(max_length=255)
+    role = models.CharField(max_length=255, default="Customer")
+    # first_name = models.CharField(max_length=255)
+    # last_name = models.CharField(max_length=255)
+    Name = models.CharField(max_length=255)
     address = models.CharField(max_length=255)
-    userName = models.CharField(max_length=255, unique=True)
+    userName = models.CharField(max_length=255, default=Name
+                                )
     email = models.EmailField(unique= True)
     email_confirmed = models.BooleanField(default=False)
     phoneNumber = models.CharField(max_length=11,validators=[RegexValidator(regex='^09\d{9}$', 
