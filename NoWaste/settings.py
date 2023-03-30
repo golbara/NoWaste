@@ -43,12 +43,13 @@ INSTALLED_APPS = [
     'corsheaders',
     "User",
     "Restaurant",
-    # 'rest_framework.authtoken',
+    'rest_framework.authtoken',
 ]
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        # 'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
     )
 }
 MIDDLEWARE = [
@@ -138,6 +139,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 AUTHENTICATION_BACKENDS = (
         'django.contrib.auth.backends.ModelBackend',
+        'rest_framework.authtoken',
     )
 AUTH_USER_MODEL = 'User.Customer'
 

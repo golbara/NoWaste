@@ -8,10 +8,12 @@ from rest_framework import status
 from rest_framework import permissions
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action, permission_classes
+from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import *
 from .models import *
 from .utils import Util
 from rest_framework.authtoken.models import Token
+from rest_framework.authentication import TokenAuthentication
 from rest_framework import generics
 from django.template.loader import render_to_string
 from django.core.validators import EmailValidator
@@ -64,7 +66,7 @@ class SignUpView(APIView):
             user_data = serializer.data
             user = Customer.objects.get(email = user_data['email'])
 
-            token = RefreshToken.for_user(user).access_token
+            # token = RefreshToken.for_user(user).access_token
             vc_code = random.randrange(100000, 999999)
             template = render_to_string('email_template.html',
                                     {'name': user.first_name + " " + user.last_name,
@@ -88,24 +90,31 @@ class LoginView(APIView):
         email = request.data.get('email')
         password = request.data.get('password')
         try :
-            user = Customer.objects.get( email = email , password = password)
-            print(user)
-        except not user :
-            print(":)")
+            user = Customer.objects.get( email = email)
+        except :
             return Response({'error': 'Invalid email or password'}, status=status.HTTP_401_UNAUTHORIZED)
         payload = { 'password':password,'email':email}
         jwt_token = {'token':jwt.encode(payload,"SECRET_kEY")}
-        print(f'access_token:{jwt_token}')
+        # print(f'access_token:{jwt_token}')
         response = Response()
         response.set_cookie(key= 'jwt_token',value= jwt_token['token'],httponly= True)
         response.data =jwt_token
         return response
+
+        # generate token
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            'refresh': str(refresh),
+            'access': str(refresh.access_token)
+        })
     def get(self,request):
         serializer = LoginSerializer()
         return Response(serializer.data)
 
-@permission_classes((IsAuthenticated,))
+# @permission_classes((IsAuthenticated,))
 class LogoutView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
     # This function delete token from database
     def delete_token(self ,token):
         try:
@@ -114,14 +123,29 @@ class LogoutView(APIView):
         except :
             pass
     def get(self, request):
-        response = Response()
-        token = request.COOKIES.get('jwt_token')
-        # delete token from database
-        self.delete_token(token)
-        # delete cookie
-        response.delete_cookie(key='jwt_token')
-        print(response.cookies)
-        return Response({'message':"User successfully logged out."}, status=status.HTTP_200_OK)
+        # response = Response()
+        # token = request.COOKIES.get('jwt_token')
+        # print(token)
+        # if token :
+        #     # delete token from database
+        #     self.delete_token(token)
+        #     # delete cookie
+        #     response.delete_cookie(key='jwt_token')
+        #     print(response.cookies)
+        #     return Response({'message':"User successfully logged out."}, status=status.HTTP_200_OK)
+            
+        # else:
+        #     response.data = {'error': 'Authentication credentials were not provided.'}
+        #     response.status_code = status.HTTP_401_UNAUTHORIZED
+        #     return response
+        try:
+            # blacklist the token
+            refresh_token = request.data["refresh_token"]
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            return Response({"success": "User successfully logged out."})
+        except Exception as e:
+            return Response({"error": "Invalid refresh token."})
 
 
 
