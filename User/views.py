@@ -115,11 +115,11 @@ class LoginView(APIView):
     def post(self, request, *args, **kwargs):
         email = request.data.get('email')
         password = request.data.get('password')
-        try :
+        try:
             user = Customer.objects.get( email = email , password = password)
-            print(user)
-        except not user :
-            print(":)")
+            # print(user)
+        except Customer.DoesNotExist:
+            # print(":)")
             return Response({'error': 'Invalid email or password'}, status=status.HTTP_401_UNAUTHORIZED)
         payload = { 'password':password,'email':email}
         jwt_token = {'token':jwt.encode(payload,"SECRET_kEY")}
@@ -150,8 +150,6 @@ class LogoutView(APIView):
         response.delete_cookie(key='jwt_token')
         print(response.cookies)
         return Response({'message':"User successfully logged out."}, status=status.HTTP_200_OK)
-
-
 
 
 class CustomerViewSet(ModelViewSet,UpdateModelMixin):
@@ -198,7 +196,7 @@ class ForgotPasswordViewSet(APIView):
         user.password = newPassword
         user.save()
         template = render_to_string('forgotpass_template.html',
-            {'name': str(user.first_name) + " " + str(user.last_name),
+            {'name': user.Name,
                 'code': newPassword})
         data = {'to_email':user.email,'body':template, 'subject': 'NoWaste forgot password'}
         Util.send_email(data)
