@@ -1,4 +1,6 @@
 
+from django.contrib.auth import get_user_model,logout
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404,render, redirect
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.mixins import UpdateModelMixin
@@ -13,37 +15,18 @@ from .serializers import *
 from .models import *
 from .utils import Util
 from rest_framework.authtoken.models import Token
+
 from rest_framework.authentication import TokenAuthentication
+###############################################
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_jwt.settings import api_settings
+
 from rest_framework import generics
 from django.template.loader import render_to_string
 from django.core.validators import EmailValidator
 from django.forms import ValidationError
 import random , string
 import jwt
-
-
-# class SignUpView(APIView):
-
-#     def post(self, request):
-#         serializer = CreateUserSerializer(data=request.data)
-#         if serializer.is_valid():
-#             vc_code = random.randrange(100000, 999999)
-#             user_data = serializer.data
-#             template = render_to_string('email_template.html',
-#                         {'name': user_data['first_name'] + " " + user_data['last_name'],
-#                             'code': vc_code})
-#             data = {'to_email':user_data['email'],'body':template, 'subject': 'Welcome to NoWaste!(Verify your email)'}
-#             Util.send_email(data)
-#             if (VerifyEmail()):
-#                 serializer.save()
-#                 user = Customer.objects.get(email = user_data['email'])
-#                 token = RefreshToken.for_user(user).access_token
-#                 return Response(serializer.data, status=status.HTTP_201_CREATED)
-#             # AFTER EMAIL VERIFIACITON , THE TOKEN SET for the user 
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-#     def get(self,request):
-#         serializer = CreateUserSerializer()
-#         return Response(serializer.data)
 
 
 class VerifyEmail(generics.GenericAPIView):
@@ -56,6 +39,7 @@ class VerifyEmail(generics.GenericAPIView):
             #mitoone vc_code baraye har user be model ezafe beshe.
             # pass
 
+
 class SignUpView(APIView):
 
     def post(self, request):
@@ -64,12 +48,13 @@ class SignUpView(APIView):
             #if(# email verification):
             serializer.save()
             user_data = serializer.data
-            user = Customer.objects.get(email = user_data['email'])
+            if (user_data['role'] == "Customer"):
+                user = Customer.objects.get(email = user_data['email'])
 
             # token = RefreshToken.for_user(user).access_token
             vc_code = random.randrange(100000, 999999)
             template = render_to_string('email_template.html',
-                                    {'name': user.first_name + " " + user.last_name,
+                                    {'name': user.Name,
                                      'code': vc_code})
             data = {'to_email':user.email,'body':template, 'subject': 'Welcome to NoWaste!(Verify your email)'}
             Util.send_email(data)
@@ -79,8 +64,9 @@ class SignUpView(APIView):
     def get(self,request):
         serializer = CreateUserSerializer()
         return Response(serializer.data)
-    # def verifyEmail(self, request, currect_vc):
-    #     # if 
+
+
+
 
 
 class LoginView(APIView):
@@ -89,66 +75,44 @@ class LoginView(APIView):
     def post(self, request, *args, **kwargs):
         email = request.data.get('email')
         password = request.data.get('password')
-        try :
-            user = Customer.objects.get( email = email)
-        except :
+        user_model = get_user_model()
+        try:
+            user = user_model.objects.get(email=email)
+        except user_model.DoesNotExist:
             return Response({'error': 'Invalid email or password'}, status=status.HTTP_401_UNAUTHORIZED)
-        payload = { 'password':password,'email':email}
-        jwt_token = {'token':jwt.encode(payload,"SECRET_kEY")}
-        # print(f'access_token:{jwt_token}')
-        response = Response()
-        response.set_cookie(key= 'jwt_token',value= jwt_token['token'],httponly= True)
-        response.data =jwt_token
-        return response
 
-        # generate token
-        refresh = RefreshToken.for_user(user)
-        return Response({
-            'refresh': str(refresh),
-            'access': str(refresh.access_token)
-        })
+        if user.check_password(password):
+            token, _ = Token.objects.get_or_create(user=user)
+            return Response({'token': token.key})
+        else:
+            return Response({'error': 'Invalid email or password'}, status=status.HTTP_401_UNAUTHORIZED)
     def get(self,request):
         serializer = LoginSerializer()
         return Response(serializer.data)
+    
+# def get_auth_headers(token):
+#     return {'Authorization': f'Token {token}'}
 
 # @permission_classes((IsAuthenticated,))
 class LogoutView(APIView):
     authentication_classes = [TokenAuthentication]
+    
     permission_classes = [IsAuthenticated]
-    # This function delete token from database
-    def delete_token(self ,token):
-        try:
-            token_obj = Token.objects.get(token=token)
-            token_obj.delete()
-        except :
-            pass
     def get(self, request):
-        # response = Response()
-        # token = request.COOKIES.get('jwt_token')
-        # print(token)
-        # if token :
-        #     # delete token from database
-        #     self.delete_token(token)
-        #     # delete cookie
-        #     response.delete_cookie(key='jwt_token')
-        #     print(response.cookies)
-        #     return Response({'message':"User successfully logged out."}, status=status.HTTP_200_OK)
-            
-        # else:
-        #     response.data = {'error': 'Authentication credentials were not provided.'}
-        #     response.status_code = status.HTTP_401_UNAUTHORIZED
-        #     return response
-        try:
-            # blacklist the token
-            refresh_token = request.data["refresh_token"]
-            token = RefreshToken(refresh_token)
-            token.blacklist()
-            return Response({"success": "User successfully logged out."})
-        except Exception as e:
-            return Response({"error": "Invalid refresh token."})
-
-
-
+        # Get the token from the user's request
+        token = request.auth
+        
+        # Create a response with headers
+        response = HttpResponse(content_type='application/json')
+        response['Authorization'] = f'Token {token}'
+        
+        # Return the response
+        return response
+    def Post(self, request):
+        user = request.user
+        Token.objects.filter(user=user).delete()
+        logout(request)
+        return Response({'message': 'User logged out successfully'})
 
 class CustomerViewSet(ModelViewSet,UpdateModelMixin):
     """
@@ -194,7 +158,7 @@ class ForgotPasswordViewSet(APIView):
         user.password = newPassword
         user.save()
         template = render_to_string('forgotpass_template.html',
-            {'name': str(user.first_name) + " " + str(user.last_name),
+            {'name': user.Name,
                 'code': newPassword})
         data = {'to_email':user.email,'body':template, 'subject': 'NoWaste forgot password'}
         Util.send_email(data)

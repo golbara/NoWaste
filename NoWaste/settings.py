@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
+import datetime
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -44,8 +45,16 @@ INSTALLED_APPS = [
     "User",
     "Restaurant",
     'rest_framework.authtoken',
+    # 'rest_framework_jwt',
 ]
 
+# JWT_AUTH = {
+#     'JWT_SECRET_KEY': 'your-secret-key',
+#     'JWT_ALGORITHM': 'HS256',
+#     'JWT_ALLOW_REFRESH': True,
+#     'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=7),
+#     'JWT_EXPIRATION_DELTA': datetime.timedelta(days=1),
+# }
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -155,4 +164,6 @@ CORS_ORIGIN_ALLOW_ALL = False
 CORS_ORIGIN_WHITELIST = (
        'http://127.0.0.1',
 )
+
+
 
