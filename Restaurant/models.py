@@ -5,16 +5,16 @@ from django.core.validators import MinValueValidator
 
 class Restaurant(models.Model):
 
-    Name = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255, unique=True)
     address = models.CharField(max_length=255)
     email = models.EmailField(max_length=255, unique=True)
     discount = models.DecimalField(max_digits=2, decimal_places=2, blank=True)
     purches_counts =models.IntegerField(blank= True)
     def __str__(self) -> str:
-        return self.Name
+        return self.name
 
 class Food(models.Model):
-    Name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255)
     restaurants = models.ManyToManyField(Restaurant, related_name="food")
     category = (
         ("drink", "Drink"), 
@@ -23,7 +23,7 @@ class Food(models.Model):
     )
     Type = models.CharField(choices=category,max_length=255)
     def __str__(self) -> str:
-        return self.Name
+        return self.name
     
 class Food_Specifics(models.Model):
     price = models.DecimalField(decimal_places=2,max_digits=20)

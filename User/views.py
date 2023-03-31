@@ -19,7 +19,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.authentication import TokenAuthentication
 ###############################################
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_jwt.settings import api_settings
+# from rest_framework_jwt.settings import api_settings
 
 from rest_framework import generics
 from django.template.loader import render_to_string
@@ -48,13 +48,13 @@ class SignUpView(APIView):
             #if(# email verification):
             serializer.save()
             user_data = serializer.data
-            if (user_data['role'] == "Customer"):
+            if (user_data['role'] == "customer"):
                 user = Customer.objects.get(email = user_data['email'])
 
             # token = RefreshToken.for_user(user).access_token
             vc_code = random.randrange(100000, 999999)
             template = render_to_string('email_template.html',
-                                    {'name': user.Name,
+                                    {'name': user.name,
                                      'code': vc_code})
             data = {'to_email':user.email,'body':template, 'subject': 'Welcome to NoWaste!(Verify your email)'}
             Util.send_email(data)
@@ -158,7 +158,7 @@ class ForgotPasswordViewSet(APIView):
         user.password = newPassword
         user.save()
         template = render_to_string('forgotpass_template.html',
-            {'name': user.Name,
+            {'name': user.name,
                 'code': newPassword})
         data = {'to_email':user.email,'body':template, 'subject': 'NoWaste forgot password'}
         Util.send_email(data)

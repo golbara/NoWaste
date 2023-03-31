@@ -9,5 +9,5 @@ class RestaurantSerializer(serializers.ModelSerializer):
         print("not implemented yet!")
     class Meta:
         model = Restaurant
-        fields = ['Name', 'address', 'username', 'password', 'email']
+        fields = ['name', 'address', 'username', 'password', 'email']
     menu = serializers.SerializerMethodField(method_name= Menu)
