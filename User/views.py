@@ -91,7 +91,7 @@ class LoginView(APIView):
             user = user_model.objects.get(email=email)
         except user_model.DoesNotExist:
             return Response({'error': 'Invalid email or password'}, status=status.HTTP_401_UNAUTHORIZED)
-        if user.password == password:
+        if user.check_password(password):
             if user.email_confirmed:
                 token, _ = Token.objects.get_or_create(user=user)
                 return Response({'token': token.key})
@@ -168,7 +168,7 @@ class ForgotPasswordViewSet(APIView):
         except Customer.DoesNotExist:
             return Response("There is not any user with the given email" , status=status.HTTP_404_NOT_FOUND)
         newPassword = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
-        user.password = newPassword
+        user.set_password(newPassword)
         user.save()
         template = render_to_string('forgotpass_template.html',
             {'name': user.name,
