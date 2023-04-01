@@ -35,3 +35,10 @@ class ForgotPasswordSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
         fields = ['email']
+
+class EmailVerificationSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(required=True, allow_blank=False, allow_null=False)
+    code = serializers.CharField(max_length=6, required=True, allow_blank=False, allow_null=False)
+    class Meta:
+        model = Customer
+        fields = ['email', 'code']

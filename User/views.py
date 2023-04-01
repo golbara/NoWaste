@@ -30,14 +30,25 @@ import jwt
 
 
 class VerifyEmail(generics.GenericAPIView):
-    def get(self, request):
-        pass
+    serializer_class =EmailVerificationSerializer
     def post(self, request):
-        data = request.data
-        return True
-        # if(data['vc_code'] == vc_code):
-            #mitoone vc_code baraye har user be model ezafe beshe.
-            # pass
+        serializer = EmailVerificationSerializer(data=request.data)
+        if serializer.is_valid():
+            user_data = serializer.data
+            try:
+                user = Customer.objects.get(email = user_data['email'])
+            except Customer.DoesNotExist:
+                return Response("There is not any user with the given email" , status=status.HTTP_404_NOT_FOUND)
+            if user.vc_code == user_data['code']:
+                user.email_confirmed = True
+                user.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response({'error': 'code is wrong'}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def get(self, request):
+        serializer = EmailVerificationSerializer()
+        return Response(serializer.data)
 
 
 class SignUpView(APIView):
@@ -48,11 +59,13 @@ class SignUpView(APIView):
             #if(# email verification):
             serializer.save()
             user_data = serializer.data
-            if (user_data['role'] == "customer"):
-                user = Customer.objects.get(email = user_data['email'])
-
             # token = RefreshToken.for_user(user).access_token
             vc_code = random.randrange(100000, 999999)
+            if (user_data['role'] == "customer"):
+                user = Customer.objects.get(email = user_data['email'])
+                user.email_confirmed = False
+                user.vc_code = vc_code
+                user.save()
             template = render_to_string('email_template.html',
                                     {'name': user.name,
                                      'code': vc_code})
@@ -64,8 +77,6 @@ class SignUpView(APIView):
     def get(self,request):
         serializer = CreateUserSerializer()
         return Response(serializer.data)
-
-
 
 
 
@@ -82,8 +93,11 @@ class LoginView(APIView):
             return Response({'error': 'Invalid email or password'}, status=status.HTTP_401_UNAUTHORIZED)
 
         if user.check_password(password):
-            token, _ = Token.objects.get_or_create(user=user)
-            return Response({'token': token.key})
+            if user.email_confirmed:
+                token, _ = Token.objects.get_or_create(user=user)
+                return Response({'token': token.key})
+            else:
+                return Response({'error': 'email not confirmed'}, status=status.HTTP_401_UNAUTHORIZED)
         else:
             return Response({'error': 'Invalid email or password'}, status=status.HTTP_401_UNAUTHORIZED)
     def get(self,request):
