@@ -91,8 +91,7 @@ class LoginView(APIView):
             user = user_model.objects.get(email=email)
         except user_model.DoesNotExist:
             return Response({'error': 'Invalid email or password'}, status=status.HTTP_401_UNAUTHORIZED)
-
-        if user.check_password(password):
+        if user.password == password:
             if user.email_confirmed:
                 token, _ = Token.objects.get_or_create(user=user)
                 return Response({'token': token.key})
