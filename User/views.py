@@ -1,5 +1,6 @@
 
 from django.contrib.auth import get_user_model,logout
+from rest_framework.permissions import BasePermission
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404,render, redirect
 from rest_framework.viewsets import ModelViewSet
@@ -15,6 +16,7 @@ from .serializers import *
 from .models import *
 from .utils import Util
 from rest_framework.authtoken.models import Token
+from rest_framework.authtoken.views import obtain_auth_token
 
 from rest_framework.authentication import TokenAuthentication
 ###############################################
@@ -51,6 +53,51 @@ class VerifyEmail(generics.GenericAPIView):
         return Response(serializer.data)
 
 
+# class SignUpView(APIView):
+
+#     def post(self, request):
+#         serializer = CreateUserSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             # email = request.data.get('email')
+#             # role = request.data.get('role')
+#             #if(# email verification):
+#             # user = serializer.save()
+#             user_data = serializer.data
+#             if (user_data['role'] == "customer"):
+#             # if (role == "customer"):
+#                 try :
+#                     # user = Customer.objects.get(email = email)
+#                     user = Customer.objects.get(email = user_data['email'])
+#                     return Response( "customer with this email already exists.",status= status.HTTP_400_BAD_REQUEST)
+#                     # return Response("hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii",status= status.HTTP_100_CONTINUE)
+#                 except :
+#                     # serializer.save(user = request.data)
+#                     # print("3")
+#                     # print("4")
+#                     user.email_confirmed = False
+#                     user.vc_code = vc_code
+#                     user.set_password(user_data['password'])
+#                     user.save()
+#             user_data = serializer.data
+#             print("1")
+#             print(user_data)
+#             print("2")
+#             user = None
+#             # token = RefreshToken.for_user(user).access_token
+#             vc_code = random.randrange(100000, 999999)
+#             template = render_to_string('email_template.html',
+#                                     {'name': user.name,
+#                                      'code': vc_code})
+#             data = {'to_email':user.email,'body':template, 'subject': 'Welcome to NoWaste!(Verify your email)'}
+#             Util.send_email(data)
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#             # AFTER EMAIL VERIFIACITON , THE TOKEN SET for the user 
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     def get(self,request):
+#         serializer = CreateUserSerializer()
+#         return Response(serializer.data)
+
 class SignUpView(APIView):
 
     def post(self, request):
@@ -79,7 +126,6 @@ class SignUpView(APIView):
         return Response(serializer.data)
 
 
-
 class LoginView(APIView):
     serializer_class = LoginSerializer
     permission_classes = (permissions.AllowAny,)
@@ -92,11 +138,15 @@ class LoginView(APIView):
         except user_model.DoesNotExist:
             return Response({'error': 'Invalid email or password'}, status=status.HTTP_401_UNAUTHORIZED)
         if user.check_password(password):
-            if user.email_confirmed:
-                token, _ = Token.objects.get_or_create(user=user)
-                return Response({'token': token.key})
-            else:
-                return Response({'error': 'email not confirmed'}, status=status.HTTP_401_UNAUTHORIZED)
+        # if user.password == password:
+            token, _ = Token.objects.get_or_create(user=user)
+            # token = obtain_auth_token
+            return Response({'token': token.key})
+            # if user.email_confirmed:
+            #     token, _ = Token.objects.get_or_create(user=user)
+            #     return Response({'token': token.key})
+            # else:
+            #     return Response({'error': 'email not confirmed'}, status=status.HTTP_401_UNAUTHORIZED)
         else:
             return Response({'error': 'Invalid email or password'}, status=status.HTTP_401_UNAUTHORIZED)
     def get(self,request):
@@ -179,3 +229,73 @@ class ForgotPasswordViewSet(APIView):
     def get(self, request):
         serializer = ForgotPasswordSerializer()
         return Response(serializer.data)
+    
+class AllowAnyUser(BasePermission):
+    def has_permission(self, request, view):
+        return True
+
+class ChangePasswordView(generics.UpdateAPIView):
+    queryset = Customer.objects.all()
+    # authentication_classes = [TokenAuthentication]
+    permission_classes = (IsAuthenticated,)
+    # permission_classes = [AllowAnyUser]
+    serializer_class = ChangePasswordSerializer
+    def put(self, request, *args, **kwargs):
+        # return super().partial_update(request, *args, **kwargs)
+        print(request.auth)
+        return super().update(request, *args, **kwargs) 
+
+class UpdateProfileView(ModelViewSet):
+    http_method_names = ['get', 'post', 'patch', 'delete']
+
+    serializer_class = UpdateUserSerializer
+
+    def partial_update(self, request, *args, **kwargs):
+        # Implement partial_update logic here
+        return super().partial_update(request, *args, **kwargs)
+    # def get_serializer_context(self):
+    #     return {'customer_id': self.kwargs['customer_pk']}
+
+    # def get_queryset(self):
+    #     return Customer.objects \
+    #         .filter(pk=self.kwargs['id']) 
+            # .select_related('product')
+# class UpdateProfileView(generics.UpdateAPIView):
+#     queryset = Customer.objects.all()
+#     # permission_classes = (IsAuthenticated,)
+#     lookup_field = 'id'
+#     serializer_class = UpdateUserSerializer
+#     def put(self, request, *args, **kwargs):
+#         return self.partial_update(request, *args, **kwargs)
+#     def get(self,request):
+#         serializer = UpdateUserSerializer()
+#         return Response(serializer.data)
+
+from django.contrib.auth.models import User
+from rest_framework import generics, status
+from rest_framework.response import Response
+from .models import Customer
+from .serializers import UpdateUserSerializer
+
+class UpdateProfileView(generics.RetrieveUpdateAPIView):
+    serializer_class = UpdateUserSerializer
+
+    def get_object(self):
+        return self.request.user
+
+    def patch(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        customer, _ = Customer.objects.get_or_create(user=user)
+        serializer = self.get_serializer(customer, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
