@@ -10,13 +10,16 @@ class LoginSerializer(serializers.ModelSerializer):
         model = Customer
         fields = ['password', 'email']
 
+
 class CreateUserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, style={'input_type': 'password'},
                                         required=True, allow_blank=False, allow_null=False,
                                         validators=[validate_password])
+    # role = serializers.CharField()
     class Meta:
         model = Customer
         fields = ['name', 'password', 'email', 'role']
+    
     def create(self, validated_data):
         password = validated_data.pop('password',None)
         instance = self.Meta.model(**validated_data)
@@ -26,10 +29,9 @@ class CreateUserSerializer(serializers.ModelSerializer):
         return instance
     
 class CustomerSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Customer
-        fields = '*'
+        fields = ['name','address','username','email','phone_number','gender','date_of_birth','wallet_balance']
 
 class ForgotPasswordSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(required=True, allow_blank=False, allow_null=False)
@@ -60,22 +62,22 @@ class ChangePasswordSerializer(serializers.ModelSerializer):
 
         return attrs
 
-    # def validate_old_password(self, value):
-    #     user = self.context['request'].user
-    #     if not user.check_password(value):
-    #         raise serializers.ValidationError({"old_password": "Old password is not correct"})
-    #     return value
-
     def validate_old_password(self, value):
         user = self.context['request'].user
-
-        if isinstance(user, AnonymousUser):
-            return value
-
         if not user.check_password(value):
             raise serializers.ValidationError({"old_password": "Old password is not correct"})
-
         return value
+
+    # def validate_old_password(self, value):
+    #     user = self.context['request'].user
+
+    #     if isinstance(user, AnonymousUser):
+    #         return value
+
+    #     if not user.check_password(value):
+    #         raise serializers.ValidationError({"old_password": "Old password is not correct"})
+
+    #     return value
 
     def update(self, instance, validated_data):
         user = self.context['request'].user
@@ -91,32 +93,23 @@ class ChangePasswordSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
-        print(user.pk)
-        print(instance.pk)
-        if user.pk != instance.pk:
-            raise serializers.ValidationError({"authorize": "You dont have permission for this user."})
-
-        instance.set_password(validated_data['password'])
-        instance.save()
-
-        return instance
 
 class UpdateUserSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(required=True)
-    id = serializers.IntegerField()
-
     class Meta:
         model = Customer
-        fields = ('username', 'name', 'email' ,'address','wallet_balance','gender','id')
+        fields = ('username', 'name', 'email' ,'address','wallet_balance','gender')
         extra_kwargs = {
             'wallet_balance': {'read_only': True},
+            'username' :{'required' : False, 'allow_blank': True},
+            'name' : {'required': False, 'allow_blank': True},
+            'email' : {'required': False,'allow_null': True}
         }
 
-    def validate_email(self, value):
+    def validate_email(self, new_email):
         user = self.context['request'].user
-        if Customer.objects.exclude(pk=user.pk).filter(email=value).exists():
+        if Customer.objects.exclude(pk=user.pk).filter(email=new_email).exists():
             raise serializers.ValidationError({"email": "This email is already in use."})
-        return value
+        return new_email
 
     def validate_username(self, value):
         user = self.context['request'].user
@@ -125,9 +118,9 @@ class UpdateUserSerializer(serializers.ModelSerializer):
         return value
 
     def update(self, instance, validated_data):
-        instance.email = validated_data['email']
-        instance.name = validated_data['name']
-        instance.username = validated_data['username']
+        instance.email = validated_data.get('email', instance.email)
+        instance.name = validated_data.get('name', instance.name)
+        instance.username = validated_data.get('username', instance.username)
 
         instance.save()
 

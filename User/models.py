@@ -10,12 +10,13 @@ from .managers import CustomUserManager
 class Customer(AbstractBaseUser):
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
+    customer_image = models.ImageField(blank= True , null= True)
     # objects = CustomUserManager
     role = models.CharField(max_length=255, default="Customer")
     # first_name = models.CharField(max_length=255)
     # last_name = models.CharField(max_length=255)
     name = models.CharField(max_length=255)
-    address = models.CharField(max_length=255,null= True)
+    address = models.CharField(max_length=255,null= True,blank= True)
     username = models.CharField(max_length=255, default=name
                                 )
     email = models.EmailField(unique= True)
