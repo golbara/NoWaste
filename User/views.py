@@ -1,5 +1,6 @@
 
 from django.contrib.auth import get_user_model,logout
+from django.contrib.auth.hashers import make_password
 from rest_framework.permissions import BasePermission
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404,render, redirect
@@ -30,54 +31,51 @@ from django.forms import ValidationError
 import random , string
 import jwt
 
-
-class VerifyEmail(generics.GenericAPIView):
-    serializer_class =EmailVerificationSerializer
+class VerifyEmail(APIView):
+    def get_serializer_class(self, request):
+        if request.data['role'] == "customer":
+            return CreateCustomerSerializer
+        elif request.data['role'] == "restaurant":
+            return CreateRestaurantSerializer
+    
     def post(self, request):
-        serializer = EmailVerificationSerializer(data=request.data)
+        serializer_class = self.get_serializer_class(request)
+        serializer = serializer_class(data=request.data)
         if serializer.is_valid():
-            user_data = serializer.data
+            user_data = serializer.validated_data
             try:
-                user = Customer.objects.get(email = user_data['email'])
-            except Customer.DoesNotExist:
+                user = VC_Codes.objects.get(email=user_data['email'])
+            except VC_Codes.DoesNotExist:
                 return Response("There is not any user with the given email" , status=status.HTTP_404_NOT_FOUND)
-            if user.vc_code == user_data['code']:
-                user.email_confirmed = True
-                user.save()
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            else:
-                return Response({'error': 'code is wrong'}, status=status.HTTP_401_UNAUTHORIZED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            if user_data['code'] == user.vc_code:
+                serializer.save()
+                return Response(user_data, status=status.HTTP_201_CREATED)
+        return Response("verification code is wrong", status=status.HTTP_400_BAD_REQUEST)
     def get(self, request):
-        serializer = EmailVerificationSerializer()
+        serializer = BaseCreateUserSerializer()
         return Response(serializer.data)
 
-
 class SignUpView(APIView):
-
-    def post(self, request):
-        serializer = CreateUserSerializer(data=request.data)
+    serializer_class = SignUpSerializer
+    permission_classes = (permissions.AllowAny,)
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
-            #if(# email verification):
-            serializer.save()
-            user_data = serializer.data
-            # token = RefreshToken.for_user(user).access_token
-            vc_code = random.randrange(100000, 999999)
-            if (user_data['role'] == "customer"):
-                user = Customer.objects.get(email = user_data['email'])
-                user.email_confirmed = False
-                user.vc_code = vc_code
-                user.save()
-            template = render_to_string('email_template.html',
-                                    {'name': user.name,
-                                     'code': vc_code})
-            data = {'to_email':user.email,'body':template, 'subject': 'Welcome to NoWaste!(Verify your email)'}
-            Util.send_email(data)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-            # AFTER EMAIL VERIFIACITON , THE TOKEN SET for the user 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            vc_code = random.randint(100000, 999999)
+            instance = serializer.save()
+            instance.vc_code = vc_code
+            instance.save()
+            signupData = serializer.data
+        else:
+            return Response("email is already exist", status=status.HTTP_400_BAD_REQUEST)
+        email = signupData['email']
+        name = signupData['name']
+        template = render_to_string('email_template.html', {'name': name, 'code': vc_code})
+        data = {'to_email': email, 'body': template, 'subject': 'Welcome to NoWaste!(Verify your email)'}
+        Util.send_email(data)
+        return Response(signupData, status=status.HTTP_201_CREATED)
     def get(self,request):
-        serializer = CreateUserSerializer()
+        serializer = SignUpSerializer()
         return Response(serializer.data)
 
 
@@ -89,24 +87,24 @@ class LoginView(APIView):
         password = request.data.get('password')
         user_model = get_user_model()
         try:
-            user = user_model.objects.get(email=email)
+            querysetCustomer = Customer.objects.all()
+            querysetRestaurant = Restaurant.objects.all()
+            all = querysetCustomer.union(querysetRestaurant)
+            user = all.get(email=email)
         except user_model.DoesNotExist:
             return Response({'error': 'Invalid email or password'}, status=status.HTTP_401_UNAUTHORIZED)
         if user.check_password(password):
-        # if user.password == password:
-            token, _ = Token.objects.get_or_create(user=user)
-            # token = obtain_auth_token
-            return Response({'token': token.key})
-            # if user.email_confirmed:
-            #     token, _ = Token.objects.get_or_create(user=user)
-            #     return Response({'token': token.key})
-            # else:
-            #     return Response({'error': 'email not confirmed'}, status=status.HTTP_401_UNAUTHORIZED)
+            if user.email_confirmed:
+                token, _ = Token.objects.get_or_create(user=user)
+                return Response({'token': token.key})
+            else:
+                return Response({'error': 'email not confirmed'}, status=status.HTTP_401_UNAUTHORIZED)
         else:
             return Response({'error': 'Invalid email or password'}, status=status.HTTP_401_UNAUTHORIZED)
     def get(self,request):
         serializer = LoginSerializer()
         return Response(serializer.data)
+    
 
 class LogoutView(APIView):
     authentication_classes = [TokenAuthentication]

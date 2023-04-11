@@ -4,6 +4,45 @@ from django.contrib.auth.models import AnonymousUser
 from rest_framework import serializers
 from .models import *
 
+
+class BaseCreateUserSerializer(serializers.ModelSerializer): 
+    role = serializers.CharField(max_length=255, default="default")
+    code = serializers.CharField(max_length=6)
+    class Meta: 
+        abstract = True 
+        model = Customer
+        fields = ['name', 'password', 'email', 'role', 'code']
+    def create(self, validated_data):
+        role = validated_data.pop('role',None)
+        code = validated_data.pop('code',None)
+        password = validated_data.pop('password',None)
+        instance = self.Meta.model(**validated_data)
+        if password is not None:
+            instance.set_password(password)
+        instance.save()
+        return instance
+
+
+class CreateCustomerSerializer(BaseCreateUserSerializer): 
+    # password = serializers.CharField(write_only=True, style={'input_type': 'password'},
+    #                             required=True, allow_blank=False, allow_null=False,
+    #                             validators=[validate_password])
+    class Meta(BaseCreateUserSerializer.Meta): 
+        model = Customer
+        fields = BaseCreateUserSerializer.Meta.fields
+
+
+class CreateRestaurantSerializer(BaseCreateUserSerializer): 
+        model = Restaurant 
+        fields = BaseCreateUserSerializer.Meta.fields
+    
+class SignUpSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = VC_Codes
+        fields = ['name', 'email'] 
+
+
 class LoginSerializer(serializers.ModelSerializer):
     
     class Meta:
