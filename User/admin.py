@@ -15,4 +15,3 @@ from .models import *
 # admin.site.register(MyAuthor)
 admin.site.register(Customer)
 admin.site.register(Restaurant)
-admin.site.register(Food)

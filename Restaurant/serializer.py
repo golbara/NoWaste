@@ -1,7 +1,8 @@
 from decimal import Decimal
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
-from .models import *
+from User.models import Restaurant
+from .models import Food
 
 class RestaurantSerializer(serializers.ModelSerializer):
     def Menu(self):

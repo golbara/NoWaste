@@ -1,6 +1,6 @@
 from django.db import models
 from django.core.validators import MinValueValidator,MinLengthValidator,RegexValidator
-from Restaurant.models import *
+# from Restaurant.models import *
 from django.conf import settings
 from django.db.models.signals import post_save
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
@@ -27,6 +27,20 @@ class MyAuthor(AbstractBaseUser):
     # Does this user have permission to view this app? (ALWAYS YES FOR SIMPLICITY)
     def has_module_perms(self, app_label):
         return True
+
+
+class Restaurant(MyAuthor):
+    name = models.CharField(max_length=255, unique=True)
+    address = models.CharField(max_length=255)
+    restaurant_image = models.ImageField(null= True , blank= True)
+    discount = models.DecimalField(max_digits=2, decimal_places=2, blank=True)
+
+    # this field is for when the number of purchases be more than a specific number , the discount would be given to the customer
+    purches_counts =models.IntegerField(blank= True)
+    email_confirmed = models.BooleanField(default=False)
+    vc_code = models.CharField(max_length=6, null=True)
+    def __str__(self) -> str:
+        return self.name
 class Customer(MyAuthor):
     # author = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='customers')
     author = models.OneToOneField(MyAuthor, on_delete=models.CASCADE, related_name='customers')
@@ -65,3 +79,4 @@ class VC_Codes(AbstractBaseUser):
     vc_code = models.CharField(max_length=6, null=True)
     def __str__(self) -> str:
         return str(self.email)
+
