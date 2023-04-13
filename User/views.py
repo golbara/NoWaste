@@ -86,12 +86,9 @@ class LoginView(APIView):
         password = request.data.get('password')
         user_model = get_user_model()
         try:
-            customer_qs = Customer.objects.filter(email=email)
-            restaurant_qs = Restaurant.objects.filter(email=email)
-            if len(customer_qs) != 0:
-                user = customer_qs.first()
-            elif len(restaurant_qs) != 0:
-                user = restaurant_qs.first()
+            myauthor_qs = MyAuthor.objects.filter(email=email)
+            if len(myauthor_qs) != 0:
+                user = myauthor_qs.first()
         except user_model.DoesNotExist:
             return Response({'error': 'Invalid email or password'}, status=status.HTTP_401_UNAUTHORIZED)
         if user.check_password(password):
@@ -161,22 +158,26 @@ class ForgotPasswordViewSet(APIView):
         except ValidationError as e:
             return Response(e.message, status=status.HTTP_400_BAD_REQUEST)
         try:
-            user = Customer.objects.get(email=email)
-        except Customer.DoesNotExist:
+            user = MyAuthor.objects.get(email=email)
+        except MyAuthor.DoesNotExist:
             return Response("There is not any user with the given email" , status=status.HTTP_404_NOT_FOUND)
         newPassword = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
-        user.set_password(newPassword)
-        user.save()
+        try:
+            u = VC_Codes.objects.get(email = email)
+        except VC_Codes.DoesNotExist:
+            return Response({'error': 'Invalid email'}, status=status.HTTP_401_UNAUTHORIZED)
+        u.vc_code = newPassword
+        u.save()
         template = render_to_string('forgotpass_template.html',
-            {'name': user.name,
+            {'name': u.name,
                 'code': newPassword})
-        data = {'to_email':user.email,'body':template, 'subject': 'NoWaste forgot password'}
+        data = {'to_email':u.email,'body':template, 'subject': 'NoWaste forgot password'}
         Util.send_email(data)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     def get(self, request):
         serializer = ForgotPasswordSerializer()
         return Response(serializer.data)
-    
+
 class ChangePasswordView(generics.UpdateAPIView):
     queryset = Customer.objects.all()
     authentication_classes = [TokenAuthentication]

@@ -47,7 +47,7 @@ class SignUpSerializer(serializers.ModelSerializer):
 class LoginSerializer(serializers.ModelSerializer):
     
     class Meta:
-        model = Customer
+        model = MyAuthor
         fields = ['password', 'email']
 
 
@@ -76,7 +76,7 @@ class CustomerSerializer(serializers.ModelSerializer):
 class ForgotPasswordSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(required=True, allow_blank=False, allow_null=False)
     class Meta:
-        model = Customer
+        model = MyAuthor
         fields = ['email']
 
 class EmailVerificationSerializer(serializers.ModelSerializer):
