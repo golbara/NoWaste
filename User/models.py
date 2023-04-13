@@ -43,9 +43,6 @@ class Customer(MyAuthor):
     address = models.CharField(max_length=255,null= True,blank= True)
     username = models.CharField(max_length=255, default=name
                                 )
-    # email = models.EmailField(unique= True)
-    email_confirmed = models.BooleanField(default=False)
-    vc_code = models.CharField(max_length=6, null=True)
     phone_number = models.CharField(max_length=11,validators=[RegexValidator(regex='^09\d{9}$', 
                                                        message='Phone number must be entered in the format: "09123456789". Up to 15 digits allowed.')],blank= True)
     gender_choice = (
@@ -62,3 +59,9 @@ class Customer(MyAuthor):
         return self.username
     
 
+class VC_Codes(AbstractBaseUser):
+    name = models.CharField(max_length=255)
+    email = models.EmailField(unique= True)
+    vc_code = models.CharField(max_length=6, null=True)
+    def __str__(self) -> str:
+        return str(self.email)

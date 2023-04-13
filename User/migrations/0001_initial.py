@@ -27,7 +27,7 @@ class Migration(migrations.Migration):
                 ('password', models.CharField(max_length=8, validators=[django.core.validators.MinLengthValidator(4)])),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
