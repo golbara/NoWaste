@@ -42,17 +42,9 @@ class Restaurant(MyAuthor):
     def __str__(self) -> str:
         return self.name
 class Customer(MyAuthor):
-    # author = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='customers')
-    author = models.OneToOneField(MyAuthor, on_delete=models.CASCADE, related_name='customers')
-    myauthor_ptr = None
-    # USERNAME_FIELD = "email"
-    # REQUIRED_FIELDS = []
-    # objects = CustomUserManager()
+    # myauthor_ptr = models.OneToOneField(MyAuthor, on_delete=models.CASCADE, related_name='customers')
     customer_image = models.ImageField(blank= True , null= True)
-    # objects = CustomUserManager
     role = models.CharField(max_length=255, default="customer")
-    # first_name = models.CharField(max_length=255)
-    # last_name = models.CharField(max_length=255)
     name = models.CharField(max_length=255)
     address = models.CharField(max_length=255,null= True,blank= True)
     username = models.CharField(max_length=255, default=name
@@ -67,7 +59,7 @@ class Customer(MyAuthor):
     date_of_birth = models.DateField(null=True,blank=True)
     # password = models.CharField(max_length=8,validators=[MinLengthValidator(4)])
     wallet_balance = models.DecimalField(decimal_places=2, default=0,max_digits= 20,null= True)
-    list_of_favorites_res = models.ManyToManyField(Restaurant, related_name='cust_favor_list')
+    list_of_favorites_res = models.ManyToManyField(Restaurant, related_name='cust_favor_list', null= True , blank= True)
 
     def __str__(self) -> str:
         return self.username
