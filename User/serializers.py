@@ -33,6 +33,7 @@ class CreateCustomerSerializer(BaseCreateUserSerializer):
 
 
 class CreateRestaurantSerializer(BaseCreateUserSerializer): 
+    class Meta(BaseCreateUserSerializer.Meta): 
         model = Restaurant 
         fields = BaseCreateUserSerializer.Meta.fields
     

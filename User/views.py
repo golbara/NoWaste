@@ -54,7 +54,7 @@ class VerifyEmail(APIView):
     def get(self, request):
         serializer = BaseCreateUserSerializer()
         return Response(serializer.data)
-
+    
 class SignUpView(APIView):
     serializer_class = SignUpSerializer
     permission_classes = (permissions.AllowAny,)
@@ -77,8 +77,7 @@ class SignUpView(APIView):
     def get(self,request):
         serializer = SignUpSerializer()
         return Response(serializer.data)
-
-
+    
 class LoginView(APIView):
     serializer_class = LoginSerializer
     permission_classes = (permissions.AllowAny,)
@@ -87,24 +86,23 @@ class LoginView(APIView):
         password = request.data.get('password')
         user_model = get_user_model()
         try:
-            querysetCustomer = Customer.objects.all()
-            querysetRestaurant = Restaurant.objects.all()
-            all = querysetCustomer.union(querysetRestaurant)
-            user = all.get(email=email)
+            customer_qs = Customer.objects.filter(email=email)
+            restaurant_qs = Restaurant.objects.filter(email=email)
+            if len(customer_qs) != 0:
+                user = customer_qs.first()
+            elif len(restaurant_qs) != 0:
+                user = restaurant_qs.first()
         except user_model.DoesNotExist:
             return Response({'error': 'Invalid email or password'}, status=status.HTTP_401_UNAUTHORIZED)
         if user.check_password(password):
-            if user.email_confirmed:
-                token, _ = Token.objects.get_or_create(user=user)
-                return Response({'token': token.key})
-            else:
-                return Response({'error': 'email not confirmed'}, status=status.HTTP_401_UNAUTHORIZED)
+            token, _ = Token.objects.get_or_create(user=user)
+            return Response({'token': token.key})
         else:
             return Response({'error': 'Invalid email or password'}, status=status.HTTP_401_UNAUTHORIZED)
     def get(self,request):
         serializer = LoginSerializer()
         return Response(serializer.data)
-    
+
 
 class LogoutView(APIView):
     authentication_classes = [TokenAuthentication]

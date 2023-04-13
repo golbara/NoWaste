@@ -32,18 +32,18 @@ class MyAuthor(AbstractBaseUser):
 class Restaurant(MyAuthor):
     name = models.CharField(max_length=255, unique=True)
     address = models.CharField(max_length=255)
-    restaurant_image = models.ImageField(null= True , blank= True)
-    discount = models.DecimalField(max_digits=2, decimal_places=2, blank=True)
+    # restaurant_image = models.ImageField(null= True , blank= True)
+    discount = models.DecimalField(max_digits=2, decimal_places=2, blank=True, null=True)
 
     # this field is for when the number of purchases be more than a specific number , the discount would be given to the customer
-    purches_counts =models.IntegerField(blank= True)
-    email_confirmed = models.BooleanField(default=False)
-    vc_code = models.CharField(max_length=6, null=True)
+    purches_counts =models.IntegerField(blank= True, null=True)
+    # email_confirmed = models.BooleanField(default=False)
+    # vc_code = models.CharField(max_length=6, null=True)
     def __str__(self) -> str:
         return self.name
 class Customer(MyAuthor):
     # myauthor_ptr = models.OneToOneField(MyAuthor, on_delete=models.CASCADE, related_name='customers')
-    customer_image = models.ImageField(blank= True , null= True)
+    # customer_image = models.ImageField(blank= True , null= True)
     role = models.CharField(max_length=255, default="customer")
     name = models.CharField(max_length=255)
     address = models.CharField(max_length=255,null= True,blank= True)
@@ -68,7 +68,7 @@ class Customer(MyAuthor):
 class VC_Codes(AbstractBaseUser):
     name = models.CharField(max_length=255)
     email = models.EmailField(unique= True)
-    vc_code = models.CharField(max_length=6, null=True)
+    vc_code = models.CharField(max_length=10, null=True)
     def __str__(self) -> str:
         return str(self.email)
 
