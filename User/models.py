@@ -5,21 +5,45 @@ from django.conf import settings
 from django.db.models.signals import post_save
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
-from .managers import CustomUserManager
+# from .managers import CustomUserManager,AuthorManager
+from .managers import AuthorManager
+from django.conf import settings
 
-class Customer(AbstractBaseUser):
+
+class MyAuthor(AbstractBaseUser):
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
+    objects = AuthorManager()
+    email = models.EmailField(unique= True)
+    is_staff = models.BooleanField(default= False)
+    is_active = models.BooleanField(default= True)
+    is_superuser = models.BooleanField(default= False)
+    is_admin = models.BooleanField(default=False)
+    password = models.CharField(max_length=8,validators=[MinLengthValidator(4)])
+    # For checking permissions. to keep it simple all admin have ALL permissions
+    def has_perm(self, perm, obj=None):
+        return self.is_admin
+
+    # Does this user have permission to view this app? (ALWAYS YES FOR SIMPLICITY)
+    def has_module_perms(self, app_label):
+        return True
+class Customer(MyAuthor):
+    # author = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='customers')
+    author = models.OneToOneField(MyAuthor, on_delete=models.CASCADE, related_name='customers')
+    myauthor_ptr = None
+    # USERNAME_FIELD = "email"
+    # REQUIRED_FIELDS = []
+    # objects = CustomUserManager()
     customer_image = models.ImageField(blank= True , null= True)
     # objects = CustomUserManager
-    role = models.CharField(max_length=255, default="Customer")
+    role = models.CharField(max_length=255, default="customer")
     # first_name = models.CharField(max_length=255)
     # last_name = models.CharField(max_length=255)
     name = models.CharField(max_length=255)
     address = models.CharField(max_length=255,null= True,blank= True)
     username = models.CharField(max_length=255, default=name
                                 )
-    email = models.EmailField(unique= True)
+    # email = models.EmailField(unique= True)
     email_confirmed = models.BooleanField(default=False)
     vc_code = models.CharField(max_length=6, null=True)
     phone_number = models.CharField(max_length=11,validators=[RegexValidator(regex='^09\d{9}$', 
@@ -30,10 +54,11 @@ class Customer(AbstractBaseUser):
     )
     gender = models.CharField(max_length=255,choices=gender_choice,blank=True)
     date_of_birth = models.DateField(null=True,blank=True)
-    password = models.CharField(max_length=8,validators=[MinLengthValidator(4)])
+    # password = models.CharField(max_length=8,validators=[MinLengthValidator(4)])
     wallet_balance = models.DecimalField(decimal_places=2, default=0,max_digits= 20,null= True)
     list_of_favorites_res = models.ManyToManyField(Restaurant, related_name='cust_favor_list')
 
     def __str__(self) -> str:
         return self.username
     
+
