@@ -79,7 +79,7 @@ class SignUpView(APIView):
         return Response(serializer.data)
     
 class LoginView(APIView):
-    serializer_class = LoginSerializer
+    serializer_class = MyAuthorSerializer
     permission_classes = (permissions.AllowAny,)
     def post(self, request, *args, **kwargs):
         email = request.data.get('email')
@@ -97,7 +97,7 @@ class LoginView(APIView):
         else:
             return Response({'error': 'Invalid email or password'}, status=status.HTTP_401_UNAUTHORIZED)
     def get(self,request):
-        serializer = LoginSerializer()
+        serializer = MyAuthorSerializer()
         return Response(serializer.data)
 
 
@@ -161,21 +161,67 @@ class ForgotPasswordViewSet(APIView):
             user = MyAuthor.objects.get(email=email)
         except MyAuthor.DoesNotExist:
             return Response("There is not any user with the given email" , status=status.HTTP_404_NOT_FOUND)
-        newPassword = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
+        newCode = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
         try:
             u = VC_Codes.objects.get(email = email)
         except VC_Codes.DoesNotExist:
             return Response({'error': 'Invalid email'}, status=status.HTTP_401_UNAUTHORIZED)
-        u.vc_code = newPassword
+        u.vc_code = newCode
         u.save()
         template = render_to_string('forgotpass_template.html',
             {'name': u.name,
-                'code': newPassword})
+                'code': newCode})
         data = {'to_email':u.email,'body':template, 'subject': 'NoWaste forgot password'}
         Util.send_email(data)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     def get(self, request):
         serializer = ForgotPasswordSerializer()
+        return Response(serializer.data)
+
+class ForgotPassVerify(APIView):
+    def post(self, request):
+        serializer = EmailVerificationSerializer(data=request.data)
+        validate_email = EmailValidator()
+        if serializer.is_valid():
+            email =serializer.validated_data['email']
+            try:
+                validate_email.__call__(email)
+            except ValidationError as e:
+                return Response(e.message, status=status.HTTP_400_BAD_REQUEST)
+            try:
+                user = VC_Codes.objects.get(email=email)
+            except VC_Codes.DoesNotExist:
+                return Response("There is not any user with the given email" , status=status.HTTP_404_NOT_FOUND)
+            if user.vc_code == serializer.validated_data['code']:
+                new_serializer = MyAuthorSerializer()
+                return Response(new_serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response("verification code is wrong", status=status.HTTP_400_BAD_REQUEST)
+        return Response("error!", status=status.HTTP_400_BAD_REQUEST)
+    def get(self, request):
+        serializer = EmailVerificationSerializer()
+        return Response(serializer.data)
+
+class ForgotPassSetNewPass(APIView):
+    def post(self, request):
+        serializer = MyAuthorSerializer(data=request.data)
+        validate_email = EmailValidator()
+        if serializer.is_valid(raise_exception=True):
+            email =serializer.validated_data['email']
+            try:
+                validate_email.__call__(email)
+            except ValidationError as e:
+                return Response(e.message, status=status.HTTP_400_BAD_REQUEST)
+            try:
+                user = MyAuthor.objects.get(email=email)
+            except MyAuthor.DoesNotExist:
+                return Response("There is not any user with the given email" , status=status.HTTP_404_NOT_FOUND)
+            user.set_password(serializer.validated_data['password'])
+            user.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response("error!", status=status.HTTP_400_BAD_REQUEST)
+    def get(self, request):
+        serializer = MyAuthorSerializer()
         return Response(serializer.data)
 
 class ChangePasswordView(generics.UpdateAPIView):

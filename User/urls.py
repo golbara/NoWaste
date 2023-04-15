@@ -11,6 +11,8 @@ urlpatterns = [
     # path('view_profile/', CustomerViewSet.as_view(), name='viewprof'),
     path('verify-email/', VerifyEmail.as_view(), name='verify-email'),
     path('forgot-password/', ForgotPasswordViewSet.as_view(), name='forgot-password'),
+    path('fp-verify/', ForgotPassVerify.as_view(), name='fp-verify'),
+    path('fp-newpassword/', ForgotPassSetNewPass.as_view(), name='fp-newpassword'),
     path('change_password/<int:pk>/', ChangePasswordView.as_view(), name='Customer_change_password'),
     # path('update_profile/', UpdateProfileView.as_view({'get': 'list'}), name='Customer_update_profile'),
     # path('', include(router.urls)),
