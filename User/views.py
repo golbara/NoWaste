@@ -1,12 +1,14 @@
 
 from django.contrib.auth import get_user_model,logout
+from django.contrib.auth.hashers import make_password
+from rest_framework.permissions import BasePermission
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404,render, redirect
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.mixins import UpdateModelMixin
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status ,generics
 from rest_framework import permissions
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action, permission_classes
@@ -15,6 +17,7 @@ from .serializers import *
 from .models import *
 from .utils import Util
 from rest_framework.authtoken.models import Token
+from rest_framework.authtoken.views import obtain_auth_token
 
 from rest_framework.authentication import TokenAuthentication
 ###############################################
@@ -28,58 +31,53 @@ from django.forms import ValidationError
 import random , string
 import jwt
 
-
-class VerifyEmail(generics.GenericAPIView):
-    serializer_class =EmailVerificationSerializer
+class VerifyEmail(APIView):
+    def get_serializer_class(self, request):
+        if request.data['role'] == "customer":
+            return CreateCustomerSerializer
+        elif request.data['role'] == "restaurant":
+            return CreateRestaurantSerializer
+    
     def post(self, request):
-        serializer = EmailVerificationSerializer(data=request.data)
+        serializer_class = self.get_serializer_class(request)
+        serializer = serializer_class(data=request.data)
         if serializer.is_valid():
-            user_data = serializer.data
+            user_data = serializer.validated_data
             try:
-                user = Customer.objects.get(email = user_data['email'])
-            except Customer.DoesNotExist:
+                user = VC_Codes.objects.get(email=user_data['email'])
+            except VC_Codes.DoesNotExist:
                 return Response("There is not any user with the given email" , status=status.HTTP_404_NOT_FOUND)
-            if user.vc_code == user_data['code']:
-                user.email_confirmed = True
-                user.save()
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            else:
-                return Response({'error': 'code is wrong'}, status=status.HTTP_401_UNAUTHORIZED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            if user_data['code'] == user.vc_code:
+                serializer.save()
+                return Response(user_data, status=status.HTTP_201_CREATED)
+        return Response("verification code is wrong", status=status.HTTP_400_BAD_REQUEST)
     def get(self, request):
-        serializer = EmailVerificationSerializer()
+        serializer = BaseCreateUserSerializer()
         return Response(serializer.data)
-
-
+    
 class SignUpView(APIView):
-
-    def post(self, request):
-        serializer = CreateUserSerializer(data=request.data)
+    serializer_class = SignUpSerializer
+    permission_classes = (permissions.AllowAny,)
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
-            #if(# email verification):
-            serializer.save()
-            user_data = serializer.data
-            # token = RefreshToken.for_user(user).access_token
-            vc_code = random.randrange(100000, 999999)
-            if (user_data['role'] == "customer"):
-                user = Customer.objects.get(email = user_data['email'])
-                user.email_confirmed = False
-                user.vc_code = vc_code
-                user.save()
-            template = render_to_string('email_template.html',
-                                    {'name': user.name,
-                                     'code': vc_code})
-            data = {'to_email':user.email,'body':template, 'subject': 'Welcome to NoWaste!(Verify your email)'}
-            Util.send_email(data)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-            # AFTER EMAIL VERIFIACITON , THE TOKEN SET for the user 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            vc_code = random.randint(100000, 999999)
+            instance = serializer.save()
+            instance.vc_code = vc_code
+            instance.save()
+            signupData = serializer.data
+        else:
+            return Response("email is already exist", status=status.HTTP_400_BAD_REQUEST)
+        email = signupData['email']
+        name = signupData['name']
+        template = render_to_string('email_template.html', {'name': name, 'code': vc_code})
+        data = {'to_email': email, 'body': template, 'subject': 'Welcome to NoWaste!(Verify your email)'}
+        Util.send_email(data)
+        return Response(signupData, status=status.HTTP_201_CREATED)
     def get(self,request):
-        serializer = CreateUserSerializer()
+        serializer = SignUpSerializer()
         return Response(serializer.data)
-
-
-
+    
 class LoginView(APIView):
     serializer_class = LoginSerializer
     permission_classes = (permissions.AllowAny,)
@@ -88,25 +86,21 @@ class LoginView(APIView):
         password = request.data.get('password')
         user_model = get_user_model()
         try:
-            user = user_model.objects.get(email=email)
+            myauthor_qs = MyAuthor.objects.filter(email=email)
+            if len(myauthor_qs) != 0:
+                user = myauthor_qs.first()
         except user_model.DoesNotExist:
             return Response({'error': 'Invalid email or password'}, status=status.HTTP_401_UNAUTHORIZED)
         if user.check_password(password):
-            if user.email_confirmed:
-                token, _ = Token.objects.get_or_create(user=user)
-                return Response({'token': token.key})
-            else:
-                return Response({'error': 'email not confirmed'}, status=status.HTTP_401_UNAUTHORIZED)
+            token, _ = Token.objects.get_or_create(user=user)
+            return Response({'token': token.key})
         else:
             return Response({'error': 'Invalid email or password'}, status=status.HTTP_401_UNAUTHORIZED)
     def get(self,request):
         serializer = LoginSerializer()
         return Response(serializer.data)
-    
-# def get_auth_headers(token):
-#     return {'Authorization': f'Token {token}'}
 
-# @permission_classes((IsAuthenticated,))
+
 class LogoutView(APIView):
     authentication_classes = [TokenAuthentication]
     
@@ -164,18 +158,66 @@ class ForgotPasswordViewSet(APIView):
         except ValidationError as e:
             return Response(e.message, status=status.HTTP_400_BAD_REQUEST)
         try:
-            user = Customer.objects.get(email=email)
-        except Customer.DoesNotExist:
+            user = MyAuthor.objects.get(email=email)
+        except MyAuthor.DoesNotExist:
             return Response("There is not any user with the given email" , status=status.HTTP_404_NOT_FOUND)
         newPassword = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
-        user.set_password(newPassword)
-        user.save()
+        try:
+            u = VC_Codes.objects.get(email = email)
+        except VC_Codes.DoesNotExist:
+            return Response({'error': 'Invalid email'}, status=status.HTTP_401_UNAUTHORIZED)
+        u.vc_code = newPassword
+        u.save()
         template = render_to_string('forgotpass_template.html',
-            {'name': user.name,
+            {'name': u.name,
                 'code': newPassword})
-        data = {'to_email':user.email,'body':template, 'subject': 'NoWaste forgot password'}
+        data = {'to_email':u.email,'body':template, 'subject': 'NoWaste forgot password'}
         Util.send_email(data)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     def get(self, request):
         serializer = ForgotPasswordSerializer()
         return Response(serializer.data)
+
+class ChangePasswordView(generics.UpdateAPIView):
+    queryset = Customer.objects.all()
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    serializer_class = ChangePasswordSerializer
+    def put(self, request, *args, **kwargs):
+        user = request.user
+        if(user.id != self.kwargs['pk']):
+            return Response({"message": "Unathorized!"},status=status.HTTP_401_UNAUTHORIZED)
+        super().update(request, *args, **kwargs) 
+        return Response({"message" :"Password changed successfully!"},status= status.HTTP_200_OK)
+
+
+class UpdateRetrieveProfileView(generics.UpdateAPIView):
+    permission_classes = [IsAuthenticated]
+    # queryset = Customer.objects.all()
+    def get_queryset(self):
+        return Customer.objects.filter(id=self.kwargs['id'])
+    def get_serializer_class(self):
+        if (self.request.method == 'GET'):
+            return CustomerSerializer
+        else :
+            return UpdateUserSerializer
+    lookup_field = 'id'
+    def patch(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+    def get(self,request,id):
+        if ( request.user.id != id ):
+            return Response({"message": "Unathorized!"},status= status.HTTP_401_UNAUTHORIZED)
+        serializer = self.get_serializer(request.user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+  
+
+class CustomerProfileView(generics.RetrieveAPIView):  
+    serializer_class = CustomerSerializer
+    lookup_field = 'id'
+    def get_queryset(self):
+        return Customer.objects.filter(id=self.kwargs['id'])
+
+    def get_serializer_context(self):
+        return {'id': self.kwargs['id']}
+
+ 
