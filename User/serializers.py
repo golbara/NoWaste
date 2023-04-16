@@ -164,3 +164,8 @@ class UpdateUserSerializer(serializers.ModelSerializer):
 
         return instance
     
+class RateRestaurantSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(validators=[])
+    class Meta:
+        model = Restaurant
+        fields = ['rate', 'name']

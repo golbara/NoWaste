@@ -266,4 +266,22 @@ class CustomerProfileView(generics.RetrieveAPIView):
     def get_serializer_context(self):
         return {'id': self.kwargs['id']}
 
- 
+
+
+class RateRestaurantView(APIView):
+    def post(self, request):
+        serializer = RateRestaurantSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            name = serializer.validated_data['name']
+            try:
+                restaurant = Restaurant.objects.get(name=name)
+            except Restaurant.DoesNotExist:
+                return Response("There is not any restaurant with the given name" , status=status.HTTP_404_NOT_FOUND)
+            restaurant.rate = ((restaurant.rate)*restaurant.count_rates + serializer.validated_data['rate'])/(restaurant.count_rates+1)
+            restaurant.count_rates += 1
+            restaurant.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response("error!", status=status.HTTP_400_BAD_REQUEST)
+    def get(self, request):
+        serializer = RateRestaurantSerializer()
+        return Response(serializer.data)
