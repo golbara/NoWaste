@@ -7,7 +7,7 @@ from .models import *
 
 class BaseCreateUserSerializer(serializers.ModelSerializer): 
     role = serializers.CharField(max_length=255, default="default")
-    code = serializers.CharField(max_length=6)
+    code = serializers.CharField(max_length=10)
     class Meta: 
         abstract = True 
         model = Customer
@@ -45,7 +45,7 @@ class SignUpSerializer(serializers.ModelSerializer):
 
 
 class MyAuthorSerializer(serializers.ModelSerializer):
-    
+    email = serializers.EmailField(validators=[])
     class Meta:
         model = MyAuthor
         fields = ['password', 'email']
@@ -85,9 +85,9 @@ class ForgotPasswordSerializer(serializers.ModelSerializer):
 
 class EmailVerificationSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(required=True, allow_blank=False, allow_null=False)
-    code = serializers.CharField(max_length=6, required=True, allow_blank=False, allow_null=False)
+    code = serializers.CharField(max_length=10, required=True, allow_blank=False, allow_null=False)
     class Meta:
-        model = Customer
+        model = MyAuthor
         fields = ['email', 'code']
 
 
@@ -168,3 +168,8 @@ class UpdateUserSerializer(serializers.ModelSerializer):
 
         return instance
     
+class RateRestaurantSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(validators=[])
+    class Meta:
+        model = Restaurant
+        fields = ['rate', 'name']
