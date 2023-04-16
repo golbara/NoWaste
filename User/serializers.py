@@ -44,7 +44,7 @@ class SignUpSerializer(serializers.ModelSerializer):
         fields = ['name', 'email'] 
 
 
-class LoginSerializer(serializers.ModelSerializer):
+class MyAuthorSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = MyAuthor
@@ -72,7 +72,11 @@ class CustomerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
         fields = ['name','address','username','email','phone_number','gender','date_of_birth','wallet_balance']
-
+        extra_kwargs = {
+            'address': {'required': False, 'allow_blank': True},
+            'name' : {'required': False, 'allow_blank': True},
+            'email' : {'read_only': True}
+        }
 class ForgotPasswordSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(required=True, allow_blank=False, allow_null=False)
     class Meta:

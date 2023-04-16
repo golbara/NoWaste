@@ -60,7 +60,7 @@ class SignUpView(APIView):
     permission_classes = (permissions.AllowAny,)
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
+        if serializer.is_valid(raise_exception= True):
             vc_code = random.randint(100000, 999999)
             instance = serializer.save()
             instance.vc_code = vc_code
@@ -79,7 +79,7 @@ class SignUpView(APIView):
         return Response(serializer.data)
     
 class LoginView(APIView):
-    serializer_class = LoginSerializer
+    serializer_class = MyAuthorSerializer
     permission_classes = (permissions.AllowAny,)
     def post(self, request, *args, **kwargs):
         email = request.data.get('email')
@@ -97,7 +97,7 @@ class LoginView(APIView):
         else:
             return Response({'error': 'Invalid email or password'}, status=status.HTTP_401_UNAUTHORIZED)
     def get(self,request):
-        serializer = LoginSerializer()
+        serializer = MyAuthorSerializer()
         return Response(serializer.data)
 
 

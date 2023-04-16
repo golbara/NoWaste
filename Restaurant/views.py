@@ -14,12 +14,9 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .serializer import *
 from .models import *
 from rest_framework.authentication import TokenAuthentication
-###############################################
-from rest_framework_simplejwt.tokens import RefreshToken
-# from rest_framework_jwt.settings import api_settings
-# Create your views here.
+
 class ChangePasswordView(generics.UpdateAPIView):
-    queryset = Restaurant.objects.all()
+    # queryset = Restaurant.objects.all()
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = ChangePasswordSerializer
@@ -33,21 +30,35 @@ class ChangePasswordView(generics.UpdateAPIView):
 
 class RestaurantView(generics.RetrieveUpdateAPIView):
     # permission_classes = [IsAuthenticated]
-    # queryset = Customer.objects.all()
-    def get_queryset(self,id):
-        # return Restaurant.objects.filter(id=self.kwargs['id'])
-        return Restaurant.objects.filter(id= id)
-
-    def get_serializer_class(self):
-        return RestaurantSerializer
+    def get_queryset(self):
+        return Restaurant.objects.filter(id= self.request.user.id)
+    serializer_class = RestaurantSerializer
     lookup_field = 'id'
     def patch(self, request, *args, **kwargs):
-        return self.partial_update(request, *args, **kwargs)
+        instance = self.get_object()
+        print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
+        print(request)
+        data  = request.data
+        for key,valu in data.items():
+        # for key, value in kwargs.items():
+            # setattr(instance, 'discount', data['discount'])
+            setattr(instance, key, valu)
+        # print(instance.address)
+        # print(data)
+        # instance['discount']  = data['discount']
+        # serializer = self.get_serializer(instance, data=request.data)
+        serializer = self.get_serializer(instance, data=request.data)
+        # serializer = RestaurantSerializer(instance)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
     def get(self,request,id):
         if ( request.user.id != id ):
             return Response({"message": "Unathorized!"},status= status.HTTP_401_UNAUTHORIZED)
         serializer = self.get_serializer(request.user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        
+
+        return Response(serializer.data, status=status.HTTP_200_OK) 
     
 class FoodViewSet(ModelViewSet):
     serializer_class = FoodSerializer

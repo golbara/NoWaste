@@ -1,6 +1,6 @@
 from django.contrib.auth.base_user import BaseUserManager
 from django.utils.translation import gettext_lazy as _
-
+from django.db import models
 
 # class CustomUserManager(BaseUserManager):
 #     """
@@ -69,3 +69,18 @@ class AuthorManager(BaseUserManager):
         Retrieve a user by their email address for use in authentication.
         """
         return self.get(email=email)
+
+
+class RestaurantManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().select_related('myauthor_ptr')
+
+    def update(self, id, **kwargs):
+        restaurant = self.get_queryset().get(id=id)
+        for key, value in kwargs.items():
+            setattr(restaurant, key, value)
+        restaurant.save()
+        return restaurant
+
+    def get(self, id):
+        return self.get_queryset().get(id=id)

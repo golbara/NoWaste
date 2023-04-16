@@ -2,21 +2,31 @@ from decimal import Decimal
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from User.models import Restaurant
+from User.models import MyAuthor
+from User.serializers import MyAuthorSerializer
 from .models import Food
 
 class RestaurantSerializer(serializers.ModelSerializer):
-    def Menu(self):
-        print("not implemented yet!")
-    menu = serializers.SerializerMethodField(method_name= Menu)
+    # def Menu(self):
+    def Menu(self,obj):
+        foods = Food.objects.filter(restaurant=obj)
+        serializer = FoodSerializer(foods, many=True)
+        return serializer.data
+    menu = serializers.SerializerMethodField(method_name= 'Menu')    
     class Meta:
         model = Restaurant
-        fields = ('name', 'email' ,'address','restaurant_image','menu')
+        # address = serializers.CharField(source = 'address')
+        # name = serializers.CharField(source = 'name')
+        fields = ('name','email','restaurant_image','discount','address','menu')
+        # fields = '__all__'
+
         extra_kwargs = {
             'menu': {'read_only': True},
+            'address': {'required': False, 'allow_blank': True},
             'name' : {'required': False, 'allow_blank': True},
-            'email' : {'required': False,'allow_null': True}
+            'email' : {'read_only': True}
         }
-
+    
     def validate_email(self, new_email):
         user = self.context['request'].user
         if Restaurant.objects.exclude(pk=user.pk).filter(email=new_email).exists():
@@ -70,6 +80,6 @@ class ChangePasswordSerializer(serializers.ModelSerializer):
 
 
 class FoodSerializer(serializers.ModelSerializer):
-    class Meata :
+    class Meta :
         model = Food
-        fields = ['__all__']
+        fields = '__all__'

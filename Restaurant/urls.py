@@ -13,5 +13,5 @@ from .views import *
 urlpatterns = [
     # path('logout/', LogoutView.as_view(), name='logout'),
     # path('change_password/<int:pk>/', ChangePasswordView.as_view(), name='restaurant_change_password'),
-    path('Restaurant_profile/<int:id>/', RestaurantView.as_view(), name='restaurant-profile'),
+    path('restaurant_profile/<int:id>/', RestaurantView.as_view(), name='restaurant-profile'),
 ]
