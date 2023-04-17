@@ -8,6 +8,7 @@ from django.db import models
 # from .managers import CustomUserManager,AuthorManager
 from .managers import AuthorManager,RestaurantManager
 from django.conf import settings
+from datetime import *
 
 
 class MyAuthor(AbstractBaseUser):
@@ -40,6 +41,8 @@ class Restaurant(MyAuthor):
     purches_counts =models.IntegerField(blank= True, null=True)
     rate = models.FloatField(validators=[MinValueValidator(1), MaxValueValidator(5)], default=0.0,blank= True, null=True)
     count_rates = models.IntegerField(default=0,blank= True, null=True)
+    date_of_establishment = models.DateField(default=date.today())
+    description = models.CharField(max_length=1024 , default= "")
     def __str__(self) -> str:
         return self.name
 class Customer(MyAuthor):
