@@ -285,3 +285,29 @@ class RateRestaurantView(APIView):
     def get(self, request):
         serializer = RateRestaurantSerializer()
         return Response(serializer.data)
+
+
+class AddRemoveFavorite(APIView):
+    def post(self, request):
+        serializer = AddRemoveFavoriteSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            name = serializer.validated_data['name']
+            try:
+                restaurant = Restaurant.objects.get(name=name)
+            except Restaurant.DoesNotExist:
+                return Response("There is not any restaurant with the given name" , status=status.HTTP_404_NOT_FOUND)
+            email = serializer.validated_data['email']
+            try:
+                user = Customer.objects.get(email=email)
+            except Customer.DoesNotExist:
+                return Response("There is not any customer with the given email" , status=status.HTTP_404_NOT_FOUND)
+            if user.list_of_favorites_res.filter(pk=restaurant.pk).exists():
+                user.list_of_favorites_res.remove(restaurant)
+            else:
+                user.list_of_favorites_res.add(restaurant)
+            user.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response("error!", status=status.HTTP_400_BAD_REQUEST)
+    def get(self, request):
+        serializer = AddRemoveFavoriteSerializer()
+        return Response(serializer.data)
