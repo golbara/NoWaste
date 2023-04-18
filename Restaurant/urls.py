@@ -1,10 +1,10 @@
 from django.urls import path, include
 from .views import *
 # from rest_framework import routers
-# from rest_framework_nested import routers
+from rest_framework_nested import routers
 
 # router = routers.DefaultRouter()
-# router.register('restaurant', RestaurantView, basename='restaurant')
+# router.register('restaurant-view', RestaurantView, basename='restaurant')
 
 
 # products_router = routers.NestedSimpleRouter(router, 'restaurant', lookup='restaurant')
@@ -15,3 +15,4 @@ urlpatterns = [
     # path('change_password/<int:pk>/', ChangePasswordView.as_view(), name='restaurant_change_password'),
     path('restaurant_profile/<int:id>/', RestaurantView.as_view(), name='restaurant-profile'),
 ]
+# urlpatterns = router.urls

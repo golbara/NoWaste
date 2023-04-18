@@ -28,37 +28,15 @@ class ChangePasswordView(generics.UpdateAPIView):
         return Response({"message" :"Password changed successfully!"},status= status.HTTP_200_OK)
 
 
-class RestaurantView(generics.RetrieveUpdateAPIView):
-    # permission_classes = [IsAuthenticated]
+class RestaurantView(generics.RetrieveAPIView):
+
     def get_queryset(self):
-        return Restaurant.objects.filter(id= self.request.user.id)
+        # print( self.request.user.id)
+        # return Restaurant.objects.get(id = self.request.user.id)
+        return Restaurant.objects.all()
     serializer_class = RestaurantSerializer
     lookup_field = 'id'
-    def patch(self, request, *args, **kwargs):
-        instance = self.get_object()
-        print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
-        print(request)
-        data  = request.data
-        for key,valu in data.items():
-        # for key, value in kwargs.items():
-            # setattr(instance, 'discount', data['discount'])
-            setattr(instance, key, valu)
-        # print(instance.address)
-        # print(data)
-        # instance['discount']  = data['discount']
-        # serializer = self.get_serializer(instance, data=request.data)
-        serializer = self.get_serializer(instance, data=request.data)
-        # serializer = RestaurantSerializer(instance)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data)
-    def get(self,request,id):
-        # if ( request.user.id != id ):
-        #     return Response({"message": "Unathorized!"},status= status.HTTP_401_UNAUTHORIZED)
-        serializer = self.get_serializer(request.user)
-        
-
-        return Response(serializer.data, status=status.HTTP_200_OK) 
+ 
     
 class FoodViewSet(ModelViewSet):
     serializer_class = FoodSerializer
