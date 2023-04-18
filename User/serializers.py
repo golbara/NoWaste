@@ -173,3 +173,10 @@ class RateRestaurantSerializer(serializers.ModelSerializer):
     class Meta:
         model = Restaurant
         fields = ['rate', 'name']
+
+class AddRemoveFavoriteSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(validators=[])
+    email = serializers.EmailField(validators=[])
+    class Meta:
+        model = Restaurant
+        fields = ['email', 'name']
