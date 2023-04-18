@@ -1,8 +1,7 @@
 from decimal import Decimal
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
-from User.models import Restaurant
-from User.models import MyAuthor
+from User.models import Restaurant ,Customer
 from User.serializers import MyAuthorSerializer
 from .models import Food
 
@@ -12,18 +11,19 @@ class RestaurantSerializer(serializers.ModelSerializer):
         foods = Food.objects.filter(restaurant=obj)
         serializer = FoodSerializer(foods, many=True)
         return serializer.data
-    menu = serializers.SerializerMethodField(method_name= 'Menu')    
+    menu = serializers.SerializerMethodField(method_name= 'Menu')  
+
     class Meta:
         model = Restaurant
-        # address = serializers.CharField(source = 'address')
+        address = serializers.CharField(source = 'address')
         # name = serializers.CharField(source = 'name')
-        fields = ('name','email','restaurant_image','discount','address','menu')
+        fields = ('name','address','restaurant_image','rate','date_of_establishment','description','email','restaurant_image','menu')
         # fields = '__all__'
 
         extra_kwargs = {
             'menu': {'read_only': True},
-            'address': {'required': False, 'allow_blank': True},
-            'name' : {'required': False, 'allow_blank': True},
+            'address': {'required': False},
+            'name' : {'required': False},
             'email' : {'read_only': True}
         }
     
@@ -82,4 +82,5 @@ class ChangePasswordSerializer(serializers.ModelSerializer):
 class FoodSerializer(serializers.ModelSerializer):
     class Meta :
         model = Food
+        # fields = '__all__'
         fields = '__all__'

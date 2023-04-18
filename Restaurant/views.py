@@ -53,8 +53,8 @@ class RestaurantView(generics.RetrieveUpdateAPIView):
         serializer.save()
         return Response(serializer.data)
     def get(self,request,id):
-        if ( request.user.id != id ):
-            return Response({"message": "Unathorized!"},status= status.HTTP_401_UNAUTHORIZED)
+        # if ( request.user.id != id ):
+        #     return Response({"message": "Unathorized!"},status= status.HTTP_401_UNAUTHORIZED)
         serializer = self.get_serializer(request.user)
         
 
