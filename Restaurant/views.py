@@ -48,12 +48,13 @@ class FoodViewSet(ModelViewSet):
     def get_serializer_context(self):
         return {'Restaurant_id': self.kwargs['Restaurant_pk']}
 
-# def RestaurantSearchViewSet(ModelViewSet):
+# class RestaurantSearchViewSet(ModelViewSet):
 #     queryset = Restaurant.objects.all()
 #     serializer_class = RestaurantSearchSerializer
-#     filter_backends = [OrderingFilter]
-#     # filterset_class = RestaurantFilter
-#     ordering_fields = ['rate', 'discount', 'name']
+#     filter_backends = [SearchFilter, OrderingFilter]
+#     filterset_class = RestaurantFilter
+#     search_fields = ['name']
+#     ordering_fields = ['rate', 'discount', 'name', 'date_of_establishment']
 
 #     def get_serializer_context(self):
 #         return {'request': self.request}
