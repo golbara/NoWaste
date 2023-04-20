@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "User",
     "Restaurant",
     'rest_framework.authtoken',
+    'django_filters'
     # 'rest_framework_jwt',
 ]
 
