@@ -51,8 +51,10 @@ class Customer(MyAuthor):
     name = models.CharField(max_length=255)
     username = models.CharField(max_length=255, default=name
                                 )
-    phone_number = models.CharField(max_length=11,validators=[RegexValidator(regex='^09\d{9}$', 
-                                                       message='Phone number must be entered in the format: "09123456789". Up to 15 digits allowed.')],blank= True)
+    # phone_number = models.CharField(max_length=11,validators=[RegexValidator(regex='^09\d{9}$', 
+    #                                                    message='Phone number must be entered in the format: "09123456789". Up to 15 digits allowed.')],blank= True)
+    
+    phone_number = models.CharField(max_length=11,validators=[RegexValidator(regex='^\d{10}$')],blank= True)
     gender_choice = (
         ("male", "Male"), 
         ("female", "Female"), 
