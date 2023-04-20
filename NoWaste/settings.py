@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "User",
     "Restaurant",
     'rest_framework.authtoken',
+    # 'django_filters',
     # 'rest_framework_jwt',
 ]
 
@@ -139,6 +140,9 @@ USE_TZ = True
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media_files')
 
 
 # Default primary key field type

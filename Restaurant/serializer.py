@@ -77,6 +77,12 @@ class ChangePasswordSerializer(serializers.ModelSerializer):
         return instance
 
 
+class RestaurantSearchSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Restaurant
+        fields = ['name', 'discount', 'rate']
+
+
 class FoodSerializer(serializers.ModelSerializer):
     class Meta :
         model = Food
