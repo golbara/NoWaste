@@ -83,7 +83,6 @@ class ForgotPasswordSerializer(serializers.ModelSerializer):
         model = MyAuthor
         fields = ['email']
 
-<<<<<<< Updated upstream
 class EmailVerificationSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(required=True, allow_blank=False, allow_null=False)
     code = serializers.CharField(max_length=10, required=True, allow_blank=False, allow_null=False)
@@ -182,15 +181,15 @@ class AddRemoveFavoriteSerializer(serializers.ModelSerializer):
         model = Restaurant
         fields = ['email', 'name']
 
+
 class RestaurantSearchSerializer(serializers.ModelSerializer):
     class Meta:
         model = Restaurant
         fields = ['name', 'discount', 'rate']
-=======
+
 
 class CustomerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Customer
         fields = '*'
->>>>>>> Stashed changes

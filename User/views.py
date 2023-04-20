@@ -153,7 +153,6 @@ class ForgotPasswordViewSet(APIView):
         serializer = ForgotPasswordSerializer()
         validate_email = EmailValidator()
         email = request.data.get('email')
-<<<<<<< Updated upstream
         try:
             validate_email.__call__(email)
         except ValidationError as e:
@@ -312,7 +311,6 @@ class AddRemoveFavorite(APIView):
     def get(self, request):
         serializer = AddRemoveFavoriteSerializer()
         return Response(serializer.data)
-=======
         password = request.data.get('password')
                 # authenticate user
         user = authenticate(email = email, password=password)
@@ -353,4 +351,4 @@ class CustomerViewSet(ModelViewSet):
     def destroy(self, request, pk=None):
         super().destroy(request= request ,pk = pk)
     
->>>>>>> Stashed changes
+
