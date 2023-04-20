@@ -13,7 +13,9 @@ from rest_framework.decorators import action, permission_classes
 from rest_framework_simplejwt.tokens import RefreshToken
 from .serializer import *
 from .models import *
+from .filters import RestaurantFilter
 from rest_framework.authentication import TokenAuthentication
+from rest_framework.filters import SearchFilter, OrderingFilter
 
 class ChangePasswordView(generics.UpdateAPIView):
     # queryset = Restaurant.objects.all()
@@ -36,7 +38,7 @@ class RestaurantView(generics.RetrieveAPIView):
         return Restaurant.objects.all()
     serializer_class = RestaurantSerializer
     lookup_field = 'id'
- 
+
     
 class FoodViewSet(ModelViewSet):
     serializer_class = FoodSerializer
@@ -46,4 +48,12 @@ class FoodViewSet(ModelViewSet):
     def get_serializer_context(self):
         return {'Restaurant_id': self.kwargs['Restaurant_pk']}
 
-  
+def RestaurantSearchViewSet(ModelViewSet):
+    queryset = Restaurant.objects.all()
+    serializer_class = RestaurantSearchSerializer
+    filter_backends = [OrderingFilter]
+    # filterset_class = RestaurantFilter
+    ordering_fields = ['rate', 'discount', 'name']
+
+    def get_serializer_context(self):
+        return {'request': self.request}

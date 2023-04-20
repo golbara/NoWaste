@@ -1,11 +1,11 @@
 from django.urls import path, include
 from .views import *
 # from rest_framework import routers
-from rest_framework_nested import routers
+# from rest_framework_nested import routers
 
 # router = routers.DefaultRouter()
 # router.register('restaurant-view', RestaurantView, basename='restaurant')
-
+# router.register('restaurant-view', RestaurantSearchViewSet, basename='restaurant-view')
 
 # products_router = routers.NestedSimpleRouter(router, 'restaurant', lookup='restaurant')
 # products_router.register('food', FoodViewSet, basename='restaurant-food')
