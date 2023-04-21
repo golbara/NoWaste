@@ -81,6 +81,7 @@ class RestaurantSearchSerializer(serializers.ModelSerializer):
     class Meta:
         model = Restaurant
         fields = ['name', 'discount', 'rate', 'date_of_establishment']
+        lookup_field = 'id'
 
 
 class FoodSerializer(serializers.ModelSerializer):

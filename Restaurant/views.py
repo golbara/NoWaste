@@ -39,12 +39,51 @@ class RestaurantView(generics.RetrieveAPIView):
     serializer_class = RestaurantSerializer
     lookup_field = 'id'
 
-# class RestaurantCustomerView(generics.ListAPIView):
-#     http_method_names = ['get']
+
+# class RestaurantProfileView(generics.RetrieveUpdateAPIView):
 #     def get_queryset(self):
-#         return Restaurant.objects.all()
-#     serializer_class = RestaurantSerializer
+#         return Restaurant.objects.get(self.kwargs['id'])
 #     lookup_field = 'id'
+#     serializer_class = RestaurantSerializer
+
+class RestaurantProfileViewSet(viewsets.ViewSet):
+    lookup_field = 'id'
+    serializer_class = RestaurantSerializer
+    def get_serializer(self, *args, **kwargs):
+        serializer_class = self.serializer_class(*args, **kwargs)
+        kwargs['context'] = self.get_serializer_context()
+        return serializer_class
+    def get_serializer_context(self):
+        return {'request': self.request}
+    def get_object(self, id):
+        try:
+            return Restaurant.objects.get(id=id)
+        except Restaurant.DoesNotExist:
+            raise Response(status= status.HTTP_404_NOT_FOUND)
+    def list(self, request):
+        queryset = Restaurant.objects.all()
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, id=None):
+        queryset = Restaurant.objects.get(id=id)
+        serializer = self.serializer_class(queryset)
+        return Response(serializer.data)
+    def patch(self,request,id):
+        instance = self.get_object(id= id)
+        for key , value in request.data.items():
+            setattr(instance,key,value)
+        serializer = self.get_serializer(instance, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+
+
+    def get(self, request, id=None):
+        if id:
+            return self.retrieve(request, id)
+        else:
+            return self.list(request)
 
 class RestaurantCustomerView(mixins.ListModelMixin,mixins.RetrieveModelMixin,viewsets.GenericViewSet):
     queryset = Restaurant.objects.all()
@@ -53,11 +92,12 @@ class RestaurantCustomerView(mixins.ListModelMixin,mixins.RetrieveModelMixin,vie
     
 class FoodViewSet(ModelViewSet):
     serializer_class = FoodSerializer
-    def get_queryset(self):
-        return Food.objects.filter(Restaurant_id=self.kwargs['Restaurant_pk'])
+    queryset = Food.objects.all()
+    # def get_queryset(self):
+    #     return Food.objects.filter(Restaurant_id=self.kwargs['Restaurant_pk'])
 
-    def get_serializer_context(self):
-        return {'Restaurant_id': self.kwargs['Restaurant_pk']}
+    # def get_serializer_context(self):
+    #     return {'Restaurant_id': self.kwargs['Restaurant_pk']}
 
 class RestaurantSearchViewSet(ModelViewSet):
     queryset = Restaurant.objects.all()
