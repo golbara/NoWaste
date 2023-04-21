@@ -1,11 +1,11 @@
-# from django_filters.rest_framework import FilterSet
+from django_filters.rest_framework import FilterSet
+from .models import Restaurant
 
-# from .models import Restaurant
-
-# class RestaurantFilter(FilterSet):
-#   class Meta:
-#     model = Restaurant
-#     fields = {
-#         # 'collection_id': ['exact'],
-#         'rate': ['gt', 'lt']
-#     }
+class RestaurantFilter(FilterSet):
+  class Meta:
+    model = Restaurant
+    fields = {
+        # 'collection_id': ['exact'],
+        'rate': ['gt', 'lt'],
+        'discount': ['gt', 'lt'],
+    }

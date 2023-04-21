@@ -286,3 +286,44 @@ class AddRemoveFavorite(APIView):
     def get(self, request):
         serializer = AddRemoveFavoriteSerializer()
         return Response(serializer.data)
+        password = request.data.get('password')
+                # authenticate user
+        user = authenticate(email = email, password=password)
+        if not user:
+            return Response({'error': 'Invalid username or password'}, status=status.HTTP_401_UNAUTHORIZED)
+        token, created = Token.objects.get_or_create(user=user)
+        return Response({
+            'token': token.key,
+            'user_id': user.pk,
+            'email': user.email
+        })
+    
+class CustomerViewSet(ModelViewSet):
+    """
+    A viewset for viewing and editing user instances.
+    """
+    serializer_class =CustomerSerializer
+    queryset = Customer.objects.all()
+
+    def create(self, request):
+        pass
+
+        queryset = Customer.objects.all()
+        serializer = CustomerSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None):
+        queryset = Customer.objects.all()
+        user = get_object_or_404(queryset, pk=pk)
+        serializer = CustomerSerializer(user)
+        return Response(serializer.data)
+    def update(self, request, pk=None):
+        super().update(request,pk = pk)
+
+    # def partial_update(self, request, pk=None):
+    #     instance = Customer.objects.get(pk)
+
+    def destroy(self, request, pk=None):
+        super().destroy(request= request ,pk = pk)
+    
+

@@ -181,6 +181,7 @@ class AddRemoveFavoriteSerializer(serializers.ModelSerializer):
         model = Restaurant
         fields = ['email', 'name']
 
+
 class RestaurantSearchSerializer(serializers.ModelSerializer):
     class Meta:
         model = Restaurant
