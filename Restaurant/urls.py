@@ -13,7 +13,7 @@ router.register('restaurant-search', RestaurantSearchViewSet, basename='restaura
 urlpatterns = [
     # path('logout/', LogoutView.as_view(), name='logout'),
     # path('change_password/<int:pk>/', ChangePasswordView.as_view(), name='restaurant_change_password'),
-    path('restaurant_profile/<int:id>/', RestaurantView.as_view(), name='restaurant-profile'),
+    path('restaurant_view/<int:id>/', RestaurantView.as_view(), name='restaurant-view'),
     path('', include(router.urls)),
 ]
 # urlpatterns = router.urls

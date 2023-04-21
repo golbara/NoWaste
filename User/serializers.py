@@ -191,4 +191,4 @@ class CustomerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Customer
-        fields = '*'
+        fields = '__all__'

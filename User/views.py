@@ -85,7 +85,7 @@ class LoginView(APIView):
         email = request.data.get('email')
         password = request.data.get('password')
         user_model = get_user_model()
-        user = request.data.user
+        user = request.user
         try:
             myauthor_qs = MyAuthor.objects.filter(email=email)
             if len(myauthor_qs) != 0:
@@ -94,7 +94,7 @@ class LoginView(APIView):
             return Response({'error': 'Invalid email or password'}, status=status.HTTP_401_UNAUTHORIZED)
         if user.check_password(password):
             token, _ = Token.objects.get_or_create(user=user)
-            return Response({'token': token.key})
+            return Response({'token': token.key,'id' : user.id})
         else:
             return Response({'error': 'Invalid email or password'}, status=status.HTTP_401_UNAUTHORIZED)
     def get(self,request):
@@ -212,7 +212,7 @@ class ChangePasswordView(generics.UpdateAPIView):
         return Response({"message" :"Password changed successfully!"},status= status.HTTP_200_OK)
 
 
-class UpdateRetrieveProfileView(generics.UpdateAPIView):
+class UpdateRetrieveProfileView(generics.RetrieveUpdateAPIView):
     permission_classes = [IsAuthenticated]
     # queryset = Customer.objects.all()
     def get_queryset(self):
@@ -228,7 +228,8 @@ class UpdateRetrieveProfileView(generics.UpdateAPIView):
     def get(self,request,id):
         if ( request.user.id != id ):
             return Response({"message": "Unathorized!"},status= status.HTTP_401_UNAUTHORIZED)
-        serializer = self.get_serializer(request.user)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
         return Response(serializer.data, status=status.HTTP_200_OK)
   
 

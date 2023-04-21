@@ -35,8 +35,6 @@ class ChangePasswordView(generics.UpdateAPIView):
 class RestaurantView(generics.RetrieveAPIView):
 
     def get_queryset(self):
-        # print( self.request.user.id)
-        # return Restaurant.objects.get(id = self.request.user.id)
         return Restaurant.objects.all()
     serializer_class = RestaurantSerializer
     lookup_field = 'id'
