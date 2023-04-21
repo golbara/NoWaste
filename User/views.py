@@ -85,14 +85,14 @@ class LoginView(APIView):
         email = request.data.get('email')
         password = request.data.get('password')
         user_model = get_user_model()
-        user = request.user
+        user = None
         try:
             myauthor_qs = MyAuthor.objects.filter(email=email)
             if len(myauthor_qs) != 0:
                 user = myauthor_qs.first()
         except user_model.DoesNotExist:
             return Response({'error': 'Invalid email or password'}, status=status.HTTP_401_UNAUTHORIZED)
-        if user.check_password(password):
+        if user is not None and user.check_password(password):
             token, _ = Token.objects.get_or_create(user=user)
             return Response({'token': token.key,'id' : user.id})
         else:
@@ -224,7 +224,15 @@ class UpdateRetrieveProfileView(generics.RetrieveUpdateAPIView):
             return UpdateUserSerializer
     lookup_field = 'id'
     def patch(self, request, *args, **kwargs):
-        return self.partial_update(request, *args, **kwargs)
+        # return self.partial_update(request, *args, **kwargs)
+        # self.update(request,*args,**kwargs)\
+        instance = self.get_object()
+        for key , value in request.data.items():
+            setattr(instance,key,value)
+        serializer = self.get_serializer(instance, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
     def get(self,request,id):
         if ( request.user.id != id ):
             return Response({"message": "Unathorized!"},status= status.HTTP_401_UNAUTHORIZED)

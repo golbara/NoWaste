@@ -6,7 +6,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.mixins import UpdateModelMixin
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status ,generics
+from rest_framework import status ,generics,mixins,viewsets
 from rest_framework import permissions
 from rest_framework.permissions import IsAuthenticated
 from .permissions import  IsAdminOrReadOnly
@@ -39,6 +39,17 @@ class RestaurantView(generics.RetrieveAPIView):
     serializer_class = RestaurantSerializer
     lookup_field = 'id'
 
+# class RestaurantCustomerView(generics.ListAPIView):
+#     http_method_names = ['get']
+#     def get_queryset(self):
+#         return Restaurant.objects.all()
+#     serializer_class = RestaurantSerializer
+#     lookup_field = 'id'
+
+class RestaurantCustomerView(mixins.ListModelMixin,mixins.RetrieveModelMixin,viewsets.GenericViewSet):
+    queryset = Restaurant.objects.all()
+    serializer_class = RestaurantSerializer
+    lookup_field = 'id'
     
 class FoodViewSet(ModelViewSet):
     serializer_class = FoodSerializer

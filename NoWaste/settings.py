@@ -171,10 +171,10 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = 'NoWaste.gen39@gmail.com'
 EMAIL_HOST_PASSWORD = 'qspptdyffzsqptrh'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-CORS_ORIGIN_ALLOW_ALL = False
-CORS_ORIGIN_WHITELIST = (
-       'http://127.0.0.1',
-)
+CORS_ORIGIN_ALLOW_ALL = True
+# CORS_ORIGIN_WHITELIST = (
+#        'http://127.0.0.1',
+# )
 
 
 

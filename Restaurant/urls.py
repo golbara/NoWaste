@@ -4,7 +4,7 @@ from .views import *
 from rest_framework_nested import routers
 
 router = routers.DefaultRouter()
-# router.register('restaurant-view', RestaurantView, basename='restaurant')
+router.register('restaurant_customer_view', RestaurantCustomerView, basename='restaurant')
 router.register('restaurant-search', RestaurantSearchViewSet, basename='restaurant-search')
 
 # products_router = routers.NestedSimpleRouter(router, 'restaurant', lookup='restaurant')
@@ -14,6 +14,8 @@ urlpatterns = [
     # path('logout/', LogoutView.as_view(), name='logout'),
     # path('change_password/<int:pk>/', ChangePasswordView.as_view(), name='restaurant_change_password'),
     path('restaurant_view/<int:id>/', RestaurantView.as_view(), name='restaurant-view'),
+    path('restaurant_profile/<int:id>/', RestaurantView.as_view(), name='restaurant-view'),
+    # path('restaurant_customer_view/', RestaurantCustomerView.as_view({'get': 'list'}), name='restaurant-view'),
     path('', include(router.urls)),
 ]
 # urlpatterns = router.urls

@@ -19,7 +19,7 @@ urlpatterns = [
     #  path('update_profile/', UpdateProfileView.as_view(), name='update-profile'),
     # path('update_profile/<int:id>/', UpdateProfileView.as_view({'patch': 'partial_update', 'post': 'create'})),
     path('customer_profile/<int:id>/', UpdateRetrieveProfileView.as_view(), name='update-profile'),
-    path('view_profile/<int:id>/', CustomerProfileView.as_view(), name='view-profile'),
+    # path('view_profile/<int:id>/', CustomerProfileView.as_view(), name='view-profile'),
     # path('update_profile/<int:pk>/', UpdateProfileView.as_view(), name='Customer_update_profile'),
     path('rate-restaurant/', RateRestaurantView.as_view(), name='rate-restaurant'),
     path('favorite-restaurant/', AddRemoveFavorite.as_view(), name='favorite-restaurant'),

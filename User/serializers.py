@@ -144,7 +144,8 @@ class UpdateUserSerializer(serializers.ModelSerializer):
             'wallet_balance': {'read_only': True},
             'username' :{'required' : False, 'allow_blank': True},
             'name' : {'required': False, 'allow_blank': True},
-            'email' : {'required': False,'allow_null': True}
+            'email' : {'required': False,'allow_null': True},
+            'address' : {'required': False,'allow_null': True}
         }
 
     def validate_email(self, new_email):
