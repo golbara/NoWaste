@@ -12,7 +12,7 @@ from rest_framework import status ,generics
 from rest_framework import permissions
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action, permission_classes
-from rest_framework_simplejwt.tokens import RefreshToken
+# from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import *
 from .models import *
 from .utils import Util
@@ -21,7 +21,7 @@ from rest_framework.authtoken.views import obtain_auth_token
 
 from rest_framework.authentication import TokenAuthentication
 ###############################################
-from rest_framework_simplejwt.tokens import RefreshToken
+# from rest_framework_simplejwt.tokens import RefreshToken
 # from rest_framework_jwt.settings import api_settings
 
 from rest_framework import generics
@@ -29,7 +29,7 @@ from django.template.loader import render_to_string
 from django.core.validators import EmailValidator
 from django.forms import ValidationError
 import random , string
-import jwt
+# import jwt
 
 class VerifyEmail(APIView):
     def get_serializer_class(self, request):
@@ -85,6 +85,7 @@ class LoginView(APIView):
         email = request.data.get('email')
         password = request.data.get('password')
         user_model = get_user_model()
+        user = request.data.user
         try:
             myauthor_qs = MyAuthor.objects.filter(email=email)
             if len(myauthor_qs) != 0:
@@ -121,39 +122,12 @@ class LogoutView(APIView):
         logout(request)
         return Response({'message': 'User logged out successfully'})
 
-class CustomerViewSet(ModelViewSet,UpdateModelMixin):
-    """
-    A viewset for viewing and editing user instances.
-    """
-    serializer_class =CustomerSerializer
-    queryset = Customer.objects.all()
-
-    def create(self, request):
-        queryset = Customer.objects.all()
-        serializer = CustomerSerializer(queryset, many=True)
-        return Response(serializer.data)
-
-    def retrieve(self, request, pk=None):
-        queryset = Customer.objects.all()
-        user = get_object_or_404(queryset, pk=pk)
-        serializer = CustomerSerializer(user)
-        return Response(serializer.data)
-    def update(self, request, pk=None):
-        super().update(request,pk = pk)
-
-    def partial_update(self, request, *args, **kwargs):
-        return self.partial_update(request, *args, **kwargs)
-
-    def destroy(self, request, pk=None):
-        super().destroy(request= request ,pk = pk)
-
 
 class ForgotPasswordViewSet(APIView):
     def post(self, request):
         serializer = ForgotPasswordSerializer()
         validate_email = EmailValidator()
         email = request.data.get('email')
-<<<<<<< Updated upstream
         try:
             validate_email.__call__(email)
         except ValidationError as e:
@@ -312,45 +286,3 @@ class AddRemoveFavorite(APIView):
     def get(self, request):
         serializer = AddRemoveFavoriteSerializer()
         return Response(serializer.data)
-=======
-        password = request.data.get('password')
-                # authenticate user
-        user = authenticate(email = email, password=password)
-        if not user:
-            return Response({'error': 'Invalid username or password'}, status=status.HTTP_401_UNAUTHORIZED)
-        token, created = Token.objects.get_or_create(user=user)
-        return Response({
-            'token': token.key,
-            'user_id': user.pk,
-            'email': user.email
-        })
-    
-class CustomerViewSet(ModelViewSet):
-    """
-    A viewset for viewing and editing user instances.
-    """
-    serializer_class =CustomerSerializer
-    queryset = Customer.objects.all()
-
-    def create(self, request):
-        pass
-
-        queryset = Customer.objects.all()
-        serializer = CustomerSerializer(queryset, many=True)
-        return Response(serializer.data)
-
-    def retrieve(self, request, pk=None):
-        queryset = Customer.objects.all()
-        user = get_object_or_404(queryset, pk=pk)
-        serializer = CustomerSerializer(user)
-        return Response(serializer.data)
-    def update(self, request, pk=None):
-        super().update(request,pk = pk)
-
-    # def partial_update(self, request, pk=None):
-    #     instance = Customer.objects.get(pk)
-
-    def destroy(self, request, pk=None):
-        super().destroy(request= request ,pk = pk)
-    
->>>>>>> Stashed changes
