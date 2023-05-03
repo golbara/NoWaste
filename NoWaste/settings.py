@@ -33,6 +33,9 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    "channels",
+    'chat',
+    "daphne",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.sessions",
@@ -91,6 +94,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "NoWaste.wsgi.application"
+ASGI_APPLICATION = "NoWaste.asgi.application"
 
 
 # Database
@@ -138,7 +142,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static_assets')
 STATIC_URL = '/static/'
 
 MEDIA_URL = '/media/'
@@ -176,5 +180,16 @@ CORS_ORIGIN_ALLOW_ALL = True
 #        'http://127.0.0.1',
 # )
 
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}
 
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR,'static')
+]
 

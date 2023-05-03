@@ -228,6 +228,7 @@ class UpdateRetrieveProfileView(generics.RetrieveUpdateAPIView):
         # self.update(request,*args,**kwargs)\
         instance = self.get_object()
         for key , value in request.data.items():
+            print(key , value)
             setattr(instance,key,value)
         serializer = self.get_serializer(instance, data=request.data)
         serializer.is_valid(raise_exception=True)
