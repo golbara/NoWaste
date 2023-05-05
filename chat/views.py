@@ -11,14 +11,14 @@ def index(request):
 
 def room(request, room_name):
     room = ChatRoom.objects.get_or_create(title = room_name)
-    messages  = Message.objects.filter(room = room)[0:25]
+    # messages  = Message.objects.filter(room = room)[0:25]
     print(room)
     print(mark_safe(json.dumps(request.user.id)))
     # messages = Message.objects.filter(room = room.id)[0:25]
-    # return render(request, "chat/room.html", {"room_name": room_name})
+    return render(request, "chat/room.html", {"room_name": room_name})
     # return render(request, "chat/room.html", {"room_name": room_name,"messages": messages ,"user_name":mark_safe(json.dumps(request.user.email))})
     # return render(request, "chat/room.html", {"room_name": room_name,"user_name":mark_safe(json.dumps(request.user.email))})
-    return render(request, "chat/room.html", {"room_name": room_name,"user_id":mark_safe(json.dumps(request.user.id)),"messages":messages})
+    # return render(request, "chat/room.html", {"room_name": room_name,"user_id":mark_safe(json.dumps(request.user.id)),"messages":messages})
 
 
 
