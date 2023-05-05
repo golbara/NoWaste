@@ -80,7 +80,7 @@ class ChangePasswordSerializer(serializers.ModelSerializer):
 class RestaurantSearchSerializer(serializers.ModelSerializer):
     class Meta:
         model = Restaurant
-        fields = ['name', 'discount', 'rate', 'date_of_establishment']
+        fields = ['name', 'discount', 'rate', 'date_of_establishment','id']
         lookup_field = 'id'
 
 
