@@ -1,10 +1,13 @@
 from django.db import models
-from django.conf import settings
+from NoWaste.settings import *
 # Create your models here.
 class ChatRoom(models.Model):
     title = models.CharField(max_length=255,unique=True,blank=False)
-    user = models.ManyToManyField(settings.AUTH_USER_MODEL,blank = True, help_text= " users who are connected to the chat .")
-    def __str__(self) -> str:
+    user1 = models.ForeignKey(AUTH_USER_MODEL,on_delete= models.CASCADE,related_name = 'user1')
+    user2 = models.ForeignKey(AUTH_USER_MODEL,on_delete= models.CASCADE,related_name = "user2")
+
+ 
+    def __str__(self):
         return self.title
     
     def connect_user(self,user):
@@ -33,10 +36,10 @@ class ChatRoom(models.Model):
         return f"ChatRoom-{self.id}"
     
 class Message(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete= models.CASCADE)
+    user  = models.ForeignKey(AUTH_USER_MODEL,on_delete= models.CASCADE)
     room = models.ForeignKey(ChatRoom,on_delete=models.CASCADE)
-    timestamp = models.DateTimeField(auto_now_add=True)
-    content = models.TextField(unique= False,blank=False)
+    timestamp  = models.DateTimeField(auto_now_add=True)
+    content  = models.TextField(unique= False,blank=False)
 
     def __str__(self) :
         return self.content
