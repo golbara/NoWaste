@@ -93,11 +93,16 @@ class RestaurantCustomerView(mixins.ListModelMixin,mixins.RetrieveModelMixin,vie
 class FoodViewSet(ModelViewSet):
     serializer_class = FoodSerializer
     queryset = Food.objects.all()
-    # def get_queryset(self):
-    #     return Food.objects.filter(Restaurant_id=self.kwargs['Restaurant_pk'])
 
-    # def get_serializer_context(self):
-    #     return {'Restaurant_id': self.kwargs['Restaurant_pk']}
+    # @action(detail=True, methods=['patch'])
+    def patch(self, request, id):
+        instance = self.get_object(id= id)
+        for key , value in request.data.items():
+            setattr(instance,key,value)
+        serializer = self.get_serializer(instance, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
 
 class RestaurantSearchViewSet(ModelViewSet):
     queryset = Restaurant.objects.all()

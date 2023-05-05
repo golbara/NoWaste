@@ -139,7 +139,7 @@ class ChangePasswordSerializer(serializers.ModelSerializer):
 class UpdateUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
-        fields = ('username', 'name', 'email' ,'address','wallet_balance','gender')
+        fields = ('username', 'name', 'email' ,'address','wallet_balance','gender','phone_number','date_of_birth')
         extra_kwargs = {
             'wallet_balance': {'read_only': True},
             'username' :{'required' : False, 'allow_blank': True},
