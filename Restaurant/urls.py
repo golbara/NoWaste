@@ -16,7 +16,7 @@ urlpatterns = [
     # path('change_password/<int:pk>/', ChangePasswordView.as_view(), name='restaurant_change_password'),
     # path('restaurant_view/<int:id>/', RestaurantView.as_view(), name='restaurant-view'),
     # path('restaurant_profile/<int:id>/', RestaurantView.as_view(), name='restaurant-profile'),
-    # path('restaurant_customer_view/', RestaurantCustomerView.as_view({'get': 'list'}), name='restaurant-view'),
+    path('order/', RestaurantCustomerView.as_view({'get': 'list'}), name='restaurant-view'),
     path(r'', include(router.urls)),
 ]
 # urlpatterns = router.urls

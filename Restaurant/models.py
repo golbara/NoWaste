@@ -1,4 +1,5 @@
 from django.db import models
+from User.models import *
 from User.models  import Restaurant
 class Food(models.Model):
     name = models.CharField(max_length=255)
@@ -16,5 +17,12 @@ class Food(models.Model):
         return self.name
 
 
-
+class Order(models.Model):
+    date = models.DateTimeField(auto_now=True)
+    userId = models.ForeignKey(Customer,on_delete=models.CASCADE)
+    restId = models.ForeignKey(Restaurant,on_delete=models.CASCADE)
     
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order,on_delete=models.CASCADE,related_name="orederItems")
+    food = models.ForeignKey(Food,on_delete=models.CASCADE)
+    number = models.IntegerField()

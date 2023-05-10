@@ -7,7 +7,8 @@ from .models import Food
 
 class RestaurantSerializer(serializers.ModelSerializer):
     # def Menu(self):
-    def Menu(self,obj):
+    def Menu(self,obj): 
+        print(obj)
         foods = Food.objects.filter(restaurant=obj)
         serializer = FoodSerializer(foods, many=True)
         return serializer.data

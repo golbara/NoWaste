@@ -8,20 +8,20 @@ https://docs.djangoproject.com/en/4.1/howto/deployment/asgi/
 """
 
 import os
+import django
+from django.core.asgi import get_asgi_application
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "NoWaste.settings")
+
+django.setup()
+application = get_asgi_application()
 
 
 from channels.auth import AuthMiddlewareStack
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.security.websocket import AllowedHostsOriginValidator
-from django.core.asgi import get_asgi_application
 
 from chat.routing import websocket_urlpatterns
-from django.core.asgi import get_asgi_application
-
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "NoWaste.settings")
-
-application = get_asgi_application()
-
 
 application = ProtocolTypeRouter(
     {
@@ -31,3 +31,12 @@ application = ProtocolTypeRouter(
         ),
     }
 )
+
+
+#  location /ws/{
+#         proxy_pass http://unix:/home/ubuntu/NoWaste/NoWaste.sock;
+#         proxy_http_version 1.1;
+#         proxy_set_header Upgrade $http_upgrade;
+#         proxy_set_header Connection "upgrade";
+#     }
+
