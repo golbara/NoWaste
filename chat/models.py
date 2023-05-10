@@ -3,7 +3,7 @@ from django.conf import settings
 # Create your models here.
 class ChatRoom(models.Model):
     title = models.CharField(max_length=255,unique=True,blank=False)
-    user = models.ManyToManyField(settings.AUTH_USER_MODEL,blank = True, help_text= " users who are connected to the chat .")
+    user = models.ManyToManyField(settings.AUTH_USER_MODEL,blank = True, null=True, help_text= " users who are connected to the chat .")
     def __str__(self) -> str:
         return self.title
     

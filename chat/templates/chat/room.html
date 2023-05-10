@@ -9,13 +9,10 @@
     <textarea id="chat-log" cols="100" rows="20"></textarea><br>
     <input id="chat-message-input" type="text" size="100"><br>
     <input id="chat-message-submit" type="button" value="Send">
-    <!-- {% for message in messages %}
-    <p>message </p><br>
-
-    {{ room_name|json_script:"room-name" }} -->
+    {{ room_name|json_script:"room-name" }}
     <script>
         const roomName = JSON.parse(document.getElementById('room-name').textContent);
-        const user_id = JSON.parse(document.getElementById('user_id').textContent);
+        // const Name = JSON.parse(document.getElementById('name').textContent);
         const chatSocket = new WebSocket(
             'ws://'
             + window.location.host
@@ -44,10 +41,10 @@
             const message = messageInputDom.value;
             // send data to the server
             chatSocket.send(JSON.stringify({
-                // 'message': message
-                'message': message,
-                'user_id': user_id,
-                'room': roomName
+                'message': message
+                // 'message': message,
+                // 'name': name,
+                // 'room': roomName
             }));
             messageInputDom.value = '';
         };

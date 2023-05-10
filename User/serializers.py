@@ -56,6 +56,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
                                         required=True, allow_blank=False, allow_null=False,
                                         validators=[validate_password])
     # role = serializers.CharField()
+    role = serializers.CharField(max_length=255, default="default")
     class Meta:
         model = Customer
         fields = ['name', 'password', 'email', 'role']
@@ -193,3 +194,10 @@ class CustomerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
         fields = '__all__'
+
+class WalletSerializer(serializers.ModelSerializer):
+    email = serializers.CharField(validators=[])
+    amount = serializers.DecimalField(decimal_places=2, max_digits= 20)
+    class Meta:
+        model = Restaurant
+        fields = ['email', 'amount']
