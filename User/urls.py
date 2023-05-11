@@ -14,7 +14,7 @@ urlpatterns = [
     path('fp-verify/', ForgotPassVerify.as_view(), name='fp-verify'),
     path('fp-newpassword/', ForgotPassSetNewPass.as_view(), name='fp-newpassword'),
     path('change_password/<int:pk>/', ChangePasswordView.as_view(), name='Customer_change_password'),
-    # path('update_profile/', UpdateProfileView.as_view({'get': 'list'}), name='Customer_update_profile'),
+    # path('update_profile/', UpdateProfileView.as_view({[]'get': 'list'}), name='Customer_update_profile'),
     # path('', include(router.urls)),
     #  path('update_profile/', UpdateProfileView.as_view(), name='update-profile'),
     # path('update_profile/<int:id>/', UpdateProfileView.as_view({'patch': 'partial_update', 'post': 'create'})),
@@ -23,6 +23,8 @@ urlpatterns = [
     # path('update_profile/<int:pk>/', UpdateProfileView.as_view(), name='Customer_update_profile'),
     path('rate-restaurant/', RateRestaurantView.as_view(), name='rate-restaurant'),
     path('favorite-restaurant/', AddRemoveFavorite.as_view(), name='favorite-restaurant'),
+    path('charge-wallet/', ChargeWalletView.as_view(), name='charge-wallet'),
+    path('withdraw-wallet/', WithdrawFromWalletView.as_view(), name='withdraw-wallet'),
 
 
 ]

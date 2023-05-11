@@ -18,7 +18,11 @@ def room(request, room_name):
     return render(request, "chat/room.html", {"room_name": room_name})
     # return render(request, "chat/room.html", {"room_name": room_name,"messages": messages ,"user_name":mark_safe(json.dumps(request.user.email))})
     # return render(request, "chat/room.html", {"room_name": room_name,"user_name":mark_safe(json.dumps(request.user.email))})
+<<<<<<< HEAD
     # return render(request, "chat/room.html", {"room_name": room_name,"user_id":mark_safe(json.dumps(request.user.id)),"messages":messages})
+=======
+    return render(request, "chat/room.html", {"room_name": room_name,"user_id":mark_safe(json.dumps(request.user.id))})
+>>>>>>> 9ba17b9b28db7dd8168db233d3a67131af8cd57b
 
 
 

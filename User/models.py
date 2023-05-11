@@ -10,7 +10,6 @@ from .managers import AuthorManager,RestaurantManager
 from django.conf import settings
 from datetime import *
 
-
 class MyAuthor(AbstractBaseUser):
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
@@ -21,6 +20,7 @@ class MyAuthor(AbstractBaseUser):
     is_superuser = models.BooleanField(default= False)
     is_admin = models.BooleanField(default=False)
     password = models.CharField(max_length=16,validators=[MinLengthValidator(4)])
+    role = models.CharField(max_length=255, default="customer")
     # For checking permissions. to keep it simple all admin have ALL permissions
     def has_perm(self, perm, obj=None):
         return self.is_admin
@@ -39,7 +39,7 @@ class Restaurant(MyAuthor):
     number = models.CharField(max_length= 11,blank= True, null=True)
     # this field is for when the number of purchases be more than a specific number , the discount would be given to the customer
     purches_counts =models.IntegerField(blank= True, null=True)
-    rate = models.FloatField(validators=[MinValueValidator(1), MaxValueValidator(5)], default=0.0,blank= True, null=True)
+    rate = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(5)], default=0.0,blank= True, null=True)
     count_rates = models.IntegerField(default=0,blank= True, null=True)
     date_of_establishment = models.DateField(default=date.today())
     description = models.CharField(max_length=1024 , default= "")
@@ -47,7 +47,6 @@ class Restaurant(MyAuthor):
         return self.name
 class Customer(MyAuthor):
     address = models.CharField(max_length=255 , default= "")
-    role = models.CharField(max_length=255, default="customer")
     name = models.CharField(max_length=255)
     username = models.CharField(max_length=255, default=name
                                 )
