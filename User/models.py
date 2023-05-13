@@ -29,31 +29,38 @@ class MyAuthor(AbstractBaseUser):
     def has_module_perms(self, app_label):
         return True
 
+class RestaurantManager(MyAuthor):
+    name = models.CharField(max_length=255, unique=True)
+    manager_image = models.TextField(null= True , blank= True)
+    number = models.CharField(max_length= 14,blank= True, null=True)
+    def __str__(self) -> str:
+        return self.name
 
-class Restaurant(MyAuthor):
+class Restaurant(models.Model):
     address = models.CharField(max_length=255)
     name = models.CharField(max_length=255, unique=True)
-    restaurant_image = models.ImageField(null= True , blank= True)
-    logo = models.ImageField(null= True , blank= True)
+    restaurant_image = models.TextField(null= True , blank= True)
+    logo = models.TextField(null= True , blank= True)
     discount = models.DecimalField(max_digits=2, decimal_places=2,default=0.00)
-    number = models.CharField(max_length= 11,blank= True, null=True)
+    number = models.CharField(max_length= 14,blank= True, null=True)
     # this field is for when the number of purchases be more than a specific number , the discount would be given to the customer
     purches_counts =models.IntegerField(blank= True, null=True)
     rate = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(5)], default=0.0,blank= True, null=True)
     count_rates = models.IntegerField(default=0,blank= True, null=True)
     date_of_establishment = models.DateField(default=date.today())
     description = models.CharField(max_length=1024 , default= "")
+    manager = models.ForeignKey(RestaurantManager, on_delete=models.CASCADE)
     def __str__(self) -> str:
         return self.name
+
 class Customer(MyAuthor):
     address = models.CharField(max_length=255 , default= "")
     name = models.CharField(max_length=255)
-    username = models.CharField(max_length=255, default=name
-                                )
+    username = models.CharField(max_length=255, blank=True)
     # phone_number = models.CharField(max_length=11,validators=[RegexValidator(regex='^09\d{9}$', 
     #                                                    message='Phone number must be entered in the format: "09123456789". Up to 15 digits allowed.')],blank= True)
     
-    phone_number = models.CharField(max_length=11,validators=[RegexValidator(regex='^\d{10}$')],blank= True)
+    phone_number = models.CharField(max_length=14,blank= True)
     gender_choice = (
         ("male", "Male"), 
         ("female", "Female"), 
@@ -62,6 +69,9 @@ class Customer(MyAuthor):
     date_of_birth = models.DateField(null=True,blank=True)
     wallet_balance = models.DecimalField(decimal_places=2, default=0,max_digits= 20,null= True)
     list_of_favorites_res = models.ManyToManyField(Restaurant, related_name='cust_favor_list', null= True , blank= True)
+    def save(self, *args, **kwargs):
+        self.username = self.name
+        super().save(*args, **kwargs)
     def __str__(self) -> str:
         return self.username
     

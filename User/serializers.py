@@ -34,7 +34,7 @@ class CreateCustomerSerializer(BaseCreateUserSerializer):
 
 class CreateRestaurantSerializer(BaseCreateUserSerializer): 
     class Meta(BaseCreateUserSerializer.Meta): 
-        model = Restaurant 
+        model = RestaurantManager
         fields = BaseCreateUserSerializer.Meta.fields
     
 class SignUpSerializer(serializers.ModelSerializer):
@@ -199,5 +199,5 @@ class WalletSerializer(serializers.ModelSerializer):
     email = serializers.CharField(validators=[])
     amount = serializers.DecimalField(decimal_places=2, max_digits= 20)
     class Meta:
-        model = Restaurant
+        model = Customer
         fields = ['email', 'amount']

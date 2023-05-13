@@ -1,7 +1,7 @@
 from decimal import Decimal
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
-from User.models import Restaurant ,Customer
+from User.models import Restaurant ,Customer, RestaurantManager
 from User.serializers import MyAuthorSerializer
 from .models import Food
 
@@ -46,7 +46,7 @@ class ChangePasswordSerializer(serializers.ModelSerializer):
     old_password = serializers.CharField(write_only=True, required=True,source = 'password')
 
     class Meta:
-        model = Restaurant
+        model = RestaurantManager
         fields = ('old_password', 'password', 'password2')
 
     def validate(self, attrs):
