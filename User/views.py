@@ -307,7 +307,7 @@ class AddRemoveFavorite(APIView):
             user.save()
             listOfFavorite = list(user.list_of_favorites_res.values_list('name', flat=True))
             return Response({'list_of_favorites_res':listOfFavorite}, status=status.HTTP_200_OK)
-        return Response("error!", status=status.HTTP_400_BAD_REQUEST)
+        return Response("Error!", status=status.HTTP_400_BAD_REQUEST)
     def get(self, request):
         serializer = AddRemoveFavoriteSerializer()
         return Response(serializer.data)
