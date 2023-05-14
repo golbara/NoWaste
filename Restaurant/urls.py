@@ -18,6 +18,12 @@ urlpatterns = [
     # path('restaurant_profile/<int:id>/', RestaurantView.as_view(), name='restaurant-profile'),
     # path('restaurant_customer_view/', RestaurantCustomerView.as_view({'get': 'list'}), name='restaurant-view'),
     path(r'', include(router.urls)),
+    # path('managers/', RestaurantManagerListCreateView.as_view(), name='manager-list'),
+    # path('managers/<int:pk>/', RestaurantManagerRetrieveUpdateDestroyView.as_view(), name='manager-detail'),
+
+    path('managers/<int:pk>/', RestaurantManagerDetailView.as_view(), name='manager-detail'),
+    path('managers/<int:manager_id>/restaurants/', RestaurantManagerRestaurantListView.as_view(), name='restaurant-list'),
+    path('managers/<int:manager_id>/restaurants/<int:pk>/', RestaurantManagerRestaurantDetailView.as_view(), name='restaurant-detail'),
 ]
 # urlpatterns = router.urls
 

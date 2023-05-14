@@ -115,3 +115,58 @@ class RestaurantSearchViewSet(ModelViewSet):
 
     def get_serializer_context(self):
         return {'request': self.request}
+
+
+class RestaurantManagerListCreateView(generics.ListCreateAPIView):
+    queryset = RestaurantManager.objects.all()
+    serializer_class = RestaurantManagerSerializer
+
+class RestaurantManagerRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = RestaurantManager.objects.all()
+    serializer_class = RestaurantManagerSerializer
+
+class RestaurantManagerDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = RestaurantManager.objects.all()
+    serializer_class = RestaurantManagerSerializer
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['manager'] = self.get_object()
+        return context
+    
+class RestaurantManagerRestaurantListView(generics.ListCreateAPIView):
+    queryset = Restaurant.objects.all()
+    serializer_class = RestaurantSerializer
+
+    def get_queryset(self):
+        try:
+            mang = RestaurantManager.objects.get(id=self.kwargs['manager_id'])
+        except RestaurantManager.DoesNotExist:
+            return Response("There is not any restaurant manager with the given id" , status=status.HTTP_404_NOT_FOUND)
+        return self.queryset.filter(manager = mang)
+    
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['manager'] = RestaurantManager.objects.get(pk = self.kwargs['manager_id'])
+        return context
+    
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            try:
+                mang = RestaurantManager.objects.get(id=self.kwargs['manager_id'])
+            except RestaurantManager.DoesNotExist:
+                return Response("There is not any restaurant manager with the given id" , status=status.HTTP_404_NOT_FOUND)
+            serializer.save(manager = mang)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+class RestaurantManagerRestaurantDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Restaurant.objects.all()
+    serializer_class = RestaurantSerializer
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['manager'] = RestaurantManager.objects.get(pk=self.kwargs['manager_id'])
+        return context

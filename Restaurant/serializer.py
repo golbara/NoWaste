@@ -16,13 +16,12 @@ class RestaurantSerializer(serializers.ModelSerializer):
     class Meta:
         model = Restaurant
         address = serializers.CharField(source = 'address')
-        fields = ('number','name','address','rate','date_of_establishment','description','email','restaurant_image','menu')
+        fields = ('number','name','address','rate','date_of_establishment','description', 'restaurant_image','menu')
 
         extra_kwargs = {
             'menu': {'read_only': True},
             'address': {'required': False},
             'name' : {'required': False},
-            'email' : {'read_only': True}
         }
     
     def validate_email(self, new_email):
@@ -33,8 +32,12 @@ class RestaurantSerializer(serializers.ModelSerializer):
 
 
     def update(self, instance, validated_data):
-        instance.email = validated_data.get('email', instance.email)
         instance.name = validated_data.get('name', instance.name)
+        instance.number = validated_data.get('number', instance.number)
+        instance.address = validated_data.get('address', instance.address)
+        instance.date_of_establishment = validated_data.get('date_of_establishment', instance.date_of_establishment)
+        instance.description = validated_data.get('description', instance.description)
+        instance.restaurant_image = validated_data.get('restaurant_image', instance.restaurant_image)
         instance.save()
         return instance
     
@@ -80,7 +83,7 @@ class ChangePasswordSerializer(serializers.ModelSerializer):
 class RestaurantSearchSerializer(serializers.ModelSerializer):
     class Meta:
         model = Restaurant
-        fields = ['name', 'discount', 'rate', 'date_of_establishment', 'id', 'description']
+        fields = ['name', 'discount', 'rate', 'date_of_establishment', 'id', 'description', 'restaurant_image']
         lookup_field = 'id'
 
 
@@ -89,3 +92,37 @@ class FoodSerializer(serializers.ModelSerializer):
         model = Food
         # fields = '__all__'
         fields = '__all__'
+
+
+class RestaurantManagerSerializer(serializers.ModelSerializer):
+    restaurants = RestaurantSerializer(many = True, read_only=True)
+    class Meta:
+        model = RestaurantManager
+        fields = ['id', 'name','email','restaurants','number', 'manager_image']
+
+    def create(self, validated_data):
+        restaurants_data = validated_data.pop('restaurants',[])
+        manager = RestaurantManager.objects.create(**validated_data)
+        for res_data in restaurants_data:
+            Restaurant.objects.create(manager = manager, **res_data)
+        return manager
+    
+    def update(self, instance, validated_data):
+        restaurants_data = validated_data.pop('restaurants', [])
+        for res_data in restaurants_data:
+            res_id = res_data.get('id', None)
+            if res_id:
+                restaurant = instance.restaurants.filter(id=res_id).first()
+                if restaurant:
+                    restaurant.name = res_data.get('name', restaurant.name)
+                    restaurant.save()
+                else:
+                    Restaurant.objects.create(manager=instance, **res_data)
+            else:
+                Restaurant.objects.create(manager=instance, **res_data)
+        instance.name = validated_data.get('name', instance.name)
+        instance.email = validated_data.get('email', instance.email)
+        instance.number = validated_data.get('number', instance.number)
+        instance.manager_image = validated_data.get('manager_image', instance.manager_image)
+        instance.save()
+        return instance

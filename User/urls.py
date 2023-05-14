@@ -25,6 +25,8 @@ urlpatterns = [
     path('favorite-restaurant/', AddRemoveFavorite.as_view(), name='favorite-restaurant'),
     path('charge-wallet/', ChargeWalletView.as_view(), name='charge-wallet'),
     path('withdraw-wallet/', WithdrawFromWalletView.as_view(), name='withdraw-wallet'),
+    path('withdraw-wallet/', WithdrawFromWalletView.as_view(), name='withdraw-wallet'),
+    path('withdraw-wallet/', WithdrawFromWalletView.as_view(), name='withdraw-wallet'),
 
 
 ]
