@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model,logout
 from rest_framework.permissions import BasePermission
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404,render, redirect
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet , GenericViewSet
 from rest_framework.mixins import UpdateModelMixin
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -183,3 +183,52 @@ class RestaurantManagerRestaurantDetailView(generics.RetrieveUpdateDestroyAPIVie
         context = super().get_serializer_context()
         context['manager'] = RestaurantManager.objects.get(pk=self.kwargs['manager_id'])
         return context
+
+
+# class CreateOrderViewSet(ModelViewSet):
+class OrderViewSet(mixins.CreateModelMixin,mixins.RetrieveModelMixin,mixins.ListModelMixin, GenericViewSet):
+    queryset = Order.objects.prefetch_related('orderItems__food').all()
+    serializer_class = GetOrderSerializer
+
+    # def get_serializer(self, *args, **kwargs):
+    #     return GetOrderSerializer
+    #     if self.request.method == "GET":
+    #         return GetOrderSerializer
+
+    # def create(self, request):
+    #     pass
+
+    # def retrieve(self, request, pk=None):
+    #     instance = self.get_object()
+    #     serializer = self.get_serializer(instance)
+    #     return Response(serializer.data)
+
+
+    # def update(self, request, pk=None):
+    #     pass
+
+    # def partial_update(self, request, pk=None):
+    #     pass
+
+    # def destroy(self, request, pk=None):
+    #     pass
+
+
+class OrderItemViewSet(ModelViewSet):
+    http_method_names = ['get', 'post', 'patch', 'delete']
+
+    def get_serializer_class(self):
+        return OrderItemSerializer
+        if self.request.method == 'POST':
+            return AddCartItemSerializer
+        elif self.request.method == 'PATCH':
+            return UpdateCartItemSerializer
+        return CartItemSerializer
+
+    def get_serializer_context(self):
+        return {'order_id': self.kwargs['id']}
+
+    def get_queryset(self):
+        return OrderItem.objects \
+            .filter(order_id=self.kwargs['id']) \
+            .select_related('food')
