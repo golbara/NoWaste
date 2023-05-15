@@ -103,12 +103,23 @@ class OrderItemSerializer(serializers.ModelSerializer):
         fields = ('quantity','food_name')
 
 class GetOrderSerializer(serializers.ModelSerializer):
-    items = OrderItemSerializer(many=True, read_only=True)
+
     def get_total_price(self, order):
         return sum([item.quantity * item.food.price for item in order.orderItems.all()])
     
     def get_discount(self,order:Order):
         return order.restaurant.discount
+    
+    items = OrderItemSerializer(many=True, read_only=True)
+    total_price = serializers.SerializerMethodField()
+    discount = serializers.SerializerMethodField()
+
     class Meta : 
         model = Order
         fields = ('items','total_price','discount')
+
+        extra_kwargs = {
+        'items': {'read_only': True},
+        'discount': {'read_only': True},
+        'total_price': {'read_only': True}
+        }
