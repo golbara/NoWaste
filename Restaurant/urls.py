@@ -13,6 +13,7 @@ restaurant_router.register('food', FoodViewSet, basename='restaurant-food')
 
 urlpatterns = [
     # path('logout/', LogoutView.as_view(), name='logout'),
+    path('order/', OrderViewSet.as_view(), name='logout'),
     # path('change_password/<int:pk>/', ChangePasswordView.as_view(), name='restaurant_change_password'),
     # path('restaurant_view/<int:id>/', RestaurantView.as_view(), name='restaurant-view'),
     # path('restaurant_profile/<int:id>/', RestaurantView.as_view(), name='restaurant-profile'),

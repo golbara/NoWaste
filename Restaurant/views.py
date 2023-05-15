@@ -115,3 +115,32 @@ class RestaurantSearchViewSet(ModelViewSet):
 
     def get_serializer_context(self):
         return {'request': self.request}
+
+
+# class CreateOrderViewSet(ModelViewSet):
+class OrderViewSet(mixins.CreateModelMixin,mixins.RetrieveModelMixin,Ge):
+    queryset = Order.objects.all()
+    queryset = Order.objects.prefetch_related('OrderItem__food').all()
+
+    def get_serializer(self, *args, **kwargs):
+        if self.request.method == "GET":
+            return GetOrderSerializer
+
+    # def create(self, request):
+    #     pass
+
+    def retrieve(self, request, pk=None):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
+
+    def update(self, request, pk=None):
+        pass
+
+    def partial_update(self, request, pk=None):
+        pass
+
+    def destroy(self, request, pk=None):
+        pass
+

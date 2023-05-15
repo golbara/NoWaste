@@ -3,7 +3,7 @@ from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from User.models import Restaurant ,Customer
 from User.serializers import MyAuthorSerializer
-from .models import Food
+from .models import *
 
 class RestaurantSerializer(serializers.ModelSerializer):
     # def Menu(self):
@@ -89,3 +89,26 @@ class FoodSerializer(serializers.ModelSerializer):
         model = Food
         # fields = '__all__'
         fields = '__all__'
+
+class SimpleFoodSerializer(serializers.ModelSerializer):
+    class Meta : 
+        model = Food
+        fields = 'name'
+
+class OrderItemSerializer(serializers.ModelSerializer):
+    food_name = SimpleFoodSerializer
+
+    class Meta : 
+        model = OrderItem
+        fields = ('quantity','food_name')
+
+class GetOrderSerializer(serializers.ModelSerializer):
+    items = OrderItemSerializer(many=True, read_only=True)
+    def get_total_price(self, order):
+        return sum([item.quantity * item.food.price for item in order.orderItems.all()])
+    
+    def get_discount(self,order:Order):
+        return order.restaurant.discount
+    class Meta : 
+        model = Order
+        fields = ('items','total_price','discount')

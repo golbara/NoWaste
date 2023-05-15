@@ -1,5 +1,5 @@
 from django.db import models
-from User.models  import Restaurant
+from User.models  import Restaurant ,Customer
 class Food(models.Model):
     name = models.CharField(max_length=255)
     category = (
@@ -14,6 +14,26 @@ class Food(models.Model):
     Type = models.CharField(choices=category,max_length=255, blank=True)
     def __str__(self) -> str:
         return self.name
+    
+class Order(models.Model):
+    status = (
+        ("InProgress", "InProgress"), 
+        ("Completed", "Completed"), 
+        ("Cancle", "Cancle"), 
+        ("Ordered","Ordered") # before restaurant confirmation
+        ("notOrdered","notOrdered")
+    )
+    status = models.CharField(choices = status , default= "notOrdered" )
+    restaurant = models.ForeignKey(Restaurant,on_delete=models.CASCADE,related_name="Orders")
+    userId = models.ForeignKey(Customer,on_delete=models.DO_NOTHING,related_name="Orders")
+    created_at = models.DateTimeField(auto_now_add= True)
+
+class OrderItem(models.Model):
+    food = models.ForeignKey(Food,on_delete=models.DO_NOTHING,related_name="orderItems")
+    quantity = models.IntegerField()
+    order = models.ForeignKey(Order,on_delete=models.CASCADE,related_name="orderItems")
+    
+
 
 
 
