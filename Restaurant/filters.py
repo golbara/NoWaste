@@ -1,5 +1,5 @@
 from django_filters.rest_framework import FilterSet
-from .models import Restaurant
+from .models import *
 
 class RestaurantFilter(FilterSet):
   class Meta:
@@ -8,4 +8,12 @@ class RestaurantFilter(FilterSet):
         # 'collection_id': ['exact'],
         'rate': ['gte', 'lte'],
         'discount': ['gte', 'lte'],
+    }
+
+class FoodFilter(FilterSet):
+  class Meta:
+    model = Food
+    fields = {
+        'type': ['exact'],
+        'price': ['gte', 'lte'],
     }

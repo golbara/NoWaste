@@ -4,7 +4,7 @@ from .models import Food
 
 class FoodAdmin(admin.ModelAdmin):
     ordering = ['name']
-    list_display = ['name', 'restaurant', 'Type']
-    list_filter = ['Type','restaurant']
-    search_fields = ('name','Type')
+    list_display = ['name', 'restaurant', 'type']
+    list_filter = ['type','restaurant']
+    search_fields = ('name','type')
 admin.site.register(Food,FoodAdmin)

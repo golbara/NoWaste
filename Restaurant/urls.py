@@ -7,6 +7,7 @@ router = routers.DefaultRouter()
 router.register('restaurant_view', RestaurantCustomerView, basename='restaurant')
 router.register('restaurant-search', RestaurantSearchViewSet, basename='restaurant-search')
 router.register('restaurant_profile',RestaurantProfileViewSet,basename = 'rest-profile')
+router.register('filter-food', FilterFoodViewSet, basename='filter-food')
 
 restaurant_router = routers.NestedSimpleRouter(router, 'restaurant_profile', lookup='id')
 restaurant_router.register('food', FoodViewSet, basename='restaurant-food')

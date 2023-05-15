@@ -14,7 +14,7 @@ from rest_framework.decorators import action, permission_classes
 from rest_framework_simplejwt.tokens import RefreshToken
 from .serializer import *
 from .models import *
-from .filters import RestaurantFilter
+from .filters import RestaurantFilter , FoodFilter
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
@@ -112,6 +112,19 @@ class RestaurantSearchViewSet(ModelViewSet):
     permission_classes = [IsAdminOrReadOnly]
     search_fields = ['name']
     ordering_fields = ['rate', 'discount', 'name', 'date_of_establishment']
+
+    def get_serializer_context(self):
+        return {'request': self.request}
+    
+
+class FilterFoodViewSet(ModelViewSet):
+    queryset = Food.objects.all()
+    serializer_class = FoodFilterSerializer
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_class = FoodFilter
+    permission_classes = [IsAdminOrReadOnly]
+    search_fields = ['name']
+    ordering_fields = ['price', 'name']
 
     def get_serializer_context(self):
         return {'request': self.request}
