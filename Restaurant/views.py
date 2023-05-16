@@ -110,19 +110,30 @@ class FoodViewSet(ModelViewSet):
         serializer.save()
         return Response(serializer.data)
     
-class ManagerFoodViewSet(generics.RetrieveUpdateDestroyAPIView):
-# class ManagerFoodViewSet(ModelViewSet):
+
+class ManagerFoodAPIView(generics.ListAPIView):
     serializer_class = FoodSerializer
-    lookup_field = 'restaurant_id'
-    # queryset = Food.objects.all()
     def get_queryset(self):
         print(self.kwargs)
         return Food.objects.filter(restaurant_id=self.kwargs['restaurant_id'])
 
 
     def get_serializer_context(self):
+        print(self.kwargs)
         return {'restaurant_id': self.kwargs['restaurant_id']}
-    # @action(detail=True, methods=['patch'])
+
+class ManagerFoodViewSet(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = FoodSerializer
+    lookup_field = 'pk'
+    def get_queryset(self):
+        print(self.kwargs)
+        return Food.objects.filter(restaurant_id=self.kwargs['restaurant_id'])
+
+
+    def get_serializer_context(self):
+        print(self.kwargs)
+        return {'restaurant_id': self.kwargs['restaurant_id']}
+
     def patch(self, request, id):
         instance = self.get_object(id= id)
         for key , value in request.data.items():
