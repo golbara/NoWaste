@@ -92,8 +92,14 @@ class RestaurantCustomerView(mixins.ListModelMixin,mixins.RetrieveModelMixin,vie
     
 class FoodViewSet(ModelViewSet):
     serializer_class = FoodSerializer
-    queryset = Food.objects.all()
+    # queryset = Food.objects.all()
+    def get_queryset(self):
+        print(self.kwargs)
+        return Food.objects.filter(restaurant_id=self.kwargs['restaurant__id'])
 
+
+    def get_serializer_context(self):
+        return {'restaurant_id': self.kwargs['restaurant__id']}
     # @action(detail=True, methods=['patch'])
     def patch(self, request, id):
         instance = self.get_object(id= id)
