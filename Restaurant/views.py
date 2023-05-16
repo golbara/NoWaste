@@ -118,7 +118,8 @@ class RestaurantSearchViewSet(ModelViewSet):
 
 
 # class CreateOrderViewSet(ModelViewSet):
-class OrderViewSet(mixins.CreateModelMixin,mixins.RetrieveModelMixin,mixins.ListModelMixin, GenericViewSet):
+# class OrderViewSet(mixins.CreateModelMixin,mixins.RetrieveModelMixin,mixins.ListModelMixin, GenericViewSet):
+class OrderViewSet(mixins.CreateModelMixin,mixins.RetrieveModelMixin):
     queryset = Order.objects.prefetch_related('orderItems__food').all()
     serializer_class = GetOrderSerializer
 

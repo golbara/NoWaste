@@ -7,7 +7,7 @@ router = routers.DefaultRouter()
 router.register('restaurant_view', RestaurantCustomerView, basename='restaurant')
 router.register('restaurant-search', RestaurantSearchViewSet, basename='restaurant-search')
 router.register('restaurant_profile',RestaurantProfileViewSet,basename = 'rest-profile')
-# router.register('order', OrderViewSet)
+router.register('order', OrderViewSet,basename = 'view-order')
 
 restaurant_router = routers.NestedSimpleRouter(router, 'restaurant_profile', lookup='id')
 restaurant_router.register('food', FoodViewSet, basename='restaurant-food')
@@ -22,6 +22,7 @@ urlpatterns = [
     # path('restaurant_view/<int:id>/', RestaurantView.as_view(), name='restaurant-view'),
     # path('restaurant_profile/<int:id>/', RestaurantView.as_view(), name='restaurant-profile'),
     # path('restaurant_customer_view/', RestaurantCustomerView.as_view({'get': 'list'}), name='restaurant-view'),
+    path('restaurant/restaurant_view/<int:restaurant_id>/order', OrderViewSet, name='order'),
     path(r'', include(router.urls)),
 ]
 # urlpatterns = router.urls

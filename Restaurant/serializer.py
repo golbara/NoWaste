@@ -16,7 +16,7 @@ class RestaurantSerializer(serializers.ModelSerializer):
     class Meta:
         model = Restaurant
         address = serializers.CharField(source = 'address')
-        fields = ('number','name','address','restaurant_image','rate','date_of_establishment','description','email','restaurant_image','menu')
+        fields = ('number','name','address','restaurant_image','rate','date_of_establishment','description','email','restaurant_image','menu','id')
 
         extra_kwargs = {
             'menu': {'read_only': True},
