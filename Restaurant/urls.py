@@ -23,6 +23,8 @@ urlpatterns = [
     path('managers/<int:pk>/', RestaurantManagerDetailView.as_view(), name='manager-detail'),
     path('managers/<int:manager_id>/restaurants/', RestaurantManagerRestaurantListView.as_view(), name='restaurant-list'),
     path('managers/<int:manager_id>/restaurants/<int:pk>/', RestaurantManagerRestaurantDetailView.as_view(), name='restaurant-detail'),
+    path('managers/<int:manager_id>/restaurants/<int:restaurant_id>/food/', ManagerFoodViewSet.as_view(), name='food-list'),
+    path('managers/<int:manager_id>/restaurants/<int:restaurant_id>/food/<int:pk>',  ManagerFoodViewSet.as_view(), name='food-detail')
 ]
 
 
