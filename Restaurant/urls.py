@@ -23,6 +23,7 @@ urlpatterns = [
     # path('restaurant_view/<int:id>/', RestaurantView.as_view(), name='restaurant-view'),
     # path('restaurant_profile/<int:id>/', RestaurantView.as_view(), name='restaurant-profile'),
     # path('restaurant_customer_view/', RestaurantCustomerView.as_view({'get': 'list'}), name='restaurant-view'),
+    path('restaurant/restaurant_view/<int:restaurant_id>/order', OrderViewSet, name='order'),
     path(r'', include(router.urls)),
     # path('managers/', RestaurantManagerListCreateView.as_view(), name='manager-list'),
     # path('managers/<int:pk>/', RestaurantManagerRetrieveUpdateDestroyView.as_view(), name='manager-detail'),
