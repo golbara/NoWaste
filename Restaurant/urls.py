@@ -10,7 +10,7 @@ router.register('filter-food', FilterFoodViewSet, basename='filter-food')
 # router.register('order', OrderViewSet)
 
 router.register('restaurant_view', RestaurantCustomerView, basename='restaurant')
-order_router = routers.NestedSimpleRouter(router, 'restaurant_view', lookup='restaurant_view')
+order_router = routers.NestedSimpleRouter(router, 'restaurant_view', lookup='restaurant')
 order_router.register('order', OrderViewSet , basename='order')
 
 restaurant_router = routers.NestedSimpleRouter(router, 'restaurant_profile', lookup='id')

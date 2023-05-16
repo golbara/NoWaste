@@ -196,11 +196,11 @@ class OrderViewSet(mixins.CreateModelMixin,mixins.RetrieveModelMixin,mixins.List
     #     return {'restaurant_id': self.kwargs['restaurant_view_pk']}
     def get_queryset(self):
         print(self.kwargs)
-        return Order.objects.filter(restaurant_id=self.kwargs['restaurant_view__id'])
+        return Order.objects.filter(restaurant_id=self.kwargs['restaurant__id'])
 
 
     def get_serializer_context(self):
-        return {'restaurant_id': self.kwargs['restaurant_view__id']}
+        return {'restaurant_id': self.kwargs['restaurant__id']}
         # return {'id': self.kwargs['id']}
 
     # def get_serializer(self, *args, **kwargs):
