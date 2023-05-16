@@ -134,11 +134,13 @@ class RestaurantManagerSerializer(serializers.ModelSerializer):
 class SimpleFoodSerializer(serializers.ModelSerializer):
     class Meta : 
         model = Food
-        fields = 'name'
+        # fields = ('name')
+        fields = ['name']
 
 class OrderItemSerializer(serializers.ModelSerializer):
-    food_name = SimpleFoodSerializer
-
+    def get_food_name(self,obj):
+        return SimpleFoodSerializer().data
+    food_name = serializers.SerializerMethodField()
     class Meta : 
         model = OrderItem
         fields = ('quantity','food_name')
@@ -151,16 +153,16 @@ class GetOrderSerializer(serializers.ModelSerializer):
     def get_discount(self,order:Order):
         return order.restaurant.discount
     
-    items = OrderItemSerializer(many=True, read_only=True)
+    orderItems = OrderItemSerializer(many=True, read_only=True)
     total_price = serializers.SerializerMethodField()
     discount = serializers.SerializerMethodField()
 
     class Meta : 
         model = Order
-        fields = ('items','total_price','discount')
+        fields = ('orderItems','total_price','discount')
 
         extra_kwargs = {
-        'items': {'read_only': True},
+        'orderItems': {'read_only': True},
         'discount': {'read_only': True},
         'total_price': {'read_only': True}
         }
