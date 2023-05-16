@@ -32,7 +32,7 @@ class ChangePasswordView(generics.UpdateAPIView):
         return Response({"message" :"Password changed successfully!"},status= status.HTTP_200_OK)
 
 
-class RestaurantView(generics.RetrieveAPIView):
+class RestaurantView(viewsets.ViewSet):
 
     def get_queryset(self):
         return Restaurant.objects.all()
@@ -187,8 +187,21 @@ class RestaurantManagerRestaurantDetailView(generics.RetrieveUpdateDestroyAPIVie
 
 # class CreateOrderViewSet(ModelViewSet):
 class OrderViewSet(mixins.CreateModelMixin,mixins.RetrieveModelMixin,mixins.ListModelMixin, GenericViewSet):
-    queryset = Order.objects.prefetch_related('orderItems__food').all()
     serializer_class = GetOrderSerializer
+    # lookup_field = 'id'
+    # def get_queryset(self):
+    #     return Order.objects.filter(restaurant_id=self.kwargs['restaurant_view_pk'])
+
+    # def get_serializer_context(self):
+    #     return {'restaurant_id': self.kwargs['restaurant_view_pk']}
+    def get_queryset(self):
+        print(self.kwargs)
+        return Order.objects.filter(restaurant_id=self.kwargs['restaurant_view__id'])
+
+
+    def get_serializer_context(self):
+        return {'restaurant_id': self.kwargs['restaurant_view__id']}
+        # return {'id': self.kwargs['id']}
 
     # def get_serializer(self, *args, **kwargs):
     #     return GetOrderSerializer
