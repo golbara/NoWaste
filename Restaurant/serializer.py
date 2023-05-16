@@ -16,7 +16,7 @@ class RestaurantSerializer(serializers.ModelSerializer):
     class Meta:
         model = Restaurant
         address = serializers.CharField(source = 'address')
-        fields = ('number','name','address','rate','date_of_establishment','description', 'restaurant_image','menu')
+        fields = ('number','name','address','restaurant_image','rate','date_of_establishment','description','email','restaurant_image','menu','id')
 
         extra_kwargs = {
             'menu': {'read_only': True},
@@ -98,6 +98,7 @@ class FoodSerializer(serializers.ModelSerializer):
         # fields = '__all__'
         fields = '__all__'
 
+<<<<<<< HEAD
 
 class RestaurantManagerSerializer(serializers.ModelSerializer):
     restaurants = RestaurantSerializer(many = True, read_only=True)
@@ -131,6 +132,8 @@ class RestaurantManagerSerializer(serializers.ModelSerializer):
         instance.manager_image = validated_data.get('manager_image', instance.manager_image)
         instance.save()
         return instance
+=======
+>>>>>>> feature/order
 class SimpleFoodSerializer(serializers.ModelSerializer):
     class Meta : 
         model = Food
