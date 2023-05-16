@@ -3,7 +3,7 @@ from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from User.models import Restaurant ,Customer, RestaurantManager
 from User.serializers import MyAuthorSerializer
-from .models import Food
+from .models import *
 
 class RestaurantSerializer(serializers.ModelSerializer):
     # def Menu(self):
@@ -17,7 +17,6 @@ class RestaurantSerializer(serializers.ModelSerializer):
         model = Restaurant
         address = serializers.CharField(source = 'address')
         fields = ('number','name','address','rate','date_of_establishment','description', 'restaurant_image','menu')
-
         extra_kwargs = {
             'menu': {'read_only': True},
             'address': {'required': False},
@@ -131,3 +130,36 @@ class RestaurantManagerSerializer(serializers.ModelSerializer):
         instance.manager_image = validated_data.get('manager_image', instance.manager_image)
         instance.save()
         return instance
+class SimpleFoodSerializer(serializers.ModelSerializer):
+    class Meta : 
+        model = Food
+        fields = 'name'
+
+class OrderItemSerializer(serializers.ModelSerializer):
+    food_name = SimpleFoodSerializer
+
+    class Meta : 
+        model = OrderItem
+        fields = ('quantity','food_name')
+
+class GetOrderSerializer(serializers.ModelSerializer):
+
+    def get_total_price(self, order):
+        return sum([item.quantity * item.food.price for item in order.orderItems.all()])
+    
+    def get_discount(self,order:Order):
+        return order.restaurant.discount
+    
+    items = OrderItemSerializer(many=True, read_only=True)
+    total_price = serializers.SerializerMethodField()
+    discount = serializers.SerializerMethodField()
+
+    class Meta : 
+        model = Order
+        fields = ('items','total_price','discount')
+
+        extra_kwargs = {
+        'items': {'read_only': True},
+        'discount': {'read_only': True},
+        'total_price': {'read_only': True}
+        }
