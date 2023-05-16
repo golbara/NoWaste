@@ -109,6 +109,28 @@ class FoodViewSet(ModelViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
+    
+class ManagerFoodViewSet(generics.RetrieveUpdateDestroyAPIView):
+# class ManagerFoodViewSet(ModelViewSet):
+    serializer_class = FoodSerializer
+    lookup_field = 'restaurant_id'
+    # queryset = Food.objects.all()
+    def get_queryset(self):
+        print(self.kwargs)
+        return Food.objects.filter(restaurant_id=self.kwargs['restaurant_id'])
+
+
+    def get_serializer_context(self):
+        return {'restaurant_id': self.kwargs['restaurant_id']}
+    # @action(detail=True, methods=['patch'])
+    def patch(self, request, id):
+        instance = self.get_object(id= id)
+        for key , value in request.data.items():
+            setattr(instance,key,value)
+        serializer = self.get_serializer(instance, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
 
 class RestaurantSearchViewSet(ModelViewSet):
     queryset = Restaurant.objects.all()
@@ -193,44 +215,31 @@ class RestaurantManagerRestaurantDetailView(generics.RetrieveUpdateDestroyAPIVie
 
 # class CreateOrderViewSet(ModelViewSet):
 class OrderViewSet(mixins.CreateModelMixin,mixins.RetrieveModelMixin,mixins.ListModelMixin, GenericViewSet):
-    serializer_class = GetOrderSerializer
-    # lookup_field = 'id'
-    # def get_queryset(self):
-    #     return Order.objects.filter(restaurant_id=self.kwargs['restaurant_view_pk'])
-
-    # def get_serializer_context(self):
-    #     return {'restaurant_id': self.kwargs['restaurant_view_pk']}
+    # serializer_class = GetOrderSerializer
+    current_user_id = None
     def get_queryset(self):
         print(self.kwargs)
-        return Order.objects.filter(restaurant_id=self.kwargs['restaurant__id'])
-
+        # current_user_id = self.request.user.id
+        # print(current_user_id)
+        return Order.objects.filter(restaurant_id=self.kwargs['restaurant__id'] ,userId_id = self.current_user_id)
+    
+    def get_serializer_class(self, *args, **kwargs):
+        if (self.request.method == 'GET'):
+            return GetOrderSerializer
+        if(self.request.method == 'POST'):
+            return CreateOrderSerializer
 
     def get_serializer_context(self):
         return {'restaurant_id': self.kwargs['restaurant__id']}
-        # return {'id': self.kwargs['id']}
 
-    # def get_serializer(self, *args, **kwargs):
-    #     return GetOrderSerializer
-    #     if self.request.method == "GET":
-    #         return GetOrderSerializer
-
-    # def create(self, request):
-    #     pass
-
-    # def retrieve(self, request, pk=None):
-    #     instance = self.get_object()
-    #     serializer = self.get_serializer(instance)
-    #     return Response(serializer.data)
-
-
-    # def update(self, request, pk=None):
-    #     pass
-
-    # def partial_update(self, request, pk=None):
-    #     pass
-
-    # def destroy(self, request, pk=None):
-    #     pass
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        # print(serializer.data)
+        serializer.save()
+        self.current_user_id = serializer.data['userId_id']
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class OrderItemViewSet(ModelViewSet):
