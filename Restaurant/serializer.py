@@ -93,10 +93,11 @@ class FoodFilterSerializer(serializers.ModelSerializer):
         lookup_field = 'id'
 
 class FoodSerializer(serializers.ModelSerializer):
+    # restaurant = serializers.IntegerField()
     class Meta :
         model = Food
         # fields = '__all__'
-        fields = '__all__'
+        fields = ['name','price','ingredients','restaurant_id','food_pic','type']
 
 
 class RestaurantManagerSerializer(serializers.ModelSerializer):
@@ -149,9 +150,9 @@ class OrderItemSerializer(serializers.ModelSerializer):
 class GetOrderSerializer(serializers.ModelSerializer):
 
     def get_total_price(self, order):
-        # return sum([item.quantity * item.food.price for item in order.orderItems.all()])
         orderitems = OrderItem.objects.filter(order_id = order.first().id)
         return sum([item.quantity * item.food.price for item in orderitems])
+        # return sum([item.quantity * item.food.price for item in OrderItem.objects.filter(order= order)])
     
     def get_discount(self,order:Order):
         return order.first().restaurant.discount

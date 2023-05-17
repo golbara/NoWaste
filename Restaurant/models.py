@@ -5,9 +5,9 @@ from uuid import uuid4
 class Food(models.Model):
     name = models.CharField(max_length=255)
     category = (
-        ("drink", "Drink"), 
-        ("iranian_food", "Iranian_food"), 
-        ("foreign_food", "Foreign_food"), 
+        ("Drink", "Drink"), 
+        ("Iranian", "Iranian"), 
+        ("Foreign", "Foreign"), 
     )
     price = models.DecimalField(decimal_places=2,max_digits=20 , null= True )
     ingredients = models.CharField(max_length=2048, null=True , blank=True)
