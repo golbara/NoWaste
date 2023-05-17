@@ -138,9 +138,10 @@ class SimpleFoodSerializer(serializers.ModelSerializer):
         fields = ['name','price']
 
 class OrderItemSerializer(serializers.ModelSerializer):
-    def get_food_name(self,obj):
-        return SimpleFoodSerializer().data
-        name_and_price = serializers.SerializerMethodField()
+    def get_name_and_price(self,obj:OrderItem):
+        food= Food.objects.get(id = obj.food_id)
+        return SimpleFoodSerializer(food).data
+    name_and_price = serializers.SerializerMethodField()
     class Meta : 
         model = OrderItem
         fields = ('quantity','name_and_price')
@@ -159,7 +160,7 @@ class GetOrderSerializer(serializers.ModelSerializer):
 
     class Meta : 
         model = Order
-        fields = ('orderItems','total_price','discount')
+        fields = ('id','orderItems','total_price','discount')
 
         extra_kwargs = {
         'orderItems': {'read_only': True},
