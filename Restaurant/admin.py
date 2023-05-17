@@ -10,3 +10,4 @@ class FoodAdmin(admin.ModelAdmin):
 admin.site.register(Food,FoodAdmin)
 admin.site.register(Order)
 admin.site.register(OrderItem)
+

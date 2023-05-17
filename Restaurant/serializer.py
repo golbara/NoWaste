@@ -16,7 +16,8 @@ class RestaurantSerializer(serializers.ModelSerializer):
     class Meta:
         model = Restaurant
         address = serializers.CharField(source = 'address')
-        fields = ('number','name','address','rate','date_of_establishment','description', 'restaurant_image','menu')
+        fields = ('number','name','address','rate','discount','date_of_establishment','description','restaurant_image','menu','id')
+
         extra_kwargs = {
             'menu': {'read_only': True},
             'address': {'required': False},
@@ -133,14 +134,16 @@ class RestaurantManagerSerializer(serializers.ModelSerializer):
 class SimpleFoodSerializer(serializers.ModelSerializer):
     class Meta : 
         model = Food
-        fields = 'name'
+        # fields = ('name')
+        fields = ['name','price']
 
 class OrderItemSerializer(serializers.ModelSerializer):
-    food_name = SimpleFoodSerializer
-
+    def get_food_name(self,obj):
+        return SimpleFoodSerializer().data
+        name_and_price = serializers.SerializerMethodField()
     class Meta : 
         model = OrderItem
-        fields = ('quantity','food_name')
+        fields = ('quantity','name_and_price')
 
 class GetOrderSerializer(serializers.ModelSerializer):
 
@@ -150,16 +153,23 @@ class GetOrderSerializer(serializers.ModelSerializer):
     def get_discount(self,order:Order):
         return order.restaurant.discount
     
-    items = OrderItemSerializer(many=True, read_only=True)
+    orderItems = OrderItemSerializer(many=True, read_only=True)
     total_price = serializers.SerializerMethodField()
     discount = serializers.SerializerMethodField()
 
     class Meta : 
         model = Order
-        fields = ('items','total_price','discount')
+        fields = ('orderItems','total_price','discount')
 
         extra_kwargs = {
-        'items': {'read_only': True},
+        'orderItems': {'read_only': True},
         'discount': {'read_only': True},
         'total_price': {'read_only': True}
         }
+
+class CreateOrderSerializer(serializers.ModelSerializer):
+    userId_id = serializers.IntegerField()
+    restaurant_id = serializers.IntegerField()
+    class Meta : 
+        model = Order
+        fields = ['userId_id','restaurant_id']
