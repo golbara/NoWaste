@@ -7,16 +7,16 @@ from .models import *
 
 class RestaurantSerializer(serializers.ModelSerializer):
     # def Menu(self):
-    def Menu(self,obj):
-        foods = Food.objects.filter(restaurant=obj)
-        serializer = FoodSerializer(foods, many=True)
-        return serializer.data
-    menu = serializers.SerializerMethodField(method_name= 'Menu')  
+    # def Menu(self,obj):
+    #     foods = Food.objects.filter(restaurant=obj)
+    #     serializer = FoodSerializer(foods, many=True)
+    #     return serializer.data
+    # menu = serializers.SerializerMethodField(method_name= 'Menu')  
 
     class Meta:
         model = Restaurant
         address = serializers.CharField(source = 'address')
-        fields = ('number','name','address','restaurant_image','rate','discount','date_of_establishment','description','restaurant_image','menu','id')
+        fields = ('number','name','address','restaurant_image','rate','discount','date_of_establishment','description','restaurant_image','id')
 
         extra_kwargs = {
             'menu': {'read_only': True},
