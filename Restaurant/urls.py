@@ -21,7 +21,7 @@ urlpatterns = [
     path(r'', include(router.urls)),
     # path(r'', include(order_router.urls)),
     path('restaurant_view/<int:restaurant_id>/<int:userId>/order/',OrderAPIView.as_view(), name = 'order-detail'),
-    path('restaurant_view/<int:restaurant_id>/order/<uuid:order_id>/<int:food_id>/add_to_order/',add_to_Order, name = 'add-to-order'),
+    path('restaurant_view/<int:restaurant_id>/<int:userId>/order/add_to_order/<int:food_id>/',add_to_Order, name = 'add-to-order'),
     path('restaurant_view/<int:restaurant_id>/order/<uuid:order_id>/<int:food_id>/remove_from_order/',remove_from_Order, name = 'add-to-order'),
     path('managers/<int:pk>/', RestaurantManagerDetailView.as_view(), name='manager-detail'),
     path('managers/<int:manager_id>/restaurants/', RestaurantManagerRestaurantListView.as_view(), name='restaurant-list'),
