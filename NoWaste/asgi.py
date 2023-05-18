@@ -4,8 +4,13 @@ ASGI config for NoWaste project.
 It exposes the ASGI callable as a module-level variable named ``application``.
 
 For more information on this file, see
-https://docs.djangoproject.com/en/4.1/howto/deployment/asgi/
-"""
+https://docs.djangoproject.com/en/4.1/howto/deployment/asgi.py"""
+
+
+
+
+
+
 
 import os
 import django
@@ -31,12 +36,4 @@ application = ProtocolTypeRouter(
         ),
     }
 )
-
-
-#  location /ws/{
-#         proxy_pass http://unix:/home/ubuntu/NoWaste/NoWaste.sock;
-#         proxy_http_version 1.1;
-#         proxy_set_header Upgrade $http_upgrade;
-#         proxy_set_header Connection "upgrade";
-#     }
 
