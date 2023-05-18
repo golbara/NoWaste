@@ -4,7 +4,7 @@ from django.urls.conf import include
 from rest_framework.routers import DefaultRouter
 from rest_framework_nested import routers
 from . import views
-from .views import *
+# from .views import *
 
 
 # urlpatterns = [
@@ -16,9 +16,9 @@ from .views import *
 app_name = 'chat'
 
 router = routers.DefaultRouter()
-# router.register('', ChatViewSet, basename='chat')
+router.register('', views.ChatViewSet, basename='chat')
 
 urlpatterns = [
     path('', include(router.urls)),
-    # path('room/<str:room_name>/user_id/<int:user_id>', views.room, name='room')
+    path('room/<str:room_name>/user_id/<int:user_id>/', views.ChatViewSet.room, name='room')
 ]

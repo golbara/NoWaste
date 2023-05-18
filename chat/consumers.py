@@ -160,8 +160,7 @@ class ChatConsumer(WebsocketConsumer):
     def chat_message(self, event):
         message = event['message']
         user_id = event['user_id']
-        sender_type = event['sender_type']
-        
+        sender_type = event['sender_type']        
         # Send message to WebSocket
         self.send(text_data=json.dumps({
             'message': message,
