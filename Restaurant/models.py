@@ -30,6 +30,8 @@ class Order(models.Model):
     restaurant = models.ForeignKey(Restaurant,on_delete=models.CASCADE,related_name="Orders")
     userId = models.ForeignKey(Customer,on_delete=models.DO_NOTHING,related_name="Orders")
     created_at = models.DateTimeField(auto_now_add= True)
+    def __str__(self) -> str:
+        return "user: " + str(self.userId) + " - order id: " + str(self.id)
 
 class OrderItem(models.Model):
     food = models.ForeignKey(Food,on_delete=models.DO_NOTHING,related_name="orderItems")

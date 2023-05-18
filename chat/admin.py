@@ -46,5 +46,9 @@ from .models import *
 
 # admin.site.register(Message,MessageAdmin)
 
-
-admin.site.register(Chat)
+class ChatAdmin(admin.ModelAdmin):
+    ordering = ['date_created']
+    list_display = ['room_name', 'sender', 'date_created']
+    list_filter = ['sender','room_name']
+    search_fields = ('room_name',)
+admin.site.register(Chat, ChatAdmin)

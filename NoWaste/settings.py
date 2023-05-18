@@ -62,7 +62,10 @@ INSTALLED_APPS = [
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
     'rest_framework.authentication.TokenAuthentication',
-    )
+    ),
+    # 'DEFUAULT_PERMISSION_CLASSES':[
+    #     'rest_framework.permissions.AllowAny'
+    # ]
 }
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
