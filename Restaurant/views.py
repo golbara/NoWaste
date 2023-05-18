@@ -260,7 +260,7 @@ class OrderAPIView(generics.CreateAPIView,generics.RetrieveDestroyAPIView):
         if(len(instance)>1):
             instance = instance.last()
         serializer = self.get_serializer(instance)
-        serializer.data.update({'id' : instance.last().id})
+        serializer.data.update({'id' : instance.id})
         return Response(serializer.data)
     
     def get(self, request, *args, **kwargs):

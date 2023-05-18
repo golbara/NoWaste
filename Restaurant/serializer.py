@@ -139,9 +139,8 @@ class SimpleFoodSerializer(serializers.ModelSerializer):
         fields = ['name','price']
 
 class OrderItemSerializer(serializers.ModelSerializer):
-    def get_name_and_price(self,obj:OrderItem):
-        food= Food.objects.get(id = obj.last().food_id)
-        return SimpleFoodSerializer(food).data
+    def get_name_and_price(self,orderitem):
+        return SimpleFoodSerializer(orderitem.food).data
     name_and_price = serializers.SerializerMethodField()
     class Meta : 
         model = OrderItem
@@ -149,14 +148,14 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
 class GetOrderSerializer(serializers.ModelSerializer):
 
-    def get_total_price(self, orders):
+    def get_total_price(self, order):
         #orderitems = OrderItem.objects.filter(order_id = order.first().id)
         #  return sum([item.quantity * item.food.price for item in orderitems])
         # return sum([item.quantity * item.food.price for item in OrderItem.objects.filter(order= order)])
-        order = orders.first()
+        # order = orders.first()
         return sum([item.quantity * item.food.price for item in order.orderItems.all()])
     def get_discount(self,order:Order):
-        return order.first().restaurant.discount
+        return order.restaurant.discount
     
     orderItems = OrderItemSerializer(many=True, read_only=True)
     total_price = serializers.SerializerMethodField()
