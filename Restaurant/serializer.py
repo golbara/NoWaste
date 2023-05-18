@@ -96,7 +96,7 @@ class FoodSerializer(serializers.ModelSerializer):
     class Meta :
         model = Food
         # fields = '__all__'
-        fields = '__all__'
+        fields = ['name','price','ingredients','food_pic','restaurant_id','type','id']
 
 
 class RestaurantManagerSerializer(serializers.ModelSerializer):

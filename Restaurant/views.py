@@ -109,6 +109,19 @@ class FoodViewSet(ModelViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
+class ManagerListCreateFoodViewSet(generics.ListCreateAPIView):
+# class ManagerFoodViewSet(ModelViewSet):
+    serializer_class = FoodSerializer
+    lookup_field = 'restaurant_id'
+    # queryset = Food.objects.all()
+    def get_queryset(self):
+        print(self.kwargs)
+        return Food.objects.filter(restaurant_id=self.kwargs['restaurant_id'])
+
+
+    def get_serializer_context(self):
+        return {'restaurant_id': self.kwargs['restaurant_id']}  
+
     
 class ManagerFoodViewSet(generics.RetrieveUpdateDestroyAPIView):
 # class ManagerFoodViewSet(ModelViewSet):
