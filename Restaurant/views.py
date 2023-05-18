@@ -273,6 +273,7 @@ class OrderAPIView(generics.CreateAPIView,generics.RetrieveDestroyAPIView):
         instance = Order.objects.filter(restaurant_id=self.kwargs['restaurant_id'] ,userId_id = self.kwargs['userId'])
         if(len(instance)>1):
             instance = instance.last()
+        instance = instance.last()
         serializer = self.get_serializer(instance)
         serializer.data.update({'id' : instance.id})
         return Response(serializer.data)

@@ -16,7 +16,7 @@ class RestaurantSerializer(serializers.ModelSerializer):
     class Meta:
         model = Restaurant
         address = serializers.CharField(source = 'address')
-        fields = ('number','name','address','restaurant_image','rate','date_of_establishment','description','restaurant_image','menu','id')
+        fields = ('number','name','address','restaurant_image','rate','discount','date_of_establishment','description','restaurant_image','menu','id')
 
         extra_kwargs = {
             'menu': {'read_only': True},
@@ -154,8 +154,8 @@ class GetOrderSerializer(serializers.ModelSerializer):
         # return sum([item.quantity * item.food.price for item in OrderItem.objects.filter(order= order)])
         # order = orders.first()
         return sum([item.quantity * item.food.price for item in order.orderItems.all()])
-    def get_discount(self,order:Order):
-        return order.restaurant.discount
+    def get_discount(self,orders):
+        return orders.restaurant.discount
     
     orderItems = OrderItemSerializer(many=True, read_only=True)
     total_price = serializers.SerializerMethodField()
