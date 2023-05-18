@@ -149,11 +149,12 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
 class GetOrderSerializer(serializers.ModelSerializer):
 
-    def get_total_price(self, order):
-        orderitems = OrderItem.objects.filter(order_id = order.first().id)
-        return sum([item.quantity * item.food.price for item in orderitems])
+    def get_total_price(self, orders):
+        #orderitems = OrderItem.objects.filter(order_id = order.first().id)
+        #  return sum([item.quantity * item.food.price for item in orderitems])
         # return sum([item.quantity * item.food.price for item in OrderItem.objects.filter(order= order)])
-    
+        order = orders.first()
+        return sum([item.quantity * item.food.price for item in order.orderItems.all()])
     def get_discount(self,order:Order):
         return order.first().restaurant.discount
     
