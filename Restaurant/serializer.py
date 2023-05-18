@@ -93,7 +93,7 @@ class FoodFilterSerializer(serializers.ModelSerializer):
         lookup_field = 'id'
 
 class FoodSerializer(serializers.ModelSerializer):
-    # restaurant = serializers.IntegerField()
+    restaurant_id = serializers.IntegerField(read_only = False)
     class Meta :
         model = Food
         # fields = '__all__'

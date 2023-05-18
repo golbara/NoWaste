@@ -123,6 +123,20 @@ class ManagerFoodListCreateAPIView(generics.ListCreateAPIView):
         print(self.kwargs)
         return {'restaurant_id': self.kwargs['restaurant_id']}
 
+    def create(self, request, *args, **kwargs):
+        # instance = request.data
+        # instance['restaurant_id'] = self.kwargs['restaurant_id']
+        # print(instance)
+        # serializer = FoodSerializer(data= instance)
+        serializer = FoodSerializer(data= request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
 class ManagerFoodViewSet(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = FoodSerializer
     lookup_field = 'pk'
