@@ -38,6 +38,7 @@ class RestaurantSerializer(serializers.ModelSerializer):
         instance.date_of_establishment = validated_data.get('date_of_establishment', instance.date_of_establishment)
         instance.description = validated_data.get('description', instance.description)
         instance.restaurant_image = validated_data.get('restaurant_image', instance.restaurant_image)
+        instance.discount = validated_data.get('discount', instance.discount)
         instance.save()
         return instance
     
