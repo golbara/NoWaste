@@ -13,7 +13,7 @@ urlpatterns = [
     path('forgot-password/', ForgotPasswordViewSet.as_view(), name='forgot-password'),
     path('fp-verify/', ForgotPassVerify.as_view(), name='fp-verify'),
     path('fp-newpassword/', ForgotPassSetNewPass.as_view(), name='fp-newpassword'),
-    path('change_password/<int:pk>/', ChangePasswordView.as_view(), name='Customer_change_password'),
+    path('change_password/<int:pk>/', ChangePasswordView.as_view(), name='MyAuthor_change_password'),
     # path('update_profile/', UpdateProfileView.as_view({[]'get': 'list'}), name='Customer_update_profile'),
     # path('', include(router.urls)),
     #  path('update_profile/', UpdateProfileView.as_view(), name='update-profile'),

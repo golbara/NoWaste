@@ -241,20 +241,32 @@ class RestaurantManagerRestaurantDetailView(generics.RetrieveUpdateDestroyAPIVie
 
 class OrderAPIView(generics.RetrieveDestroyAPIView):
     serializer_class = GetOrderSerializer
-    lookup_field = ('restaurant_id', 'userId')
-    # lookup_url_kwarg = ('restaurant_id','userId')
+    # lookup_field = 'id'
+    lookup_field = 'pk'
+    # lookup_url_kwarg = ('restaurant_id', 'userId')
     def get_queryset(self):
         print(self.kwargs)
         # current_user_id = self.request.user.id
         print(self.kwargs)
         return Order.objects.filter(restaurant_id=self.kwargs['restaurant_id'] ,userId_id = self.kwargs['userId']).prefetch_related('orderItems').select_related('userId').select_related('restaurant')
-        return Order.objects.filter(restaurant_id=self.kwargs['restaurant_id'] ,userId_id = self.kwargs['userId'])
     
     def get_serializer_class(self, *args, **kwargs):
         return GetOrderSerializer
 
     def get_serializer_context(self):
         return {'restaurant_id': self.kwargs['restaurant_id'],'userId_id' : self.kwargs['userId']}
+    
+    # def get_object(self):
+    #     queryset = self.get_queryset()
+    #     filter_kwargs = {
+    #         'restaurant_id': self.kwargs['restaurant_id'],
+    #         'userId_id': self.kwargs['userId']
+    #     }
+    #     obj = generics.get_object_or_404(queryset, **filter_kwargs)
+    #     print(obj)
+
+        # self.check_object_permissions(self.request, obj)
+        # return obj
 
     def retrieve(self, request, *args, **kwargs):
         instance , bool =  self.get_queryset().get_or_create(restaurant_id=self.kwargs['restaurant_id'] ,userId_id = self.kwargs['userId'])
@@ -265,11 +277,25 @@ class OrderAPIView(generics.RetrieveDestroyAPIView):
     
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
+    
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_queryset().first()
+        if instance.status == 'notOrdered':
+            instance.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({'message': 'cancling is not allowed ! order is in Progress by restaurant ...'})
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
+
 
 def add_to_Order(request, *args, **kwargs):
-# class add_to_Order(mixins.RetrieveModelMixin):
-    order , iscreate =  Order.objects.get_or_create(restaurant_id=kwargs['restaurant_id'] ,userId_id = kwargs['userId'])
-    instance = order.orderItems.filter(food_id = kwargs['food_id']).first()
+    instance , iscreate =  Order.objects.get_or_create(restaurant_id=kwargs['restaurant_id'] ,userId_id = kwargs['userId'])
+
+    if(iscreate):
+        instance = OrderItem.objects.create(food_id = kwargs['food_id'], order_id = instance.id)
+    else :
+        instance , bool = OrderItem.objects.get_or_create(order_id=instance.id,food_id = kwargs['food_id'])
     instance.quantity = instance.quantity+ 1
     instance.save()
     
@@ -280,8 +306,12 @@ def add_to_Order(request, *args, **kwargs):
     return HttpResponse(content, content_type='application/json')
 
 def remove_from_Order(request, *args, **kwargs):
-    order , iscreate =  Order.objects.get_or_create(restaurant_id=kwargs['restaurant_id'] ,userId_id = kwargs['userId'])
-    instance = order.orderItems.filter(food_id = kwargs['food_id']).first()
+    instance , iscreate =  Order.objects.get_or_create(restaurant_id=kwargs['restaurant_id'] ,userId_id = kwargs['userId'])
+
+    if(iscreate):
+        instance = OrderItem.objects.create(food_id = kwargs['food_id'], order_id = instance.id)
+    else :
+        instance , bool = OrderItem.objects.get_or_create(order_id=instance.id,food_id = kwargs['food_id'])
     instance.quantity = instance.quantity -  1
     if(instance.quantity < 0) :
         instance.quantity = 0 
