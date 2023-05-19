@@ -147,26 +147,43 @@ class OrderItemSerializer(serializers.ModelSerializer):
         fields = ('quantity','name_and_price')
 
 class GetOrderSerializer(serializers.ModelSerializer):
-
-    def get_total_price(self, order):
+    def get_Subtotal_Grandtotal_discount(self, order:Order):
+        quantities = []
+        price = []
+        discount = 0
+        Grandtotal = 0
+        Subtotal = 0
         #orderitems = OrderItem.objects.filter(order_id = order.first().id)
         #  return sum([item.quantity * item.food.price for item in orderitems])
         # return sum([item.quantity * item.food.price for item in OrderItem.objects.filter(order= order)])
         # order = orders.first()
-        return sum([item.quantity * item.food.price for item in order.orderItems.all()])
-    def get_discount(self,order):
+        for item in order.orderItems.all():
+            price.append(item.quantity * item.food.price)
+            quantities.append(item.quantity)
+        Subtotal = sum(price)
+        Grandtotal = Subtotal
+        # print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",Restaurant.objects.get(id = order.restaurant_id).address)
+        # if sum(quantities) < Restaurant.objects.get(id = order.restaurant_id).purches_counts :
+        if sum(quantities) < order.restaurant.purches_counts:
+            discount = 0
+        else : 
+            discount = order.restaurant.discount
+        if (discount != 0):
+            Grandtotal =(1-discount) * Subtotal
+        return Subtotal,Grandtotal,discount
+
         return order.restaurant.discount
     def get_userAddress(self,order :Order):
         return order.userId.address
     
     orderItems = OrderItemSerializer(many=True, read_only=True)
-    total_price = serializers.SerializerMethodField()
-    discount = serializers.SerializerMethodField()
+    Subtotal_Grandtotal_discount = serializers.SerializerMethodField()
+    # discount = serializers.DecimalField(Subtotal_Grandtotal_discount[2])
     userAddress = serializers.SerializerMethodField()
 
     class Meta : 
         model = Order
-        fields = ('id','orderItems','total_price','discount','userAddress')
+        fields = ('id','orderItems','userAddress','Subtotal_Grandtotal_discount')
 
         extra_kwargs = {
         'orderItems': {'read_only': True},

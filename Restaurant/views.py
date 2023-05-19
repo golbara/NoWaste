@@ -247,7 +247,7 @@ class OrderAPIView(generics.RetrieveDestroyAPIView):
         print(self.kwargs)
         # current_user_id = self.request.user.id
         print(self.kwargs)
-        return Order.objects.filter(restaurant_id=self.kwargs['restaurant_id'] ,userId_id = self.kwargs['userId']).prefetch_related('orderItems').select_related('userId')
+        return Order.objects.filter(restaurant_id=self.kwargs['restaurant_id'] ,userId_id = self.kwargs['userId']).prefetch_related('orderItems').select_related('userId').select_related('restaurant')
         return Order.objects.filter(restaurant_id=self.kwargs['restaurant_id'] ,userId_id = self.kwargs['userId'])
     
     def get_serializer_class(self, *args, **kwargs):
