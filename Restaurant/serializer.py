@@ -164,7 +164,9 @@ class GetOrderSerializer(serializers.ModelSerializer):
         Grandtotal = Subtotal
         # print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",Restaurant.objects.get(id = order.restaurant_id).address)
         # if sum(quantities) < Restaurant.objects.get(id = order.restaurant_id).purches_counts :
-        if sum(quantities) < order.restaurant.purches_counts:
+        if order.restaurant.discount == 0:
+            discount = 0
+        elif sum(quantities) < order.restaurant.purches_counts:
             discount = 0
         else : 
             discount = order.restaurant.discount
