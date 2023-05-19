@@ -291,6 +291,7 @@ class OrderAPIView(generics.RetrieveDestroyAPIView):
 
 def add_to_Order(request, *args, **kwargs):
 # class add_to_Order(mixins.RetrieveModelMixin):
+    instance = OrderItem.objects.all().first()
     instance , iscreate =  Order.objects.get_or_create(restaurant_id=kwargs['restaurant_id'] ,userId_id = kwargs['userId'])
     print(instance)
     # instance = None
