@@ -34,7 +34,6 @@ ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     "channels",
-    'chat',
     "daphne",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -49,6 +48,7 @@ INSTALLED_APPS = [
     "Restaurant",
     'rest_framework.authtoken',
     'django_filters',
+    'chat',
     # 'rest_framework_jwt',
 ]
 
@@ -62,7 +62,10 @@ INSTALLED_APPS = [
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
     'rest_framework.authentication.TokenAuthentication',
-    )
+    ),
+    # 'DEFUAULT_PERMISSION_CLASSES':[
+    #     'rest_framework.permissions.AllowAny'
+    # ]
 }
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -183,6 +186,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
+        # 'BACKEND': 'channels.layers.InMemoryChannelLayer',
         "CONFIG": {
             "hosts": [("127.0.0.1" , 6379)],
         },

@@ -47,8 +47,14 @@ class VerifyEmail(APIView):
                 user = VC_Codes.objects.get(email=user_data['email'])
             except VC_Codes.DoesNotExist:
                 return Response("There is not any user with the given email" , status=status.HTTP_404_NOT_FOUND)
+            print(user_data['code'])
+            print(user.vc_code)
+            print(user_data['code'] == user.vc_code)
             if user_data['code'] == user.vc_code:
                 serializer.save()
+                myauthor = MyAuthor.objects.get(email = user_data['email'])
+                myauthor.role = user_data['role']
+                myauthor.save()
                 return Response(user_data, status=status.HTTP_201_CREATED)
         return Response("verification code is wrong", status=status.HTTP_400_BAD_REQUEST)
     def get(self, request):
@@ -94,7 +100,15 @@ class LoginView(APIView):
             return Response({'error': 'Invalid email or password'}, status=status.HTTP_401_UNAUTHORIZED)
         if user is not None and user.check_password(password):
             token, _ = Token.objects.get_or_create(user=user)
-            return Response({'token': token.key,'id' : user.id})
+            if user.role == "customer":
+                c = Customer.objects.get (email = email)
+                WalletBalance = c.wallet_balance
+                listOfFavorite = list(c.list_of_favorites_res.values_list('name', flat=True))
+                # listOfFavorite = list(c.list_of_favorites_res)
+            else:
+                WalletBalance = None
+                listOfFavorite = None
+            return Response({'token': token.key,'id' : user.id, 'wallet_balance':WalletBalance, 'role':user.role, 'list_of_favorites_res':listOfFavorite})
         else:
             return Response({'error': 'Invalid email or password'}, status=status.HTTP_401_UNAUTHORIZED)
     def get(self,request):
@@ -240,7 +254,7 @@ class UpdateRetrieveProfileView(generics.RetrieveUpdateAPIView):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         return Response(serializer.data, status=status.HTTP_200_OK)
-  
+
 
 class CustomerProfileView(generics.RetrieveAPIView):  
     serializer_class = CustomerSerializer
@@ -291,8 +305,9 @@ class AddRemoveFavorite(APIView):
             else:
                 user.list_of_favorites_res.add(restaurant)
             user.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response("error!", status=status.HTTP_400_BAD_REQUEST)
+            listOfFavorite = list(user.list_of_favorites_res.values_list('name', flat=True))
+            return Response({'list_of_favorites_res':listOfFavorite}, status=status.HTTP_200_OK)
+        return Response("Error!", status=status.HTTP_400_BAD_REQUEST)
     def get(self, request):
         serializer = AddRemoveFavoriteSerializer()
         return Response(serializer.data)
@@ -337,3 +352,39 @@ class CustomerViewSet(ModelViewSet):
         super().destroy(request= request ,pk = pk)
     
 
+class ChargeWalletView(APIView):
+    def post(self, request):
+        serializer = WalletSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            email = serializer.validated_data['email']
+            try:
+                customer = Customer.objects.get(email=email)
+            except Customer.DoesNotExist:
+                return Response("There is not any customer with the given email" , status=status.HTTP_404_NOT_FOUND)
+            customer.wallet_balance += serializer.validated_data['amount']
+            customer.save()
+            return Response({'email' : customer.email, 'wallet_balance':customer.wallet_balance}, status=status.HTTP_200_OK)
+        return Response("error!", status=status.HTTP_400_BAD_REQUEST)
+    def get(self, request):
+        serializer = WalletSerializer()
+        return Response(serializer.data)
+    
+class WithdrawFromWalletView(APIView):
+    def post(self, request):
+        serializer = WalletSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            email = serializer.validated_data['email']
+            try:
+                customer = Customer.objects.get(email=email)
+            except Customer.DoesNotExist:
+                return Response("There is not any customer with the given email" , status=status.HTTP_404_NOT_FOUND)
+            if customer.wallet_balance - serializer.validated_data['amount'] >= 0:
+                customer.wallet_balance -= serializer.validated_data['amount']
+                customer.save()
+            else:
+                return Response("The wallet balance is insufficient" , status=status.HTTP_404_NOT_FOUND)
+            return Response({'email' : customer.email, 'wallet_balance':customer.wallet_balance}, status=status.HTTP_200_OK)
+        return Response("error!", status=status.HTTP_400_BAD_REQUEST)
+    def get(self, request):
+        serializer = WalletSerializer()
+        return Response(serializer.data)

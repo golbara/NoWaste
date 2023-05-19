@@ -4,21 +4,31 @@ from .views import *
 from rest_framework_nested import routers
 
 router = routers.DefaultRouter()
-router.register('restaurant_view', RestaurantCustomerView, basename='restaurant')
 router.register('restaurant-search', RestaurantSearchViewSet, basename='restaurant-search')
 router.register('restaurant_profile',RestaurantProfileViewSet,basename = 'rest-profile')
+router.register('filter-food', FilterFoodViewSet, basename='filter-food')
+# router.register('order', OrderViewSet)
 
-restaurant_router = routers.NestedSimpleRouter(router, 'restaurant_profile', lookup='id')
+router.register('restaurant_view', RestaurantCustomerView, basename='restaurant')
+# order_router = routers.NestedSimpleRouter(router, 'restaurant_view', lookup='restaurant')
+# order_router.register('order', OrderViewSet , basename='order')
+
+restaurant_router = routers.NestedSimpleRouter(router, 'restaurant_view', lookup='restaurant')
 restaurant_router.register('food', FoodViewSet, basename='restaurant-food')
 
+
 urlpatterns = [
-    # path('logout/', LogoutView.as_view(), name='logout'),
-    # path('change_password/<int:pk>/', ChangePasswordView.as_view(), name='restaurant_change_password'),
-    # path('restaurant_view/<int:id>/', RestaurantView.as_view(), name='restaurant-view'),
-    # path('restaurant_profile/<int:id>/', RestaurantView.as_view(), name='restaurant-profile'),
-    path('order/', RestaurantCustomerView.as_view({'get': 'list'}), name='restaurant-view'),
     path(r'', include(router.urls)),
+    # path(r'', include(order_router.urls)),
+    path('restaurant_view/<int:restaurant_id>/<int:userId>/order/',OrderAPIView.as_view(), name = 'order-detail'),
+    path('restaurant_view/<int:restaurant_id>/order/<uuid:order_id>/<int:food_id>/add_to_order/',add_to_Order, name = 'add-to-order'),
+    path('restaurant_view/<int:restaurant_id>/order/<uuid:order_id>/<int:food_id>/remove_from_order/',remove_from_Order, name = 'add-to-order'),
+    path('managers/<int:pk>/', RestaurantManagerDetailView.as_view(), name='manager-detail'),
+    path('managers/<int:manager_id>/restaurants/', RestaurantManagerRestaurantListView.as_view(), name='restaurant-list'),
+    path('managers/<int:manager_id>/restaurants/<int:pk>/', RestaurantManagerRestaurantDetailView.as_view(), name='restaurant-detail'),
+    path('managers/<int:manager_id>/restaurants/<int:restaurant_id>/food/', ManagerFoodListCreateAPIView.as_view(), name='food-list'),
+    path('managers/<int:manager_id>/restaurants/<int:restaurant_id>/food/<int:pk>/',  ManagerFoodViewSet.as_view(), name='food-detail')
 ]
-# urlpatterns = router.urls
+
 
 

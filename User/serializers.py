@@ -3,6 +3,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.models import AnonymousUser
 from rest_framework import serializers
 from .models import *
+# from Restaurant.serializer import RestaurantSerializer
 
 
 class BaseCreateUserSerializer(serializers.ModelSerializer): 
@@ -34,7 +35,7 @@ class CreateCustomerSerializer(BaseCreateUserSerializer):
 
 class CreateRestaurantSerializer(BaseCreateUserSerializer): 
     class Meta(BaseCreateUserSerializer.Meta): 
-        model = Restaurant 
+        model = RestaurantManager
         fields = BaseCreateUserSerializer.Meta.fields
     
 class SignUpSerializer(serializers.ModelSerializer):
@@ -56,6 +57,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
                                         required=True, allow_blank=False, allow_null=False,
                                         validators=[validate_password])
     # role = serializers.CharField()
+    role = serializers.CharField(max_length=255, default="default")
     class Meta:
         model = Customer
         fields = ['name', 'password', 'email', 'role']
@@ -193,3 +195,10 @@ class CustomerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
         fields = '__all__'
+
+class WalletSerializer(serializers.ModelSerializer):
+    email = serializers.CharField(validators=[])
+    amount = serializers.DecimalField(decimal_places=2, max_digits= 20)
+    class Meta:
+        model = Customer
+        fields = ['email', 'amount']
