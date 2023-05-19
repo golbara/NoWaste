@@ -214,7 +214,7 @@ class ForgotPassSetNewPass(APIView):
         return Response(serializer.data)
 
 class ChangePasswordView(generics.UpdateAPIView):
-    queryset = Customer.objects.all()
+    queryset = MyAuthor.objects.all()
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = ChangePasswordSerializer

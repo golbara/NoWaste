@@ -45,8 +45,8 @@ class Restaurant(models.Model):
     number = models.CharField(max_length= 14,blank= True, null=True)
     # this field is for when the number of purchases be more than a specific number , the discount would be given to the customer
     purches_counts =models.IntegerField(blank= True, default= 100)
-    rate = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(5)], default=0.0,blank= True, null=True)
-    count_rates = models.IntegerField(default=0,blank= True, null=True)
+    rate = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(5)], default=0.0,blank= True)
+    count_rates = models.IntegerField(default=0,blank= True)
     date_of_establishment = models.DateField(default=date.today())
     description = models.CharField(max_length=1024 , default= "")
     manager = models.ForeignKey(RestaurantManager, on_delete=models.CASCADE)
