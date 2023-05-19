@@ -5,9 +5,9 @@ from uuid import uuid4
 class Food(models.Model):
     name = models.CharField(max_length=255)
     category = (
-        ("drink", "Drink"), 
-        ("iranian_food", "Iranian_food"), 
-        ("foreign_food", "Foreign_food"), 
+        ("Drink", "Drink"), 
+        ("Iranian", "Iranian"), 
+        ("Foreign", "Foreign"), 
     )
     price = models.DecimalField(decimal_places=2,max_digits=20 , null= True )
     ingredients = models.CharField(max_length=2048, null=True , blank=True)
@@ -32,6 +32,8 @@ class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add= True)
     def __str__(self) -> str:
         return "user: " + str(self.userId) + " - order id: " + str(self.id)
+    class Meta:
+        unique_together = ('userId', 'restaurant',)
 
 class OrderItem(models.Model):
     food = models.ForeignKey(Food,on_delete=models.DO_NOTHING,related_name="orderItems")
