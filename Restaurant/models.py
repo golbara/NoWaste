@@ -40,7 +40,3 @@ class OrderItem(models.Model):
     quantity = models.IntegerField(default= 0)
     order = models.ForeignKey(Order,on_delete=models.CASCADE,related_name="orderItems")
     
-class OrderItem(models.Model):
-    order = models.ForeignKey(Order,on_delete=models.CASCADE,related_name="orederItems")
-    food = models.ForeignKey(Food,on_delete=models.CASCADE)
-    number = models.IntegerField()
