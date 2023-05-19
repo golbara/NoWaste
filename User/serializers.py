@@ -99,7 +99,7 @@ class ChangePasswordSerializer(serializers.ModelSerializer):
     old_password = serializers.CharField(write_only=True, required=True,source = 'password')
 
     class Meta:
-        model = Customer
+        model = MyAuthor
         fields = ('old_password', 'password', 'password2')
 
     def validate(self, attrs):
