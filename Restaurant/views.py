@@ -291,12 +291,12 @@ class OrderAPIView(generics.RetrieveDestroyAPIView):
 
 def add_to_Order(request, *args, **kwargs):
 # class add_to_Order(mixins.RetrieveModelMixin):
-    order , iscreate =  Order.objects.get_or_create(restaurant_id=kwargs['restaurant_id'] ,userId_id = kwargs['userId'])
-    instance = None
+    instance , iscreate =  Order.objects.get_or_create(restaurant_id=kwargs['restaurant_id'] ,userId_id = kwargs['userId'])
+    # instance = None
     if(iscreate):
-        instance = OrderItem.objects.create(food_id = kwargs['food_id'], order_id = order.id)
+        instance = OrderItem.objects.create(food_id = kwargs['food_id'], order_id = instance.id)
     else :
-        instance = order.orderItems.filter(food_id = kwargs['food_id']).first()
+        instance = instance.orderItems.filter(food_id = kwargs['food_id']).first()
     instance.quantity = instance.quantity+ 1
     instance.save()
     
