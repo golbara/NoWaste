@@ -290,9 +290,12 @@ class OrderAPIView(generics.RetrieveDestroyAPIView):
 
 
 def add_to_Order(request, *args, **kwargs):
-# class add_to_Order(mixins.RetrieveModelMixin):
-    order , iscreate =  Order.objects.get_or_create(restaurant_id=kwargs['restaurant_id'] ,userId_id = kwargs['userId'])
-    instance = order.orderItems.filter(food_id = kwargs['food_id']).first()
+    instance , iscreate =  Order.objects.get_or_create(restaurant_id=kwargs['restaurant_id'] ,userId_id = kwargs['userId'])
+
+    if(iscreate):
+        instance = OrderItem.objects.create(food_id = kwargs['food_id'], order_id = instance.id)
+    else :
+        instance , bool = OrderItem.objects.get_or_create(order_id=instance.id,food_id = kwargs['food_id'])
     instance.quantity = instance.quantity+ 1
     instance.save()
     
@@ -303,8 +306,12 @@ def add_to_Order(request, *args, **kwargs):
     return HttpResponse(content, content_type='application/json')
 
 def remove_from_Order(request, *args, **kwargs):
-    order , iscreate =  Order.objects.get_or_create(restaurant_id=kwargs['restaurant_id'] ,userId_id = kwargs['userId'])
-    instance = order.orderItems.filter(food_id = kwargs['food_id']).first()
+    instance , iscreate =  Order.objects.get_or_create(restaurant_id=kwargs['restaurant_id'] ,userId_id = kwargs['userId'])
+
+    if(iscreate):
+        instance = OrderItem.objects.create(food_id = kwargs['food_id'], order_id = instance.id)
+    else :
+        instance , bool = OrderItem.objects.get_or_create(order_id=instance.id,food_id = kwargs['food_id'])
     instance.quantity = instance.quantity -  1
     if(instance.quantity < 0) :
         instance.quantity = 0 
