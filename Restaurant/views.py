@@ -280,7 +280,8 @@ def add_to_Order(request, *args, **kwargs):
     return HttpResponse(content, content_type='application/json')
 
 def remove_from_Order(request, *args, **kwargs):
-    instance, created = OrderItem.objects.get_or_create(order_id=kwargs['order_id'], food_id=kwargs['food_id'])
+    order , iscreate =  Order.objects.get_or_create(restaurant_id=kwargs['restaurant_id'] ,userId_id = kwargs['userId'])
+    instance = order.orderItems.filter(food_id = kwargs['food_id']).first()
     instance.quantity = instance.quantity -  1
     if(instance.quantity < 0) :
         instance.quantity = 0 
