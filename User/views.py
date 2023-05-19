@@ -268,6 +268,7 @@ class CustomerProfileView(generics.RetrieveAPIView):
 
 
 class RateRestaurantView(APIView):
+    permission_classes = [IsAuthenticated]
     def post(self, request):
         serializer = RateRestaurantSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
@@ -287,6 +288,7 @@ class RateRestaurantView(APIView):
 
 
 class AddRemoveFavorite(APIView):
+    permission_classes = [IsAuthenticated]
     def post(self, request):
         serializer = AddRemoveFavoriteSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
@@ -353,6 +355,7 @@ class CustomerViewSet(ModelViewSet):
     
 
 class ChargeWalletView(APIView):
+    permission_classes = [IsAuthenticated]
     def post(self, request):
         serializer = WalletSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
@@ -370,6 +373,7 @@ class ChargeWalletView(APIView):
         return Response(serializer.data)
     
 class WithdrawFromWalletView(APIView):
+    permission_classes = [IsAuthenticated]
     def post(self, request):
         serializer = WalletSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):

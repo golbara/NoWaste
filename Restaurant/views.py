@@ -241,6 +241,7 @@ class RestaurantManagerRestaurantDetailView(generics.RetrieveUpdateDestroyAPIVie
 
 class OrderAPIView(generics.RetrieveDestroyAPIView):
     serializer_class = GetOrderSerializer
+    permission_classes = [IsAuthenticated]
     # lookup_field = 'id'
     lookup_field = 'pk'
     # lookup_url_kwarg = ('restaurant_id', 'userId')
@@ -324,6 +325,7 @@ def remove_from_Order(request, *args, **kwargs):
     return HttpResponse(content, content_type='application/json')
 
 class OrderItemViewSet(ModelViewSet):
+    permission_classes = [IsAuthenticated]
     http_method_names = ['get', 'post', 'patch', 'delete']
 
     def get_serializer_class(self):
