@@ -21,7 +21,7 @@ class Order(models.Model):
     status = (
         ("InProgress", "InProgress"), 
         ("Completed", "Completed"), 
-        ("Cancle", "Cancle"), 
+        ("Cancled", "Cancled"), 
         ("Ordered","Ordered") ,# before restaurant confirmation
         ("notOrdered","notOrdered"),
     )
@@ -32,8 +32,8 @@ class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add= True)
     def __str__(self) -> str:
         return "user: " + str(self.userId) + " - order id: " + str(self.id)
-    class Meta:
-        unique_together = ('userId', 'restaurant',)
+    # class Meta:
+    #     unique_together = ('userId', 'restaurant',)
 
 class OrderItem(models.Model):
     food = models.ForeignKey(Food,on_delete=models.DO_NOTHING,related_name="orderItems")

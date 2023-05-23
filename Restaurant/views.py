@@ -19,7 +19,7 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.renderers import JSONRenderer
-
+from django.db.models import Q
 class ChangePasswordView(generics.UpdateAPIView):
     # queryset = Restaurant.objects.all()
     authentication_classes = [TokenAuthentication]
@@ -239,15 +239,10 @@ class RestaurantManagerRestaurantDetailView(generics.RetrieveUpdateDestroyAPIVie
         return context
 
 
-class OrderAPIView(generics.RetrieveDestroyAPIView):
+class OrderAPIView(generics.RetrieveUpdateAPIView,generics.CreateAPIView):
     serializer_class = GetOrderSerializer
-    # lookup_field = 'id'
     lookup_field = 'pk'
-    # lookup_url_kwarg = ('restaurant_id', 'userId')
     def get_queryset(self):
-        print(self.kwargs)
-        # current_user_id = self.request.user.id
-        print(self.kwargs)
         return Order.objects.filter(restaurant_id=self.kwargs['restaurant_id'] ,userId_id = self.kwargs['userId']).prefetch_related('orderItems').select_related('userId').select_related('restaurant')
     
     def get_serializer_class(self, *args, **kwargs):
@@ -256,46 +251,31 @@ class OrderAPIView(generics.RetrieveDestroyAPIView):
     def get_serializer_context(self):
         return {'restaurant_id': self.kwargs['restaurant_id'],'userId_id' : self.kwargs['userId']}
     
-    # def get_object(self):
-    #     queryset = self.get_queryset()
-    #     filter_kwargs = {
-    #         'restaurant_id': self.kwargs['restaurant_id'],
-    #         'userId_id': self.kwargs['userId']
-    #     }
-    #     obj = generics.get_object_or_404(queryset, **filter_kwargs)
-    #     print(obj)
-
-        # self.check_object_permissions(self.request, obj)
-        # return obj
-
     def retrieve(self, request, *args, **kwargs):
-        instance , bool =  self.get_queryset().get_or_create(restaurant_id=self.kwargs['restaurant_id'] ,userId_id = self.kwargs['userId'])
-        print(instance)
-        serializer = self.get_serializer(instance)
-        # serializer.data.update({'id' : instance.id})
+        instance =  self.get_queryset().filter(restaurant_id=self.kwargs['restaurant_id'],userId_id = self.kwargs['userId']).exclude(Q(status='Completed') | Q(status='Ordered'))
+        serializer = None
+        if (instance.count() == 0) :
+            print("hiii")
+            instance = Order.objects.create(restaurant_id=self.kwargs['restaurant_id'],userId_id = self.kwargs['userId'])
+            serializer = self.get_serializer(instance)
+        else :
+            serializer = self.get_serializer(instance,many = True)
         return Response(serializer.data)
     
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
     
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_queryset().first()
-        if instance.status == 'notOrdered':
-            instance.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response({'message': 'cancling is not allowed ! order is in Progress by restaurant ...'})
-
-    def delete(self, request, *args, **kwargs):
-        return self.destroy(request, *args, **kwargs)
 
 
 def add_to_Order(request, *args, **kwargs):
-    instance , iscreate =  Order.objects.get_or_create(restaurant_id=kwargs['restaurant_id'] ,userId_id = kwargs['userId'])
-
-    if(iscreate):
-        instance = OrderItem.objects.create(food_id = kwargs['food_id'], order_id = instance.id)
+    order  =  Order.objects.filter(restaurant_id=kwargs['restaurant_id'],userId_id = kwargs['userId'],status = 'notOrdered').first()
+    if(order is None):
+        order = Order.objects.create(restaurant_id=kwargs['restaurant_id'],userId_id = kwargs['userId'])
+        instance = OrderItem.objects.create(food_id = kwargs['food_id'], order_id = order.id)
     else :
-        instance , bool = OrderItem.objects.get_or_create(order_id=instance.id,food_id = kwargs['food_id'])
+        instance = OrderItem.objects.filter(food_id = kwargs['food_id'], order_id = order.id).first()
+        if (instance is None):
+            instance = OrderItem.objects.create(food_id = kwargs['food_id'], order_id = order.id)
     instance.quantity = instance.quantity+ 1
     instance.save()
     
@@ -306,13 +286,15 @@ def add_to_Order(request, *args, **kwargs):
     return HttpResponse(content, content_type='application/json')
 
 def remove_from_Order(request, *args, **kwargs):
-    instance , iscreate =  Order.objects.get_or_create(restaurant_id=kwargs['restaurant_id'] ,userId_id = kwargs['userId'])
-
-    if(iscreate):
-        instance = OrderItem.objects.create(food_id = kwargs['food_id'], order_id = instance.id)
+    order  =  Order.objects.filter(restaurant_id=kwargs['restaurant_id'],userId_id = kwargs['userId'],status = 'notOrdered').first()
+    if(order is None):
+        order = Order.objects.create(restaurant_id=kwargs['restaurant_id'],userId_id = kwargs['userId'])
+        instance = OrderItem.objects.create(food_id = kwargs['food_id'], order_id = order.id)
     else :
-        instance , bool = OrderItem.objects.get_or_create(order_id=instance.id,food_id = kwargs['food_id'])
-    instance.quantity = instance.quantity -  1
+        instance = OrderItem.objects.filter(food_id = kwargs['food_id'], order_id = order.id).first()
+        if (instance is None):
+            instance = OrderItem.objects.create(food_id = kwargs['food_id'], order_id = order.id)
+    instance.quantity = instance.quantity- 1
     if(instance.quantity < 0) :
         instance.quantity = 0 
     instance.save()
@@ -336,3 +318,20 @@ class OrderItemViewSet(ModelViewSet):
         return OrderItem.objects \
             .filter(order_id=self.kwargs['id']) \
             .select_related('food')
+class CustomerOrderViewAPI(generics.ListAPIView):
+    def get_serializer_class(self):
+        return CustomerViewOrderSerializer
+
+    def get_queryset(self):
+        return Order.objects.filter(userId_id=self.kwargs['user_id']).select_related('restaurant')
+    
+class RestaurantOrderViewAPI(generics.ListAPIView):
+    serializer_class = RestaurantOrderViewSerializer
+
+    def get_queryset(self):
+        return Order.objects.filter(restaurant_id=self.kwargs['restaurant_id']).select_related('userId')
+
+
+    
+    
+
