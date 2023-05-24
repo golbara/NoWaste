@@ -154,17 +154,11 @@ class GetOrderSerializer(serializers.ModelSerializer):
         discount = 0
         Grandtotal = 0
         Subtotal = 0
-        #orderitems = OrderItem.objects.filter(order_id = order.first().id)
-        #  return sum([item.quantity * item.food.price for item in orderitems])
-        # return sum([item.quantity * item.food.price for item in OrderItem.objects.filter(order= order)])
-        # order = orders.first()
         for item in order.orderItems.all():
             price.append(item.quantity * item.food.price)
             quantities.append(item.quantity)
         Subtotal = sum(price)
         Grandtotal = Subtotal
-        # print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",Restaurant.objects.get(id = order.restaurant_id).address)
-        # if sum(quantities) < Restaurant.objects.get(id = order.restaurant_id).purches_counts :
         if order.restaurant.discount == 0:
             discount = 0
         elif sum(quantities) < order.restaurant.purches_counts:
@@ -175,13 +169,11 @@ class GetOrderSerializer(serializers.ModelSerializer):
             Grandtotal =(1-discount) * Subtotal
         return Subtotal,Grandtotal,discount
 
-        return order.restaurant.discount
     def get_userAddress(self,order :Order):
         return order.userId.address
     
     orderItems = OrderItemSerializer(many=True, read_only=True)
     Subtotal_Grandtotal_discount = serializers.SerializerMethodField()
-    # discount = serializers.DecimalField(Subtotal_Grandtotal_discount[2])
     userAddress = serializers.SerializerMethodField()
 
     class Meta : 
@@ -200,3 +192,38 @@ class CreateOrderSerializer(serializers.ModelSerializer):
     class Meta : 
         model = Order
         fields = ['userId_id','restaurant_id']
+class SimpleRestaurantSerializer(serializers.ModelSerializer):
+    class Meta : 
+        model = Restaurant
+        fields = ['name','address','logo','number']
+
+class CustomerViewOrderSerializer(serializers.ModelSerializer):
+    def get_orderDetails(self,order):
+        return GetOrderSerializer(order).data
+    def get_restaurantDetails(self,order):
+        return SimpleRestaurantSerializer(order.restaurant).data
+    orderDetails = serializers.SerializerMethodField()  # Embedding ParentSerializer in ChildSerializer
+    restaurantDetails = serializers.SerializerMethodField()
+    status = serializers.CharField()
+
+    class Meta : 
+        model = Order
+        fields = ['orderDetails','restaurantDetails','status']
+
+class SimpleUserSerializer(serializers.ModelSerializer):
+    class Meta :
+        model = Customer
+        fields = ['name','phone_number','address','username']
+class RestaurantOrderViewSerializer(serializers.ModelSerializer):
+    def get_orderDetails(self,order):
+        return GetOrderSerializer(order).data
+    def get_userDetails(self,order):
+        return SimpleUserSerializer(order.userId).data
+    orderDetails = serializers.SerializerMethodField()  # Embedding ParentSerializer in ChildSerializer
+    userDetails = serializers.SerializerMethodField()
+    status = serializers.CharField()
+
+    class Meta : 
+        model = Order
+        fields = ['orderDetails','userDetails','status']
+

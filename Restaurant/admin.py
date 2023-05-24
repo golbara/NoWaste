@@ -7,7 +7,7 @@ class FoodAdmin(admin.ModelAdmin):
     list_display = ['name', 'restaurant', 'type']
     list_filter = ['type','restaurant']
     search_fields = ('name','type')
-    
+
 class OrderAdmin(admin.ModelAdmin):
     ordering = ['created_at', 'userId']
     list_display = ['id', 'userId', 'restaurant', 'status']
@@ -22,3 +22,4 @@ class OrderItemAdmin(admin.ModelAdmin):
 admin.site.register(Food,FoodAdmin)
 admin.site.register(Order, OrderAdmin)
 admin.site.register(OrderItem, OrderItemAdmin)
+

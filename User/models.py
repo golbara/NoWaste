@@ -37,6 +37,11 @@ class RestaurantManager(MyAuthor):
         return self.name
 
 class Restaurant(models.Model):
+    category = (
+        ("Iranian", "Iranian"), 
+        ("Foreign", "Foreign"), 
+    )
+    type = models.CharField(choices=category,max_length=255, blank=True)
     address = models.CharField(max_length=255)
     name = models.CharField(max_length=255, unique=True)
     restaurant_image = models.TextField(null= True , blank= True)
