@@ -27,7 +27,10 @@ urlpatterns = [
     path('managers/<int:manager_id>/restaurants/', RestaurantManagerRestaurantListView.as_view(), name='restaurant-list'),
     path('managers/<int:manager_id>/restaurants/<int:pk>/', RestaurantManagerRestaurantDetailView.as_view(), name='restaurant-detail'),
     path('managers/<int:manager_id>/restaurants/<int:restaurant_id>/food/', ManagerFoodListCreateAPIView.as_view(), name='food-list'),
-    path('managers/<int:manager_id>/restaurants/<int:restaurant_id>/food/<int:pk>/',  ManagerFoodViewSet.as_view(), name='food-detail')
+    path('managers/<int:manager_id>/restaurants/<int:restaurant_id>/food/<int:pk>/',  ManagerFoodViewSet.as_view(), name='food-detail'),
+    path('comment/user_id/<int:user_id>/restaurant_id/<int:restaurant_id>/', CommentAPI.as_view(), name='comment'),
+    path('comment/restaurant_id/<int:restaurant_id>/', RestaurantCommentListAPIView.as_view(), name='restaurant-comments'),
+
 ]
 
 

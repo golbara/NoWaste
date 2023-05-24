@@ -200,3 +200,14 @@ class CreateOrderSerializer(serializers.ModelSerializer):
     class Meta : 
         model = Order
         fields = ['userId_id','restaurant_id']
+
+class CommentSerializer(serializers.ModelSerializer):
+    writer_username = serializers.CharField(write_only=True, required=False,allow_blank=True, allow_null=True, validators=[])
+    restaurant_name = serializers.CharField(write_only=True, required=False,allow_blank=True, allow_null=True, validators=[])
+    class Meta : 
+        model = Comment
+        fields = ['text', 'writer_username', 'restaurant_name']
+    def create(self, validated_data):
+        # writer_username = validated_data.pop('writer_username',None)
+        # restaurant_name = validated_data.pop('restaurant_name',None)
+        return super().create(validated_data)
