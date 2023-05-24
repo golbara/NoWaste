@@ -19,7 +19,17 @@ class OrderItemAdmin(admin.ModelAdmin):
     list_display = ['food', 'order']
     list_filter = ['order', 'food','quantity']
     # search_fields = (,)
+
+class CommentAdmin(admin.ModelAdmin):
+    ordering = ['created_at']
+    list_display = ['writer', 'restaurant', 'created_at']
+    readonly_fields = ('created_at',)
+    list_filter = ['writer','restaurant']
+    search_fields = ('writer',)
+
+
 admin.site.register(Food,FoodAdmin)
 admin.site.register(Order, OrderAdmin)
 admin.site.register(OrderItem, OrderItemAdmin)
 
+admin.site.register(Comment, CommentAdmin)

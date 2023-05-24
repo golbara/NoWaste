@@ -336,3 +336,37 @@ class RestaurantOrderViewAPI(generics.ListAPIView):
     
     
 
+
+
+class CommentAPI(APIView):
+    # permission_classes = [IsAuthenticated]
+    def post(self, request, *args, **kwargs):
+        serializer = CommentSerializer(data=request.data)
+        writer = Customer.objects.get(id = kwargs['user_id'])
+        restaurant = Restaurant.objects.get(id = kwargs['restaurant_id'])
+        # serializer.initial_data['writer_username'] = writer.username
+        # serializer.initial_data['restaurant_name'] = restaurant.name
+        if serializer.is_valid(raise_exception=True):
+            new_comment, created = Comment.objects.get_or_create(writer = writer, restaurant=restaurant)
+            
+            new_comment.text = serializer.validated_data['text']
+            # serializer.save()
+            new_comment.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def get(self, request, *args, **kwargs):
+        serializer = CommentSerializer()
+        writer = Customer.objects.get(id = kwargs['user_id'])
+        restaurant = Restaurant.objects.get(id = kwargs['restaurant_id'])
+        try:
+            comment = Comment.objects.get(writer=writer, restaurant=restaurant)
+            return Response({'comment': comment.text}, status=status.HTTP_200_OK)
+        except:
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+class RestaurantCommentListAPIView(generics.ListAPIView):
+    serializer_class = CommentSerializer
+
+    def get_queryset(self):
+        restaurant_id = self.kwargs['restaurant_id']
+        return Comment.objects.filter(restaurant_id=restaurant_id)

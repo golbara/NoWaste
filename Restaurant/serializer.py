@@ -227,3 +227,16 @@ class RestaurantOrderViewSerializer(serializers.ModelSerializer):
         model = Order
         fields = ['orderDetails','userDetails','status']
 
+
+class CommentSerializer(serializers.ModelSerializer):
+    # writer_username = serializers.CharField( required=False, validators=[])
+    # restaurant_name = serializers.CharField( required=False, validators=[])
+    writer_username = serializers.CharField(source='writer.username', read_only=True)
+    created_at = serializers.DateTimeField()
+    class Meta : 
+        model = Comment
+        fields = ['text', 'writer_username', 'created_at']
+    # def create(self, validated_data):
+        # writer_username = validated_data.pop('writer_username',None)
+        # restaurant_name = validated_data.pop('restaurant_name',None)
+        # return super().create(validated_data)

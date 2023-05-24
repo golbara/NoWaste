@@ -47,9 +47,9 @@ class VerifyEmail(APIView):
                 user = VC_Codes.objects.get(email=user_data['email'])
             except VC_Codes.DoesNotExist:
                 return Response("There is not any user with the given email" , status=status.HTTP_404_NOT_FOUND)
-            print(user_data['code'])
-            print(user.vc_code)
-            print(user_data['code'] == user.vc_code)
+            # print(user_data['code'])
+            # print(user.vc_code)
+            # print(user_data['code'] == user.vc_code)
             if user_data['code'] == user.vc_code:
                 serializer.save()
                 myauthor = MyAuthor.objects.get(email = user_data['email'])
@@ -268,7 +268,7 @@ class CustomerProfileView(generics.RetrieveAPIView):
 
 
 class RateRestaurantView(APIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     def post(self, request):
         serializer = RateRestaurantSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
@@ -288,7 +288,7 @@ class RateRestaurantView(APIView):
 
 
 class AddRemoveFavorite(APIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     def post(self, request):
         serializer = AddRemoveFavoriteSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
@@ -355,7 +355,7 @@ class CustomerViewSet(ModelViewSet):
     
 
 class ChargeWalletView(APIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     def post(self, request):
         serializer = WalletSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
@@ -373,7 +373,7 @@ class ChargeWalletView(APIView):
         return Response(serializer.data)
     
 class WithdrawFromWalletView(APIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     def post(self, request):
         serializer = WalletSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
