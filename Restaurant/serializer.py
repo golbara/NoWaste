@@ -205,7 +205,7 @@ class CommentSerializer(serializers.ModelSerializer):
     # writer_username = serializers.CharField( required=False, validators=[])
     # restaurant_name = serializers.CharField( required=False, validators=[])
     writer_username = serializers.CharField(source='writer.username', read_only=True)
-    created_at = serializers.DateTimeField(required=False, read_only=True)
+    created_at = serializers.DateField(required=False, read_only=True)
     class Meta : 
         model = Comment
         fields = ['text', 'writer_username', 'created_at']
