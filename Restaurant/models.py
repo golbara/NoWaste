@@ -1,6 +1,7 @@
 from django.db import models
 from User.models  import Restaurant ,Customer
 from uuid import uuid4
+from datetime import *
 
 class Food(models.Model):
     name = models.CharField(max_length=255)
@@ -44,7 +45,7 @@ class Comment(models.Model):
     restaurant = models.ForeignKey(Restaurant,on_delete=models.CASCADE,related_name="comments")
     writer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     text = models.CharField(max_length=512, default="", blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateField(default=date.today())
     class Meta:
         ordering = ['-created_at']
     def __str__(self) -> str:
