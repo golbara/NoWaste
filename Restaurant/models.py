@@ -46,7 +46,7 @@ class Comment(models.Model):
     restaurant = models.ForeignKey(Restaurant,on_delete=models.CASCADE,related_name="comments")
     writer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     text = models.CharField(max_length=512, default="", blank=True)
-    created_at = models.DateField(default=timezone.now)
+    created_at = models.DateTimeField(auto_now_add= True)
     class Meta:
         ordering = ['-created_at']
     def __str__(self) -> str:
