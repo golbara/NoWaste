@@ -6,6 +6,7 @@ class RestaurantFilter(FilterSet):
     model = Restaurant
     fields = {
         # 'collection_id': ['exact'],
+        'type': ['exact'],
         'rate': ['gte', 'lte'],
         'discount': ['gte', 'lte'],
     }
