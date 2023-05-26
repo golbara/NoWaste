@@ -186,12 +186,12 @@ class GetOrderSerializer(serializers.ModelSerializer):
         'total_price': {'read_only': True}
         }
 
-class CreateOrderSerializer(serializers.ModelSerializer):
-    userId_id = serializers.IntegerField()
-    restaurant_id = serializers.IntegerField()
-    class Meta : 
-        model = Order
-        fields = ['userId_id','restaurant_id']
+# class CreateOrderSerializer(serializers.ModelSerializer):
+#     userId_id = serializers.IntegerField()
+#     restaurant_id = serializers.IntegerField()
+#     class Meta : 
+#         model = Order
+#         fields = ['userId_id','restaurant_id']
 class SimpleRestaurantSerializer(serializers.ModelSerializer):
     class Meta : 
         model = Restaurant
@@ -208,12 +208,13 @@ class CustomerViewOrderSerializer(serializers.ModelSerializer):
 
     class Meta : 
         model = Order
-        fields = ['orderDetails','restaurantDetails','status']
+        fields = ['orderDetails','restaurantDetails','status','created_at']
+
 
 class SimpleUserSerializer(serializers.ModelSerializer):
     class Meta :
         model = Customer
-        fields = ['name','phone_number','address','username']
+        fields = ['name','phone_number','address','username','email']
 class RestaurantOrderViewSerializer(serializers.ModelSerializer):
     def get_orderDetails(self,order):
         return GetOrderSerializer(order).data
@@ -222,10 +223,14 @@ class RestaurantOrderViewSerializer(serializers.ModelSerializer):
     orderDetails = serializers.SerializerMethodField()  # Embedding ParentSerializer in ChildSerializer
     userDetails = serializers.SerializerMethodField()
     status = serializers.CharField()
-
     class Meta : 
         model = Order
-        fields = ['orderDetails','userDetails','status']
+        fields = ['orderDetails','userDetails','status','created_at']
+class UpdateOrderSerializer(serializers.ModelSerializer):
+    class Meta : 
+        model = Order
+        fields = ['status']
+
 
 
 class CommentSerializer(serializers.ModelSerializer):

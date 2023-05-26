@@ -264,7 +264,8 @@ class OrderAPIView(generics.RetrieveUpdateAPIView,generics.CreateAPIView):
     
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
-    
+    def patch(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
 
 
 def add_to_Order(request, *args, **kwargs):
@@ -332,10 +333,19 @@ class RestaurantOrderViewAPI(generics.ListAPIView):
     def get_queryset(self):
         return Order.objects.filter(restaurant_id=self.kwargs['restaurant_id']).select_related('userId')
 
-
-    
-    
-
+class UpdateOrderStatusAPI(generics.UpdateAPIView):
+    def get_serializer_class(self, *args, **kwargs):
+        return UpdateOrderSerializer
+    def get_queryset(self):
+        return Order.objects.filter(id = self.kwargs['order_id'])
+    def patch(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.save()
+        return Response(serializer.data)
+    def put(self, request, *args, **kwargs):
+        return self.patch(request, *args, **kwargs)
 
 
 class CommentAPI(APIView):
