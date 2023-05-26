@@ -22,6 +22,7 @@ urlpatterns = [
     # path(r'', include(order_router.urls)),
     path('<int:restaurant_id>/orderview/',RestaurantOrderViewAPI.as_view(),name = 'restaurant-orders-view'),
     path('restaurant_view/<int:restaurant_id>/<int:userId>/order/',OrderAPIView.as_view(), name = 'order-detail'),
+    path('restaurant_view/<int:restaurant_id>/<int:userId>/order/<uuid:order_id>/',UpdateOrderStatusAPI.as_view(), name = 'update-order-status'),
     path('restaurant_view/<int:restaurant_id>/<int:userId>/order/add_to_order/<int:food_id>/',add_to_Order, name = 'add-to-order'),
     path('restaurant_view/<int:restaurant_id>/<int:userId>/order/remove_from_order/<int:food_id>/',remove_from_Order, name = 'remove-from-order'),
     path('customer/<int:user_id>/orderview/', CustomerOrderViewAPI.as_view(),name = 'cutomer-orders-view'),
