@@ -350,11 +350,10 @@ class CommentAPI(APIView):
         # serializer.initial_data['restaurant_name'] = restaurant.name
         if serializer.is_valid(raise_exception=True):
             new_comment, created = Comment.objects.get_or_create(writer = writer, restaurant=restaurant)
-            
             new_comment.text = serializer.validated_data['text']
             # serializer.save()
             new_comment.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.validated_data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     def get(self, request, *args, **kwargs):
         serializer = CommentSerializer()
