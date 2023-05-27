@@ -236,11 +236,12 @@ class UpdateOrderSerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     # writer_username = serializers.CharField( required=False, validators=[])
     # restaurant_name = serializers.CharField( required=False, validators=[])
+    # created_at = serializers.DateTimeField(required=False, read_only=True)
+    # created_at = serializers.DateTimeField( read_only=True)
+    def get_created_at_date(self, comment :Comment):
+        return str(comment.created_at)[:10]
     writer_username = serializers.CharField(source='writer.username', read_only=True)
     created_at_date = serializers.SerializerMethodField(read_only=True)
-
-    def get_created_at_date(self, instance):
-        return str(instance.created_at)[:10]
     class Meta : 
         model = Comment
         fields = ['text', 'writer_username', 'created_at_date']
