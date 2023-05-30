@@ -104,11 +104,15 @@ class LoginView(APIView):
                 c = Customer.objects.get (email = email)
                 WalletBalance = c.wallet_balance
                 listOfFavorite = list(c.list_of_favorites_res.values_list('name', flat=True))
+                result_fav = []
+                for r in listOfFavorite:
+                    res = Restaurant.objects.get(name = r)
+                    result_fav.append({'address': res.address, 'name': res.name, 'restaurant_image': res.restaurant_image, 'discount': res.discount, 'number': res.number, 'rate': res.rate, 'date_of_establishment': res.date_of_establishment, 'description': res.description, 'id': res.id})
                 # listOfFavorite = list(c.list_of_favorites_res)
             else:
                 WalletBalance = None
                 listOfFavorite = None
-            return Response({'token': token.key,'id' : user.id, 'wallet_balance':WalletBalance, 'role':user.role, 'list_of_favorites_res':listOfFavorite})
+            return Response({'token': token.key,'id' : user.id, 'wallet_balance':WalletBalance, 'role':user.role, 'list_of_favorites_res':result_fav})
         else:
             return Response({'error': 'Invalid email or password'}, status=status.HTTP_401_UNAUTHORIZED)
     def get(self,request):
