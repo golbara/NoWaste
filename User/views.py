@@ -48,10 +48,8 @@ class VerifyEmail(APIView):
                 user = VC_Codes.objects.get(email=user_data['email'])
             except VC_Codes.DoesNotExist:
                 return Response("There is not any user with the given email" , status=status.HTTP_404_NOT_FOUND)
-            # print(user_data['code'])
-            # print(user.vc_code)
-            # print(user_data['code'] == user.vc_code)
             if user_data['code'] == user.vc_code:
+                VC_Codes.objects.delete(vc_code = user.vc_code)
                 serializer.save()
                 myauthor = MyAuthor.objects.get(email = user_data['email'])
                 myauthor.role = user_data['role']
