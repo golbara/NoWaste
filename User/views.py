@@ -126,16 +126,6 @@ class LogoutView(APIView):
     
     permission_classes = [IsAuthenticated]
     def get(self, request):
-        # Get the token from the user's request
-        token = request.auth
-        
-        # Create a response with headers
-        response = HttpResponse(content_type='application/json')
-        response['Authorization'] = f'Token {token}'
-        
-        # Return the response
-        return response
-    def Post(self, request):
         user = request.user
         Token.objects.filter(user=user).delete()
         logout(request)
@@ -232,8 +222,9 @@ class ChangePasswordView(generics.UpdateAPIView):
 
 
 class UpdateRetrieveProfileView(generics.RetrieveUpdateAPIView):
+    authentication_classes = [TokenAuthentication]
+    
     permission_classes = [IsAuthenticated]
-    # queryset = Customer.objects.all()
     def get_queryset(self):
         return Customer.objects.filter(id=self.kwargs['id'])
     def get_serializer_class(self):
@@ -273,7 +264,9 @@ class CustomerProfileView(generics.RetrieveAPIView):
 
 
 class RateRestaurantView(APIView):
-    # permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    
+    permission_classes = [IsAuthenticated]
     def post(self, request):
         serializer = RateRestaurantSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
@@ -293,7 +286,9 @@ class RateRestaurantView(APIView):
 
 
 class AddRemoveFavorite(APIView):
-    # permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    
+    permission_classes = [IsAuthenticated]
     def post(self, request):
         serializer = AddRemoveFavoriteSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
@@ -318,49 +313,12 @@ class AddRemoveFavorite(APIView):
     def get(self, request):
         serializer = AddRemoveFavoriteSerializer()
         return Response(serializer.data)
-        password = request.data.get('password')
-                # authenticate user
-        user = authenticate(email = email, password=password)
-        if not user:
-            return Response({'error': 'Invalid username or password'}, status=status.HTTP_401_UNAUTHORIZED)
-        token, created = Token.objects.get_or_create(user=user)
-        return Response({
-            'token': token.key,
-            'user_id': user.pk,
-            'email': user.email
-        })
+
     
-class CustomerViewSet(ModelViewSet):
-    """
-    A viewset for viewing and editing user instances.
-    """
-    serializer_class =CustomerSerializer
-    queryset = Customer.objects.all()
-
-    def create(self, request):
-        pass
-
-        queryset = Customer.objects.all()
-        serializer = CustomerSerializer(queryset, many=True)
-        return Response(serializer.data)
-
-    def retrieve(self, request, pk=None):
-        queryset = Customer.objects.all()
-        user = get_object_or_404(queryset, pk=pk)
-        serializer = CustomerSerializer(user)
-        return Response(serializer.data)
-    def update(self, request, pk=None):
-        super().update(request,pk = pk)
-
-    # def partial_update(self, request, pk=None):
-    #     instance = Customer.objects.get(pk)
-
-    def destroy(self, request, pk=None):
-        super().destroy(request= request ,pk = pk)
-    
-
 class ChargeWalletView(APIView):
-    # permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    
+    permission_classes = [IsAuthenticated]
     def post(self, request):
         serializer = WalletSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
@@ -378,7 +336,9 @@ class ChargeWalletView(APIView):
         return Response(serializer.data)
     
 class WithdrawFromWalletView(APIView):
-    # permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    
+    permission_classes = [IsAuthenticated]
     def post(self, request):
         serializer = WalletSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
