@@ -30,20 +30,20 @@ from chat.routing import websocket_urlpatterns
 application = ProtocolTypeRouter(
     {
         "http": application,
-        # "websocket": AllowedHostsOriginValidator(
-        #     AuthMiddlewareStack(URLRouter(websocket_urlpatterns))
-        # ),
         "websocket": AllowedHostsOriginValidator(
-            URLRouter(websocket_urlpatterns)
+            AuthMiddlewareStack(URLRouter(websocket_urlpatterns))
         ),
+        # "websocket": AllowedHostsOriginValidator(
+        #     URLRouter(websocket_urlpatterns)
+        # ),
     }
 )
 
 # application = ProtocolTypeRouter({
 #     "http": application,
-#     "websocket": AuthMiddlewareStack(
-#         URLRouter(
-#             websocket_urlpatterns
-#         )
-#     ),
+#      "websocket": AuthMiddlewareStack(
+#          URLRouter(
+#              websocket_urlpatterns
+#          )
+#      ),
 # })
