@@ -33,17 +33,6 @@ application = ProtocolTypeRouter(
         "websocket": AllowedHostsOriginValidator(
             AuthMiddlewareStack(URLRouter(websocket_urlpatterns))
         ),
-        # "websocket": AllowedHostsOriginValidator(
-        #     URLRouter(websocket_urlpatterns)
-        # ),
     }
 )
 
-# application = ProtocolTypeRouter({
-#     "http": application,
-#      "websocket": AuthMiddlewareStack(
-#          URLRouter(
-#              websocket_urlpatterns
-#          )
-#      ),
-# })
