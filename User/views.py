@@ -144,10 +144,6 @@ class ForgotPasswordViewSet(APIView):
         except MyAuthor.DoesNotExist:
             return Response("There is not any user with the given email" , status=status.HTTP_404_NOT_FOUND)
         newCode = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
-        try:
-            u = VC_Codes.objects.get(email = email)
-        except VC_Codes.DoesNotExist:
-            return Response({'error': 'Invalid email'}, status=status.HTTP_401_UNAUTHORIZED)
         u.vc_code = newCode
         u.save()
         template = render_to_string('forgotpass_template.html',
