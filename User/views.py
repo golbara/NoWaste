@@ -405,8 +405,9 @@ class CitiesView(APIView):
         # return Response({'country_choices' : country_choices, 'city_choices':city_choices})
     def get(self, request):
         cities = City.objects.all()
-        print(cities)
+        # print(cities)
         city_choices = {}
+        country_choices = list(Country.objects.all().values_list('name', flat=True))
 
         for city in cities:
             contry= Country.objects.get(id = city.country_id)
@@ -415,4 +416,4 @@ class CitiesView(APIView):
                 city_choices[country_name] = []  # Create an empty list for the country if it doesn't exist
             city_choices[country_name].append((city.name))  # Append the city to the country's list
 
-        return Response({'city_choices': city_choices})
+        return Response({'country_choices': country_choices, 'city_choices': city_choices})
