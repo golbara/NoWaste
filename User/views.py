@@ -30,6 +30,7 @@ from django.core.validators import EmailValidator
 from django.forms import ValidationError
 import random , string
 # import jwt
+from cities_light.models import Country, City
 
 class VerifyEmail(APIView):
     def get_serializer_class(self, request):
@@ -356,3 +357,23 @@ class WithdrawFromWalletView(APIView):
     def get(self, request):
         serializer = WalletSerializer()
         return Response(serializer.data)
+
+class CitiesView(APIView):
+    # def get(self, request):
+    #     country_choices = Country.objects.all()
+    #     city_choices = City.objects.all()
+        # return Response({'country_choices' : country_choices, 'city_choices':city_choices})
+    def get(self, request):
+        cities = City.objects.all()
+        # print(cities)
+        city_choices = {}
+        country_choices = list(Country.objects.all().values_list('name', flat=True))
+
+        for city in cities:
+            contry= Country.objects.get(id = city.country_id)
+            country_name = contry.name # Get the country name as the key
+            if country_name not in city_choices:
+                city_choices[country_name] = []  # Create an empty list for the country if it doesn't exist
+            city_choices[country_name].append((city.name))  # Append the city to the country's list
+
+        return Response({'country_choices': country_choices, 'city_choices': city_choices})

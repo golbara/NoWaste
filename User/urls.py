@@ -20,4 +20,7 @@ urlpatterns = [
     path('withdraw-wallet/', WithdrawFromWalletView.as_view(), name='withdraw-wallet'),
     path('withdraw-wallet/', WithdrawFromWalletView.as_view(), name='withdraw-wallet'),
     path('withdraw-wallet/', WithdrawFromWalletView.as_view(), name='withdraw-wallet'),
+    path('city-country/', CitiesView.as_view(), name='city-country'),
+
+
 ]
