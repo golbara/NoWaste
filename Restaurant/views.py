@@ -20,6 +20,8 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.renderers import JSONRenderer
 from django.db.models import Q
+import requests
+import json
 class ChangePasswordView(generics.UpdateAPIView):
     # queryset = Restaurant.objects.all()
     authentication_classes = [TokenAuthentication]
@@ -380,3 +382,15 @@ class RestaurantCommentListAPIView(generics.ListAPIView):
     def get_queryset(self):
         restaurant_id = self.kwargs['restaurant_id']
         return Comment.objects.filter(restaurant_id=restaurant_id)
+
+def search_nearest_restaurant(request):
+    # if request.method == 'POST':
+    #     r = requests.post('https://map.ir/distancematrix', params=request.POST)
+    # else:
+    r = requests.get('https://map.ir/distancematrix', params=request.GET)
+    if r.status_code == 200:
+        response_data = r.json()
+        # Serialize the response into a pretty JSON string
+        json_str = json.dumps(response_data, indent=4)
+        return HttpResponse(json_str, content_type='application/json')
+    return HttpResponse('Could not save data')
