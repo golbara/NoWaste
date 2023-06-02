@@ -288,6 +288,7 @@ class OrderAPIView(generics.RetrieveUpdateAPIView,generics.CreateAPIView):
 
 def add_to_Order(request, *args, **kwargs):
     order  =  Order.objects.filter(restaurant_id=kwargs['restaurant_id'],userId_id = kwargs['userId'],status = 'notOrdered').first()
+    instance = order
     if(order is None):
         try :
             order = Order.objects.create(restaurant_id=kwargs['restaurant_id'],userId_id = kwargs['userId'])
@@ -297,12 +298,12 @@ def add_to_Order(request, *args, **kwargs):
             print("An exception occurred:", error) 
     else :
         instance = OrderItem.objects.filter(food_id = kwargs['food_id'], order_id = order.id).first()
-        try:
-            if (instance is None):
+        if (instance is None):
+            try :
                 instance = OrderItem.objects.create(food_id = kwargs['food_id'], order_id = order.id)
-        except Exception as error:
+            except Exception as error:
             # handle the exception
-            print("An exception occurred:", error)         
+                print("An exception occurred:", error)         
     instance.quantity = instance.quantity+ 1
     instance.save()
     
@@ -314,13 +315,22 @@ def add_to_Order(request, *args, **kwargs):
 
 def remove_from_Order(request, *args, **kwargs):
     order  =  Order.objects.filter(restaurant_id=kwargs['restaurant_id'],userId_id = kwargs['userId'],status = 'notOrdered').first()
+    instance = order
     if(order is None):
-        order = Order.objects.create(restaurant_id=kwargs['restaurant_id'],userId_id = kwargs['userId'])
-        instance = OrderItem.objects.create(food_id = kwargs['food_id'], order_id = order.id)
+        try:
+            order = Order.objects.create(restaurant_id=kwargs['restaurant_id'],userId_id = kwargs['userId'])
+            instance = OrderItem.objects.create(food_id = kwargs['food_id'], order_id = order.id)
+        except Exception as error:
+            # handle the exception
+            print("An exception occurred:", error) 
     else :
         instance = OrderItem.objects.filter(food_id = kwargs['food_id'], order_id = order.id).first()
         if (instance is None):
-            instance = OrderItem.objects.create(food_id = kwargs['food_id'], order_id = order.id)
+            try:
+                instance = OrderItem.objects.create(food_id = kwargs['food_id'], order_id = order.id)
+            except Exception as error:
+            # handle the exception
+                print("An exception occurred:", error) 
     instance.quantity = instance.quantity- 1
     if(instance.quantity < 0) :
         instance.quantity = 0 
