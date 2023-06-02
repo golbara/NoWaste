@@ -303,8 +303,12 @@ def add_to_Order(request, *args, **kwargs):
                 instance = OrderItem.objects.create(food_id = kwargs['food_id'], order_id = order.id)
             except Exception as error:
             # handle the exception
-                print("An exception occurred:", error)         
-    instance.quantity = instance.quantity+ 1
+                print("An exception occurred:", error)       
+    try:  
+        instance.quantity = instance.quantity+ 1
+    except Exception as error:
+        # handle the exception
+        print("An exception occurred:", error) 
     instance.save()
     
     serializer = OrderItemSerializer(instance)
@@ -315,7 +319,7 @@ def add_to_Order(request, *args, **kwargs):
 
 def remove_from_Order(request, *args, **kwargs):
     order  =  Order.objects.filter(restaurant_id=kwargs['restaurant_id'],userId_id = kwargs['userId'],status = 'notOrdered').first()
-    instance = order
+    instance = OrderItem.objects.create()
     if(order is None):
         try:
             order = Order.objects.create(restaurant_id=kwargs['restaurant_id'],userId_id = kwargs['userId'])
