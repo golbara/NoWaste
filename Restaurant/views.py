@@ -289,12 +289,20 @@ class OrderAPIView(generics.RetrieveUpdateAPIView,generics.CreateAPIView):
 def add_to_Order(request, *args, **kwargs):
     order  =  Order.objects.filter(restaurant_id=kwargs['restaurant_id'],userId_id = kwargs['userId'],status = 'notOrdered').first()
     if(order is None):
-        order = Order.objects.create(restaurant_id=kwargs['restaurant_id'],userId_id = kwargs['userId'])
-        instance = OrderItem.objects.create(food_id = kwargs['food_id'], order_id = order.id)
+        try :
+            order = Order.objects.create(restaurant_id=kwargs['restaurant_id'],userId_id = kwargs['userId'])
+            instance = OrderItem.objects.create(food_id = kwargs['food_id'], order_id = order.id)
+        except Exception as error:
+            # handle the exception
+            print("An exception occurred:", error) 
     else :
         instance = OrderItem.objects.filter(food_id = kwargs['food_id'], order_id = order.id).first()
-        if (instance is None):
-            instance = OrderItem.objects.create(food_id = kwargs['food_id'], order_id = order.id)
+        try:
+            if (instance is None):
+                instance = OrderItem.objects.create(food_id = kwargs['food_id'], order_id = order.id)
+        except Exception as error:
+            # handle the exception
+            print("An exception occurred:", error)         
     instance.quantity = instance.quantity+ 1
     instance.save()
     
