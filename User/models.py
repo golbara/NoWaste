@@ -80,7 +80,7 @@ class Customer(MyAuthor):
     
 
 class VC_Codes(AbstractBaseUser):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255,null=True,blank= True)
     email = models.EmailField(unique= True)
     vc_code = models.CharField(max_length=10, null=True)
     def __str__(self) -> str:

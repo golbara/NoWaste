@@ -49,7 +49,7 @@ class VerifyEmail(APIView):
             except VC_Codes.DoesNotExist:
                 return Response("There is not any user with the given email" , status=status.HTTP_404_NOT_FOUND)
             if user_data['code'] == user.vc_code:
-                VC_Codes.objects.filter(vc_code = user.vc_code).delete()
+                VC_Codes.objects.filter(vc_code = user.vc_code).delete()                
                 serializer.save()
                 myauthor = MyAuthor.objects.get(email = user_data['email'])
                 myauthor.role = user_data['role']
@@ -93,12 +93,16 @@ class LoginView(APIView):
         user = None
         try:
             myauthor_qs = MyAuthor.objects.filter(email=email)
+            print(myauthor_qs)
             if len(myauthor_qs) != 0:
                 user = myauthor_qs.first()
+            print("#################################",user)
         except user_model.DoesNotExist:
             return Response({'error': 'Invalid email or password'}, status=status.HTTP_401_UNAUTHORIZED)
+        print("#################################",user.check_password(password))
         if user is not None and user.check_password(password):
-            token, _ = Token.objects.get_or_create(user=user)
+            id = user.id
+            token, _ = Token.objects.get_or_create(user_id = id)
             if user.role == "customer":
                 c = Customer.objects.get (email = email)
                 WalletBalance = c.wallet_balance
@@ -144,7 +148,7 @@ class ForgotPasswordViewSet(APIView):
         except MyAuthor.DoesNotExist:
             return Response("There is not any user with the given email" , status=status.HTTP_404_NOT_FOUND)
         newCode = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
-        u = VC_Codes.objects.create(vc_code = newCode)
+        u = VC_Codes.objects.create(vc_code = newCode,name = "None")
         u.save()
         template = render_to_string('forgotpass_template.html',
             {'name': u.name,
