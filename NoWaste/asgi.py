@@ -26,7 +26,9 @@ application = get_asgi_application()
 from channels.auth import AuthMiddlewareStack
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.security.websocket import AllowedHostsOriginValidator
-from chat.routing import websocket_urlpatterns
+# from chat.routing import websocket_urlpatterns
+from .routing import websocket_urlpatterns
+
 
 
 
@@ -35,10 +37,10 @@ application = ProtocolTypeRouter(
     {
         "http": application,
         "websocket": AllowedHostsOriginValidator(
-            # AuthMiddlewareStack(URLRouter(websocket_urlpatterns))
-            AuthMiddlewareStack(URLRouter([
-                    re_path(r'chat/room/(?P<room_name>\w+)/$', ChatConsumer.as_asgi()),
-                ]))
+            AuthMiddlewareStack(URLRouter(websocket_urlpatterns))
+            # AuthMiddlewareStack(URLRouter([
+            #         re_path(r'chat/room/(?P<room_name>\w+)/$', ChatConsumer.as_asgi()),
+            #     ]))
 
         ),
     }
