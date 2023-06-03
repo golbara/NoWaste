@@ -143,7 +143,7 @@ class ForgotPasswordViewSet(APIView):
             return Response("There is not any user with the given email" , status=status.HTTP_404_NOT_FOUND)
         newCode = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
         try :
-            u , created = VC_Codes.objects.get_or_create(email = user.email)
+            u , created = VC_Codes.objects.get_or_create(email = user.email , name = user.name)
             u.vc_code = newCode
             u.save()
         except Exception as error:
