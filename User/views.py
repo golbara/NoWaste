@@ -89,12 +89,10 @@ class LoginView(APIView):
     def post(self, request, *args, **kwargs):
         email = request.data.get('email')
         password = request.data.get('password')
-        try:
-            myauthor_qs = MyAuthor.objects.filter(email=email , password = password)
-            user = myauthor_qs.first()
-        except len(myauthor_qs) == 0 :
-            print(len(myauthor_qs))
-            return Response({'error': 'Invalid email or password'}, status=status.HTTP_401_UNAUTHORIZED)        
+        try :
+            user = MyAuthor.objects.get(email = email)
+        except Exception as error :
+            return Response({'error': 'Invalid email or password'}, status=status.HTTP_401_UNAUTHORIZED)
         if user is not None and user.check_password(password):
             id = user.id
             token, _ = Token.objects.get_or_create(user_id = id)
@@ -107,10 +105,10 @@ class LoginView(APIView):
                     res = Restaurant.objects.get(name = r)
                     result_fav.append({'address': res.address, 'name': res.name, 'restaurant_image': res.restaurant_image, 'discount': res.discount, 'number': res.number, 'rate': res.rate, 'date_of_establishment': res.date_of_establishment, 'description': res.description, 'id': res.id})
                 # listOfFavorite = list(c.list_of_favorites_res)
+                return Response({'token': token.key,'id' : user.id, 'wallet_balance':WalletBalance, 'role':user.role, 'list_of_favorites_res':result_fav})
             else:
-                WalletBalance = None
-                listOfFavorite = None
-            return Response({'token': token.key,'id' : user.id, 'wallet_balance':WalletBalance, 'role':user.role, 'list_of_favorites_res':result_fav})
+                return Response({'token': token.key,'id' : user.id, 'role':user.role})
+
         else:
             return Response({'error': 'Invalid email or password'}, status=status.HTTP_401_UNAUTHORIZED)
     def get(self,request):

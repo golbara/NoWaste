@@ -350,8 +350,8 @@ def remove_from_Order(request, *args, **kwargs):
 
 
 class CustomerOrderViewAPI(generics.ListAPIView):
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    # authentication_classes = [TokenAuthentication]
+    # permission_classes = [IsAuthenticated]
     def get_serializer_class(self):
         return CustomerViewOrderSerializer
 
