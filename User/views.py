@@ -29,6 +29,7 @@ from django.template.loader import render_to_string
 from django.core.validators import EmailValidator
 from django.forms import ValidationError
 import random , string
+import json
 # import jwt
 from cities_light.models import Country, City
 
@@ -148,7 +149,8 @@ class ForgotPasswordViewSet(APIView):
         except Exception as error:
             # handle the exception
             # print("An exception occurred:", error)
-            return Response(error, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            # return Response(error, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return HttpResponse(json.dumps({'error': error}), mimetype="application/json")
         template = render_to_string('forgotpass_template.html',
             {'name': u.name,
                 'code': newCode})
