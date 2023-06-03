@@ -24,7 +24,7 @@ class Order(models.Model):
         ("InProgress", "InProgress"), 
         ("Completed", "Completed"), 
         ("Cancled", "Cancled"), 
-        ("Ordered","Ordered") ,# before restaurant confirmation
+        # ("Ordered","Ordered") ,# before restaurant confirmation
         ("notOrdered","notOrdered"),
     )
     id = models.UUIDField(primary_key=True, default=uuid4)
