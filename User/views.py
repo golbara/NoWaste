@@ -148,9 +148,13 @@ class ForgotPasswordViewSet(APIView):
         except MyAuthor.DoesNotExist:
             return Response("There is not any user with the given email" , status=status.HTTP_404_NOT_FOUND)
         newCode = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
-        u = VC_Codes.objects.get_or_create(name = user.name, email = user.email)
-        u.vc_code = newCode
-        u.save()
+        try :
+            u , created = VC_Codes.objects.get_or_create(email = user.email)
+            u.vc_code = newCode
+            u.save()
+        except Exception as error:
+            # handle the exception
+            print("An exception occurred:", error)
         template = render_to_string('forgotpass_template.html',
             {'name': u.name,
                 'code': newCode})
