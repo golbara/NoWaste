@@ -57,7 +57,8 @@
             document.querySelector('#room_name-submit').onclick = function(e) {
                 var roomName = document.querySelector('#room_name-input').value;
                 var userID = document.querySelector('#user_id-input').value;
-                const address = 'http://' + window.location.host + "/chat/room/" + roomName + "/user_id/" + userID + '/';
+                // const address = 'http://' + window.location.host + "/chat/room/" + roomName + "/user_id/" + userID + '/';
+                const address = 'http://' + window.location.host + "/chat/room/" + roomName + '/';
 
                 location.replace(address);
             };

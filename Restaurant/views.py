@@ -306,8 +306,7 @@ def add_to_Order(request, *args, **kwargs):
                 print("An exception occurred:", error)       
     try:  
         instance.quantity = instance.quantity+ 1
-        instance.save()
-        
+        instance.save()  
     except Exception as error:
         # handle the exception
         print("An exception occurred:", error) 
@@ -335,11 +334,14 @@ def remove_from_Order(request, *args, **kwargs):
             except Exception as error:
             # handle the exception
                 print("An exception occurred:", error) 
-    instance.quantity = instance.quantity- 1
-    if(instance.quantity < 0) :
-        instance.quantity = 0 
-    instance.save()
-    
+    try:
+        instance.quantity = instance.quantity- 1
+        if(instance.quantity < 0) :
+            instance.quantity = 0 
+        instance.save()
+    except Exception as error:
+    # handle the exception
+        print("An exception occurred:", error)  
     serializer = OrderItemSerializer(instance)
     serialized_data = serializer.data
 
