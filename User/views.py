@@ -90,12 +90,11 @@ class LoginView(APIView):
         email = request.data.get('email')
         password = request.data.get('password')
         try:
-            myauthor_qs = MyAuthor.objects.filter(email=email)
+            myauthor_qs = MyAuthor.objects.filter(email=email , password = password)
             user = myauthor_qs.first()
         except len(myauthor_qs) == 0 :
             print(len(myauthor_qs))
             return Response({'error': 'Invalid email or password'}, status=status.HTTP_401_UNAUTHORIZED)        
-        print(user.check_password(password))
         if user is not None and user.check_password(password):
             id = user.id
             token, _ = Token.objects.get_or_create(user_id = id)
