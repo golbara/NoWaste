@@ -147,7 +147,8 @@ class ForgotPasswordViewSet(APIView):
             u.save()
         except Exception as error:
             # handle the exception
-            print("An exception occurred:", error)
+            # print("An exception occurred:", error)
+            return Response(error.message, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         template = render_to_string('forgotpass_template.html',
             {'name': u.name,
                 'code': newCode})
