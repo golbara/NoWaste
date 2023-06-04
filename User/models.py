@@ -41,6 +41,8 @@ class Restaurant(models.Model):
         ("Iranian", "Iranian"), 
         ("Foreign", "Foreign"), 
     )
+    lat = models.FloatField(default= 0 , blank= True,null= True)
+    lon = models.FloatField(default= 0 ,blank= True,null= True)
     type = models.CharField(choices=category,max_length=255, blank=True)
     address = models.CharField(max_length=255)
     name = models.CharField(max_length=255, unique=True)
