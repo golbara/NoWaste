@@ -296,30 +296,42 @@ def add_to_Order(request, *args, **kwargs):
         if (instance is None):
             instance = OrderItem.objects.create(food_id = kwargs['food_id'], order_id = order.id)
     instance.quantity = instance.quantity+ 1
+    food = Food.objects.get(id = kwargs['food_id'])
+    food.remainder -= 1
     instance.save()
-    
+    food.save()
+
     serializer = OrderItemSerializer(instance)
     serialized_data = serializer.data
+
+    user = Customer.objects.get(id = kwargs['userId'])
+    user.wallet_balance -= Decimal(serialized_data['name_and_price']['price'])
+    user.save()
+    serialized_data['new_wallet_balance'] = user.wallet_balance
+    serialized_data['new_remainder'] = food.remainder
 
     content = JSONRenderer().render(serialized_data)
     return HttpResponse(content, content_type='application/json')
 
 def remove_from_Order(request, *args, **kwargs):
-    order  =  Order.objects.filter(restaurant_id=kwargs['restaurant_id'],userId_id = kwargs['userId'],status = 'notOrdered').first()
-    if(order is None):
-        order = Order.objects.create(restaurant_id=kwargs['restaurant_id'],userId_id = kwargs['userId'])
-        instance = OrderItem.objects.create(food_id = kwargs['food_id'], order_id = order.id)
-    else :
-        instance = OrderItem.objects.filter(food_id = kwargs['food_id'], order_id = order.id).first()
-        if (instance is None):
-            instance = OrderItem.objects.create(food_id = kwargs['food_id'], order_id = order.id)
-    instance.quantity = instance.quantity- 1
+    order , iscreate =  Order.objects.get_or_create(restaurant_id=kwargs['restaurant_id'] ,userId_id = kwargs['userId'])
+    instance = order.orderItems.filter(food_id = kwargs['food_id']).first()
+    instance.quantity = instance.quantity -  1
+    food = Food.objects.get(id = kwargs['food_id'])
+    food.remainder += 1
     if(instance.quantity < 0) :
         instance.quantity = 0 
     instance.save()
-    
+    food.save()
+
     serializer = OrderItemSerializer(instance)
     serialized_data = serializer.data
+
+    user = Customer.objects.get(id = kwargs['userId'])
+    user.wallet_balance += Decimal(serialized_data['name_and_price']['price'])
+    user.save()
+    serialized_data['new_wallet_balance'] = user.wallet_balance
+    serialized_data['new_remainder'] = food.remainder
 
     content = JSONRenderer().render(serialized_data)
     return HttpResponse(content, content_type='application/json')
