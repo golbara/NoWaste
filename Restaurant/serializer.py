@@ -7,11 +7,11 @@ from .models import *
 
 class RestaurantSerializer(serializers.ModelSerializer):
     # def Menu(self):
-    def Menu(self,obj):
-        foods = Food.objects.filter(restaurant=obj)
-        serializer = FoodSerializer(foods, many=True)
-        return serializer.data
-    menu = serializers.SerializerMethodField(method_name= 'Menu')  
+    # def Menu(self,obj):
+    #     foods = Food.objects.filter(restaurant=obj)
+    #     serializer = FoodSerializer(foods, many=True)
+    #     return serializer.data
+    # menu = serializers.SerializerMethodField(method_name= 'Menu')  
 
     class Meta:
         model = Restaurant
@@ -89,14 +89,15 @@ class RestaurantSearchSerializer(serializers.ModelSerializer):
 class FoodFilterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Food
-        fields = ['name', 'price', 'ingredients', 'food_pic', 'restaurant','type']
+        fields = ['name', 'price', 'ingredients', 'food_pic', 'restaurant','type', 'remainder']
         lookup_field = 'id'
 
 class FoodSerializer(serializers.ModelSerializer):
+    restaurant_id = serializers.IntegerField(read_only = False)
     class Meta :
         model = Food
         # fields = '__all__'
-        fields = '__all__'
+        fields = ['name','price','ingredients','food_pic','restaurant_id','type','id', 'remainder']
 
 
 class RestaurantManagerSerializer(serializers.ModelSerializer):
@@ -138,28 +139,55 @@ class SimpleFoodSerializer(serializers.ModelSerializer):
         fields = ['name','price']
 
 class OrderItemSerializer(serializers.ModelSerializer):
-    def get_food_name(self,obj):
-        return SimpleFoodSerializer().data
-        name_and_price = serializers.SerializerMethodField()
+    def get_name_and_price(self,orderitem):
+        return SimpleFoodSerializer(orderitem.food).data
+    name_and_price = serializers.SerializerMethodField()
+    new_wallet_balance = serializers.DecimalField(decimal_places=2, max_digits= 20, read_only=True)
+    new_remainder = serializers.IntegerField(read_only=True)
     class Meta : 
         model = OrderItem
-        fields = ('quantity','name_and_price')
+        fields = ('quantity', 'new_wallet_balance', 'new_remainder','name_and_price')
 
 class GetOrderSerializer(serializers.ModelSerializer):
+    def get_Subtotal_Grandtotal_discount(self, order:Order):
+        quantities = []
+        price = []
+        discount = 0
+        Grandtotal = 0
+        Subtotal = 0
+        #orderitems = OrderItem.objects.filter(order_id = order.first().id)
+        #  return sum([item.quantity * item.food.price for item in orderitems])
+        # return sum([item.quantity * item.food.price for item in OrderItem.objects.filter(order= order)])
+        # order = orders.first()
+        for item in order.orderItems.all():
+            price.append(item.quantity * item.food.price)
+            quantities.append(item.quantity)
+        Subtotal = sum(price)
+        Grandtotal = Subtotal
+        # print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",Restaurant.objects.get(id = order.restaurant_id).address)
+        # if sum(quantities) < Restaurant.objects.get(id = order.restaurant_id).purches_counts :
+        if order.restaurant.discount == 0:
+            discount = 0
+        elif sum(quantities) < order.restaurant.purches_counts:
+            discount = 0
+        else : 
+            discount = order.restaurant.discount
+        if (discount != 0):
+            Grandtotal =(1-discount) * Subtotal
+        return Subtotal,Grandtotal,discount
 
-    def get_total_price(self, order):
-        return sum([item.quantity * item.food.price for item in order.orderItems.all()])
-    
-    def get_discount(self,order:Order):
         return order.restaurant.discount
+    def get_userAddress(self,order :Order):
+        return order.userId.address
     
     orderItems = OrderItemSerializer(many=True, read_only=True)
-    total_price = serializers.SerializerMethodField()
-    discount = serializers.SerializerMethodField()
+    Subtotal_Grandtotal_discount = serializers.SerializerMethodField()
+    # discount = serializers.DecimalField(Subtotal_Grandtotal_discount[2])
+    userAddress = serializers.SerializerMethodField()
 
     class Meta : 
         model = Order
-        fields = ('orderItems','total_price','discount')
+        fields = ('id','orderItems','userAddress','Subtotal_Grandtotal_discount')
 
         extra_kwargs = {
         'orderItems': {'read_only': True},
