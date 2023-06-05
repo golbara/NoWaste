@@ -13,6 +13,8 @@ from datetime import *
 class MyAuthor(AbstractBaseUser):
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
+    lat = models.FloatField(default= 0 , blank= True,null= True)
+    lon = models.FloatField(default= 0 ,blank= True,null= True)
     objects = AuthorManager()
     email = models.EmailField(unique= True)
     is_staff = models.BooleanField(default= False)
@@ -41,8 +43,6 @@ class Restaurant(models.Model):
         ("Iranian", "Iranian"), 
         ("Foreign", "Foreign"), 
     )
-    lat = models.FloatField(default= 0 , blank= True,null= True)
-    lon = models.FloatField(default= 0 ,blank= True,null= True)
     type = models.CharField(choices=category,max_length=255, blank=True)
     address = models.CharField(max_length=255)
     name = models.CharField(max_length=255, unique=True)
