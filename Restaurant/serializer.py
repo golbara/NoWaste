@@ -180,7 +180,7 @@ class GetOrderSerializer(serializers.ModelSerializer):
 
     class Meta : 
         model = Order
-        fields = ('id','orderItems','userAddress','Subtotal_Grandtotal_discount')
+        fields = ('id','orderItems','userAddress','Subtotal_Grandtotal_discount','status')
 
         extra_kwargs = {
         'orderItems': {'read_only': True},
@@ -197,7 +197,7 @@ class GetOrderSerializer(serializers.ModelSerializer):
 class SimpleRestaurantSerializer(serializers.ModelSerializer):
     class Meta : 
         model = Restaurant
-        fields = ['name','address','logo','number']
+        fields = ['name','address','logo','number','id']
 
 class CustomerViewOrderSerializer(serializers.ModelSerializer):
     def get_orderDetails(self,order):

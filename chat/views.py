@@ -15,8 +15,8 @@ from User.models import *
 from rest_framework.authentication import TokenAuthentication
 
 class ChatViewSet(ModelViewSet):
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    # authentication_classes = [TokenAuthentication]
+    # permission_classes = [IsAuthenticated]
     queryset = Chat.objects.all()
     serializer_class = ChatSerializer
     # permission_classes = IsAuthenticated

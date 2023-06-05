@@ -20,6 +20,8 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.renderers import JSONRenderer
 from django.db.models import Q
+import requests
+import json
 class ChangePasswordView(generics.UpdateAPIView):
     # queryset = Restaurant.objects.all()
     authentication_classes = [TokenAuthentication]
@@ -256,8 +258,8 @@ class RestaurantManagerRestaurantDetailView(generics.RetrieveUpdateDestroyAPIVie
 
 
 class OrderAPIView(generics.RetrieveUpdateAPIView,generics.CreateAPIView):
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    # authentication_classes = [TokenAuthentication]
+    # permission_classes = [IsAuthenticated]
     serializer_class = GetOrderSerializer
     lookup_field = 'pk'
     def get_queryset(self):
@@ -288,19 +290,28 @@ class OrderAPIView(generics.RetrieveUpdateAPIView,generics.CreateAPIView):
 
 def add_to_Order(request, *args, **kwargs):
     order  =  Order.objects.filter(restaurant_id=kwargs['restaurant_id'],userId_id = kwargs['userId'],status = 'notOrdered').first()
+    instance = order
     if(order is None):
-        order = Order.objects.create(restaurant_id=kwargs['restaurant_id'],userId_id = kwargs['userId'])
-        instance = OrderItem.objects.create(food_id = kwargs['food_id'], order_id = order.id)
+        try :
+            order = Order.objects.create(restaurant_id=kwargs['restaurant_id'],userId_id = kwargs['userId'])
+            instance = OrderItem.objects.create(food_id = kwargs['food_id'], order_id = order.id)
+        except Exception as error:
+            # handle the exception
+            print("An exception occurred:", error) 
     else :
         instance = OrderItem.objects.filter(food_id = kwargs['food_id'], order_id = order.id).first()
         if (instance is None):
-            instance = OrderItem.objects.create(food_id = kwargs['food_id'], order_id = order.id)
-    instance.quantity = instance.quantity+ 1
-    food = Food.objects.get(id = kwargs['food_id'])
-    food.remainder -= 1
-    instance.save()
-    food.save()
-
+            try :
+                instance = OrderItem.objects.create(food_id = kwargs['food_id'], order_id = order.id)
+            except Exception as error:
+            # handle the exception
+                print("An exception occurred:", error)       
+    try:  
+        instance.quantity = instance.quantity+ 1
+        instance.save()  
+    except Exception as error:
+        # handle the exception
+        print("An exception occurred:", error) 
     serializer = OrderItemSerializer(instance)
     serialized_data = serializer.data
 
@@ -314,16 +325,31 @@ def add_to_Order(request, *args, **kwargs):
     return HttpResponse(content, content_type='application/json')
 
 def remove_from_Order(request, *args, **kwargs):
-    order , iscreate =  Order.objects.get_or_create(restaurant_id=kwargs['restaurant_id'] ,userId_id = kwargs['userId'])
-    instance = order.orderItems.filter(food_id = kwargs['food_id']).first()
-    instance.quantity = instance.quantity -  1
-    food = Food.objects.get(id = kwargs['food_id'])
-    food.remainder += 1
-    if(instance.quantity < 0) :
-        instance.quantity = 0 
-    instance.save()
-    food.save()
-
+    order  =  Order.objects.filter(restaurant_id=kwargs['restaurant_id'],userId_id = kwargs['userId'],status = 'notOrdered').first()
+    instance = OrderItem.objects.create()
+    if(order is None):
+        try:
+            order = Order.objects.create(restaurant_id=kwargs['restaurant_id'],userId_id = kwargs['userId'])
+            instance = OrderItem.objects.create(food_id = kwargs['food_id'], order_id = order.id)
+        except Exception as error:
+            # handle the exception
+            print("An exception occurred:", error) 
+    else :
+        instance = OrderItem.objects.filter(food_id = kwargs['food_id'], order_id = order.id).first()
+        if (instance is None):
+            try:
+                instance = OrderItem.objects.create(food_id = kwargs['food_id'], order_id = order.id)
+            except Exception as error:
+            # handle the exception
+                print("An exception occurred:", error) 
+    try:
+        instance.quantity = instance.quantity- 1
+        if(instance.quantity < 0) :
+            instance.quantity = 0 
+        instance.save()
+    except Exception as error:
+    # handle the exception
+        print("An exception occurred:", error)  
     serializer = OrderItemSerializer(instance)
     serialized_data = serializer.data
 
@@ -338,8 +364,8 @@ def remove_from_Order(request, *args, **kwargs):
 
 
 class CustomerOrderViewAPI(generics.ListAPIView):
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    # authentication_classes = [TokenAuthentication]
+    # permission_classes = [IsAuthenticated]
     def get_serializer_class(self):
         return CustomerViewOrderSerializer
 
@@ -402,3 +428,15 @@ class RestaurantCommentListAPIView(generics.ListAPIView):
     def get_queryset(self):
         restaurant_id = self.kwargs['restaurant_id']
         return Comment.objects.filter(restaurant_id=restaurant_id)
+
+def search_nearest_restaurant(request):
+    # if request.method == 'POST':
+    #     r = requests.post('https://map.ir/distancematrix', params=request.POST)
+    # else:
+    r = requests.get('https://map.ir/distancematrix', params=request.GET)
+    if r.status_code == 200:
+        response_data = r.json()
+        # Serialize the response into a pretty JSON string
+        json_str = json.dumps(response_data, indent=4)
+        return HttpResponse(json_str, content_type='application/json')
+    return HttpResponse('Could not save data')
