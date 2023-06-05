@@ -7,18 +7,14 @@ router = routers.DefaultRouter()
 router.register('restaurant-search', RestaurantSearchViewSet, basename='restaurant-search')
 router.register('restaurant_profile',RestaurantProfileViewSet,basename = 'rest-profile')
 router.register('filter-food', FilterFoodViewSet, basename='filter-food')
-# router.register('order', OrderViewSet,basename = 'view-order')
 
 restaurant_router = routers.NestedSimpleRouter(router, 'restaurant_profile', lookup='id')
 restaurant_router.register('food', FoodViewSet, basename='restaurant-food')
 
 order_router = routers.NestedSimpleRouter(router, 'restaurant_profile', lookup='id')
-# order_router.register('order', OrderViewSet , basename='order')
-# router.register('order', OrderViewSet)
+
 
 router.register('restaurant_view', RestaurantCustomerView, basename='restaurant')
-# order_router = routers.NestedSimpleRouter(router, 'restaurant_view', lookup='restaurant')
-# order_router.register('order', OrderViewSet , basename='order')
 
 restaurant_router = routers.NestedSimpleRouter(router, 'restaurant_view', lookup='restaurant')
 restaurant_router.register('food', FoodViewSet, basename='restaurant-food')
