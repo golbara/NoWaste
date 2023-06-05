@@ -16,7 +16,7 @@ class RestaurantSerializer(serializers.ModelSerializer):
     class Meta:
         model = Restaurant
         address = serializers.CharField(source = 'address')
-        fields = ('number','name','address','restaurant_image','rate','discount','date_of_establishment','description','restaurant_image','id')
+        fields = ('number','name','address','rate','discount','date_of_establishment','description','restaurant_image','menu','id')
 
         extra_kwargs = {
             'menu': {'read_only': True},
@@ -90,7 +90,7 @@ class RestaurantSearchSerializer(serializers.ModelSerializer):
 class FoodFilterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Food
-        fields = ['name', 'price', 'ingredients', 'food_pic', 'restaurant','type']
+        fields = ['name', 'price', 'ingredients', 'food_pic', 'restaurant','type', 'remainder']
         lookup_field = 'id'
 
 class FoodSerializer(serializers.ModelSerializer):
@@ -98,7 +98,7 @@ class FoodSerializer(serializers.ModelSerializer):
     class Meta :
         model = Food
         # fields = '__all__'
-        fields = ['name','price','ingredients','food_pic','restaurant_id','type','id']
+        fields = ['name','price','ingredients','food_pic','restaurant_id','type','id', 'remainder']
 
 
 class RestaurantManagerSerializer(serializers.ModelSerializer):
@@ -143,9 +143,11 @@ class OrderItemSerializer(serializers.ModelSerializer):
     def get_name_and_price(self,orderitem):
         return SimpleFoodSerializer(orderitem.food).data
     name_and_price = serializers.SerializerMethodField()
+    new_wallet_balance = serializers.DecimalField(decimal_places=2, max_digits= 20, read_only=True)
+    new_remainder = serializers.IntegerField(read_only=True)
     class Meta : 
         model = OrderItem
-        fields = ('quantity','name_and_price')
+        fields = ('quantity', 'new_wallet_balance', 'new_remainder','name_and_price')
 
 class GetOrderSerializer(serializers.ModelSerializer):
     def get_Subtotal_Grandtotal_discount(self, order:Order):

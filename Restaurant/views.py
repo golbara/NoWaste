@@ -313,6 +313,12 @@ def add_to_Order(request, *args, **kwargs):
     serializer = OrderItemSerializer(instance)
     serialized_data = serializer.data
 
+    user = Customer.objects.get(id = kwargs['userId'])
+    user.wallet_balance -= Decimal(serialized_data['name_and_price']['price'])
+    user.save()
+    serialized_data['new_wallet_balance'] = user.wallet_balance
+    serialized_data['new_remainder'] = food.remainder
+
     content = JSONRenderer().render(serialized_data)
     return HttpResponse(content, content_type='application/json')
 
@@ -344,6 +350,12 @@ def remove_from_Order(request, *args, **kwargs):
         print("An exception occurred:", error)  
     serializer = OrderItemSerializer(instance)
     serialized_data = serializer.data
+
+    user = Customer.objects.get(id = kwargs['userId'])
+    user.wallet_balance += Decimal(serialized_data['name_and_price']['price'])
+    user.save()
+    serialized_data['new_wallet_balance'] = user.wallet_balance
+    serialized_data['new_remainder'] = food.remainder
 
     content = JSONRenderer().render(serialized_data)
     return HttpResponse(content, content_type='application/json')
