@@ -6,25 +6,20 @@ from django.utils import timezone
 
 class Food(models.Model):
     name = models.CharField(max_length=255)
-    category = (
-        ("Drink", "Drink"), 
-        ("Iranian", "Iranian"), 
-        ("Foreign", "Foreign"), 
-    )
     price = models.DecimalField(decimal_places=2,max_digits=20 , null= True )
     ingredients = models.CharField(max_length=2048, null=True , blank=True)
     food_pic = models.TextField(blank=True, null=True)
     restaurant = models.ForeignKey(Restaurant,on_delete= models.CASCADE , related_name= 'food' )
-    type = models.CharField(choices=category,max_length=255, blank=True)
+    remainder = models.IntegerField(default=0)
     def __str__(self) -> str:
         return self.name
-    
+
 class Order(models.Model):
     status = (
         ("InProgress", "InProgress"), 
         ("Completed", "Completed"), 
         ("Cancled", "Cancled"), 
-        ("Ordered","Ordered") ,# before restaurant confirmation
+        # ("Ordered","Ordered") ,# before restaurant confirmation
         ("notOrdered","notOrdered"),
     )
     id = models.UUIDField(primary_key=True, default=uuid4)
@@ -46,7 +41,7 @@ class Comment(models.Model):
     restaurant = models.ForeignKey(Restaurant,on_delete=models.CASCADE,related_name="comments")
     writer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     text = models.CharField(max_length=512, default="", blank=True)
-    created_at = models.DateField(default=timezone.now)
+    created_at = models.DateTimeField(auto_now_add= True)
     class Meta:
         ordering = ['-created_at']
     def __str__(self) -> str:

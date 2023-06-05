@@ -49,6 +49,9 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'django_filters',
     'chat',
+    'cities_light',
+    # 'django-cities-light',
+    # 'cities',
     # 'rest_framework_jwt',
 ]
 
@@ -197,3 +200,4 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR,'static')
 ]
 
+# CITIES_LIGHT_CITY_SOURCES = ['openstreetmap']
