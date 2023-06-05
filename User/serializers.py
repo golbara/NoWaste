@@ -202,3 +202,23 @@ class WalletSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
         fields = ['email', 'amount']
+
+
+# class CountryCityDictSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = CountryCityDict
+#         fields = '__all__'
+
+class CountrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Country
+        fields = ['name']
+    def to_representation(self, instance):
+        return instance.name
+    
+class CitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = City
+        fields = ['name']
+    def to_representation(self, instance):
+        return instance.name

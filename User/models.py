@@ -9,6 +9,7 @@ from django.db import models
 from .managers import AuthorManager,RestaurantManager
 from django.conf import settings
 from datetime import *
+from cities_light.models import Country, City
 
 class MyAuthor(AbstractBaseUser):
     USERNAME_FIELD = "email"
@@ -88,3 +89,10 @@ class VC_Codes(AbstractBaseUser):
     def __str__(self) -> str:
         return str(self.email)
 
+
+# class CountryCityDict(models.Model):
+#     country = models.CharField(max_length=255)
+#     cities = models.ManyToManyField(City, related_name='cities', null= True , blank= True)
+#     def __str__(self) -> str:
+#         return self.country
+    
