@@ -398,22 +398,60 @@ class WithdrawFromWalletView(APIView):
         serializer = WalletSerializer()
         return Response(serializer.data)
 
-class CitiesView(APIView):
-    # def get(self, request):
-    #     country_choices = Country.objects.all()
-    #     city_choices = City.objects.all()
-        # return Response({'country_choices' : country_choices, 'city_choices':city_choices})
+# class CitiesView(APIView):
+#     # def get(self, request):
+#     #     country_choices = Country.objects.all()
+#     #     city_choices = City.objects.all()
+#         # return Response({'country_choices' : country_choices, 'city_choices':city_choices})
+#     def get(self, request):
+#         cities = City.objects.all()
+#         # print(cities)
+#         city_choices = {}
+#         country_choices = list(Country.objects.all().values_list('name', flat=True))
+
+#         for city in cities:
+#             contry= Country.objects.get(id = city.country_id)
+#             country_name = contry.name # Get the country name as the key
+#             if country_name not in city_choices:
+#                 city_choices[country_name] = []  # Create an empty list for the country if it doesn't exist
+#             city_choices[country_name].append((city.name))  # Append the city to the country's list
+
+#         return Response({'country_choices': country_choices, 'city_choices': city_choices})
+
+# class FullCountryCityDict(APIView):
+#     def get(self, request):
+#         countries = Country.objects.all()
+#         cities = City.objects.all()
+#         # for cont in countries:
+#         #     key_country = CountryCityDict.objects.create(country = cont.name)
+#         for city in cities:
+#             contry= Country.objects.get(id = city.country_id)
+#             dict_countrycity, created = CountryCityDict.objects.get_or_create(country = contry.name)
+#             # dict_countrycity.cities.add(city)
+#             dict_countrycity.cities.add(city)
+#             dict_countrycity.save()
+#         return Response(status=status.HTTP_200_OK)
+    
+# class ShowCountryCityDict(APIView):
+#     def get(self, request):
+#         datas = CountryCityDict.objects.all()
+#         serializer = CountryCityDictSerializer(datas, many=True)
+#         return Response({"data": serializer.data}, status=status.HTTP_200_OK)
+
+
+class ShowAllCountry(APIView):
     def get(self, request):
-        cities = City.objects.all()
-        # print(cities)
-        city_choices = {}
-        country_choices = list(Country.objects.all().values_list('name', flat=True))
-
-        for city in cities:
-            contry= Country.objects.get(id = city.country_id)
-            country_name = contry.name # Get the country name as the key
-            if country_name not in city_choices:
-                city_choices[country_name] = []  # Create an empty list for the country if it doesn't exist
-            city_choices[country_name].append((city.name))  # Append the city to the country's list
-
-        return Response({'country_choices': country_choices, 'city_choices': city_choices})
+        datas = Country.objects.all()
+        serializer = CountrySerializer(datas, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+class CitiesOfCountry(APIView):
+    def post(self, request):
+        country_name = request.data['name']
+        country_id = Country.objects.get(name = country_name)
+        cities = City.objects.filter(country_id = country_id)
+        serializer = CitySerializer(cities, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    def get(self, request):
+        serializer = CountrySerializer()
+        return Response(serializer.data, status=status.HTTP_200_OK)
