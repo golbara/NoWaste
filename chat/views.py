@@ -15,11 +15,10 @@ from User.models import *
 from rest_framework.authentication import TokenAuthentication
 
 class ChatViewSet(ModelViewSet):
-    # authentication_classes = [TokenAuthentication]
-    # permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
     queryset = Chat.objects.all()
     serializer_class = ChatSerializer
-    # permission_classes = IsAuthenticated
     @action(
         detail=False,
         methods=['get', 'post'],
@@ -30,25 +29,25 @@ class ChatViewSet(ModelViewSet):
     def index(self, request):
         return render(request, 'chat/index.html')
     
-    @action(
-        detail=True,
-        methods=['get', 'post'],
-        url_path=r'room/(?P<room_name>\w+)/user_id/(?P<user_id>\w+)',
-        url_name='chat_room',
-        permission_classes=[AllowAny]
-    )
-    def room(self, request, room_name, user_id):
-        messages = Chat.objects.filter(room=room_name)
-        print("messssssages22222:")
-        print (messages)
-        return render(request, 'chat/room.html', {'room_name': room_name, 'user_id': user_id, 'messages': messages})
+    # @action(
+    #     detail=True,
+    #     methods=['get', 'post'],
+    #     url_path=r'room/(?P<room_name>\w+)/user_id/(?P<user_id>\w+)',
+    #     url_name='chat_room',
+    #     permission_classes=[AllowAny]
+    # )
+    # def room(self, request, room_name, user_id):
+    #     messages = Chat.objects.filter(room=room_name)
+    #     print("messssssages22222:")
+    #     print (messages)
+    #     return render(request, 'chat/room.html', {'room_name': room_name, 'user_id': user_id, 'messages': messages})
     
     @action(
         detail=False,
         methods=['get', 'post'],
         url_path=r'room/messages/(?P<room_name>\w+)',
         url_name='chat_room',
-        permission_classes=[AllowAny]
+        permission_classes=[IsAuthenticated]
     )
     def get_room_messages(self, request, room_name, *args, **kwargs):
         

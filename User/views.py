@@ -119,7 +119,6 @@ class LoginView(APIView):
 
 class LogoutView(APIView):
     authentication_classes = [TokenAuthentication]
-    
     permission_classes = [IsAuthenticated]
     def get(self, request):
         user = request.user
@@ -221,8 +220,7 @@ class ChangePasswordView(generics.UpdateAPIView):
 
 
 class UpdateRetrieveProfileView(generics.RetrieveUpdateAPIView):
-    authentication_classes = [TokenAuthentication]
-    
+    authentication_classes = [TokenAuthentication]  
     permission_classes = [IsAuthenticated]
     def get_queryset(self):
         return Customer.objects.filter(id=self.kwargs['id'])
@@ -252,6 +250,8 @@ class UpdateRetrieveProfileView(generics.RetrieveUpdateAPIView):
 
 
 class CustomerProfileView(generics.RetrieveAPIView):  
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
     serializer_class = CustomerSerializer
     lookup_field = 'id'
     def get_queryset(self):
@@ -264,7 +264,6 @@ class CustomerProfileView(generics.RetrieveAPIView):
 
 class RateRestaurantView(APIView):
     authentication_classes = [TokenAuthentication]
-    
     permission_classes = [IsAuthenticated]
     def post(self, request):
         serializer = RateRestaurantSerializer(data=request.data)
@@ -286,7 +285,6 @@ class RateRestaurantView(APIView):
 
 class AddRemoveFavorite(APIView):
     authentication_classes = [TokenAuthentication]
-    
     permission_classes = [IsAuthenticated]
     def post(self, request):
         serializer = AddRemoveFavoriteSerializer(data=request.data)
@@ -316,7 +314,6 @@ class AddRemoveFavorite(APIView):
     
 class ChargeWalletView(APIView):
     authentication_classes = [TokenAuthentication]
-    
     permission_classes = [IsAuthenticated]
     def post(self, request):
         serializer = WalletSerializer(data=request.data)
@@ -335,8 +332,7 @@ class ChargeWalletView(APIView):
         return Response(serializer.data)
     
 class WithdrawFromWalletView(APIView):
-    authentication_classes = [TokenAuthentication]
-    
+    authentication_classes = [TokenAuthentication] 
     permission_classes = [IsAuthenticated]
     def post(self, request):
         serializer = WalletSerializer(data=request.data)

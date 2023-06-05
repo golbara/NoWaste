@@ -18,6 +18,7 @@ from .filters import RestaurantFilter , FoodFilter
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
+from django.contrib.auth.decorators import login_required
 from rest_framework.renderers import JSONRenderer
 from django.db.models import Q
 import requests
@@ -34,20 +35,6 @@ class ChangePasswordView(generics.UpdateAPIView):
         super().update(request, *args, **kwargs) 
         return Response({"message" :"Password changed successfully!"},status= status.HTTP_200_OK)
 
-
-class RestaurantView(viewsets.ViewSet):
-
-    def get_queryset(self):
-        return Restaurant.objects.all()
-    serializer_class = RestaurantSerializer
-    lookup_field = 'id'
-
-
-# class RestaurantProfileView(generics.RetrieveUpdateAPIView):
-#     def get_queryset(self):
-#         return Restaurant.objects.get(self.kwargs['id'])
-#     lookup_field = 'id'
-#     serializer_class = RestaurantSerializer
 
 class RestaurantProfileViewSet(viewsets.ViewSet):
     authentication_classes = [TokenAuthentication]
@@ -97,7 +84,6 @@ class RestaurantCustomerView(mixins.ListModelMixin,mixins.RetrieveModelMixin,vie
     
 class FoodViewSet(ModelViewSet):
     serializer_class = FoodSerializer
-    # queryset = Food.objects.all()
     def get_queryset(self):
         print(self.kwargs)
         return Food.objects.filter(restaurant_id=self.kwargs['restaurant__id'])
@@ -130,10 +116,6 @@ class ManagerFoodListCreateAPIView(generics.ListCreateAPIView):
         return {'restaurant_id': self.kwargs['restaurant_id']}
 
     def create(self, request, *args, **kwargs):
-        # instance = request.data
-        # instance['restaurant_id'] = self.kwargs['restaurant_id']
-        # print(instance)
-        # serializer = FoodSerializer(data= instance)
         serializer = FoodSerializer(data= request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -258,8 +240,8 @@ class RestaurantManagerRestaurantDetailView(generics.RetrieveUpdateDestroyAPIVie
 
 
 class OrderAPIView(generics.RetrieveUpdateAPIView,generics.CreateAPIView):
-    # authentication_classes = [TokenAuthentication]
-    # permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
     serializer_class = GetOrderSerializer
     lookup_field = 'pk'
     def get_queryset(self):
@@ -287,7 +269,7 @@ class OrderAPIView(generics.RetrieveUpdateAPIView,generics.CreateAPIView):
     def patch(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
 
-
+@login_required
 def add_to_Order(request, *args, **kwargs):
     order  =  Order.objects.filter(restaurant_id=kwargs['restaurant_id'],userId_id = kwargs['userId'],status = 'notOrdered').first()
     instance = order
@@ -324,6 +306,7 @@ def add_to_Order(request, *args, **kwargs):
     content = JSONRenderer().render(serialized_data)
     return HttpResponse(content, content_type='application/json')
 
+@login_required
 def remove_from_Order(request, *args, **kwargs):
     order  =  Order.objects.filter(restaurant_id=kwargs['restaurant_id'],userId_id = kwargs['userId'],status = 'notOrdered').first()
     instance = OrderItem.objects.create()
@@ -364,8 +347,8 @@ def remove_from_Order(request, *args, **kwargs):
 
 
 class CustomerOrderViewAPI(generics.ListAPIView):
-    # authentication_classes = [TokenAuthentication]
-    # permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
     def get_serializer_class(self):
         return CustomerViewOrderSerializer
 
