@@ -90,11 +90,7 @@ class RestaurantSearchSerializer(serializers.ModelSerializer):
 class FoodFilterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Food
-<<<<<<< Updated upstream
-        fields = ['name', 'price', 'ingredients', 'food_pic', 'restaurant','type', 'remainder']
-=======
-        fields = ['name', 'price', 'ingredients', 'food_pic', 'restaurant']
->>>>>>> Stashed changes
+        fields = ['name', 'price', 'ingredients', 'food_pic', 'restaurant', 'remainder']
         lookup_field = 'id'
 
 class FoodSerializer(serializers.ModelSerializer):
@@ -102,11 +98,7 @@ class FoodSerializer(serializers.ModelSerializer):
     class Meta :
         model = Food
         # fields = '__all__'
-<<<<<<< Updated upstream
-        fields = ['name','price','ingredients','food_pic','restaurant_id','type','id', 'remainder']
-=======
-        fields = ['name','price','ingredients','food_pic','restaurant_id','id']
->>>>>>> Stashed changes
+        fields = ['name','price','ingredients','food_pic','restaurant_id','id', 'remainder']
 
 
 class RestaurantManagerSerializer(serializers.ModelSerializer):

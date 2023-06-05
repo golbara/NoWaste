@@ -10,11 +10,7 @@ class Food(models.Model):
     ingredients = models.CharField(max_length=2048, null=True , blank=True)
     food_pic = models.TextField(blank=True, null=True)
     restaurant = models.ForeignKey(Restaurant,on_delete= models.CASCADE , related_name= 'food' )
-<<<<<<< Updated upstream
-    type = models.CharField(choices=category,max_length=255, blank=True)
     remainder = models.IntegerField(default=0)
-=======
->>>>>>> Stashed changes
     def __str__(self) -> str:
         return self.name
 
