@@ -24,8 +24,7 @@ router = routers.DefaultRouter()
 router.register('', views.ChatViewSet, basename='chat')
 
 urlpatterns = [
-    # path('', include(router.urls)),
     path("", views.ChatViewSet.index, name="index"),
     path('room/<int:sender_id>/<int:reciever_id>/', views.ChatViewSet.room, name='room'),
-    # re_path(r'room/(?P<room_name>\w+)/$', ChatConsumer.as_asgi())
+
 ]

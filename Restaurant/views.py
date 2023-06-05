@@ -23,6 +23,8 @@ from rest_framework.renderers import JSONRenderer
 from django.db.models import Q
 import requests
 import json
+from django.http import JsonResponse
+import urllib
 class ChangePasswordView(generics.UpdateAPIView):
     # queryset = Restaurant.objects.all()
     authentication_classes = [TokenAuthentication]
@@ -413,13 +415,27 @@ class RestaurantCommentListAPIView(generics.ListAPIView):
         return Comment.objects.filter(restaurant_id=restaurant_id)
 
 def search_nearest_restaurant(request):
-    # if request.method == 'POST':
-    #     r = requests.post('https://map.ir/distancematrix', params=request.POST)
-    # else:
-    r = requests.get('https://map.ir/distancematrix', params=request.GET)
-    if r.status_code == 200:
-        response_data = r.json()
-        # Serialize the response into a pretty JSON string
-        json_str = json.dumps(response_data, indent=4)
-        return HttpResponse(json_str, content_type='application/json')
-    return HttpResponse('Could not save data')
+# def search_nearest_restaurant(request,origin):
+    type_vehicle = 'car'
+    origins = request.GET.get('origins')
+    destinations = '36.35067,59.5451965%7C36.337005,59.5300'
+    # destinations = Restaurant.objects.values_list('lat', 'lon')
+    # destinations = '%7C'.join([urllib.parse.quote(dest) for dest in destinations])
+
+    headers = {
+        'Api-Key': 'service.f3f70682948d40999d64243013ff5b95',
+    }
+    
+    url = f'https://api.neshan.org/v1/distance-matrix/no-traffic?type={type_vehicle}&origins={origins}&destinations={destinations}'
+    
+    response = requests.get(url,headers= headers)
+    data = response.json()
+    elements = data['rows'][0]['elements']
+    destination_addresses = data['destination_addresses']
+    dists = [element['distance']['value'] for element in elements]
+    des_len = len(destination_addresses)
+    des_dist_list = []
+    for i in range(des_len):
+        des_dist_list.append((elements[i]['distance']['value'],destination_addresses[i]))
+    sorted_list = sorted(des_dist_list, key=lambda x: x[1])
+    return JsonResponse(sorted_list,safe= False)
