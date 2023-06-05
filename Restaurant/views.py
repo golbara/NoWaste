@@ -22,6 +22,7 @@ from rest_framework.renderers import JSONRenderer
 from django.db.models import Q
 import requests
 import json
+from django.http import JsonResponse
 class ChangePasswordView(generics.UpdateAPIView):
     # queryset = Restaurant.objects.all()
     authentication_classes = [TokenAuthentication]
@@ -384,13 +385,23 @@ class RestaurantCommentListAPIView(generics.ListAPIView):
         return Comment.objects.filter(restaurant_id=restaurant_id)
 
 def search_nearest_restaurant(request):
+# def search_nearest_restaurant(request,origin):
     # if request.method == 'POST':
     #     r = requests.post('https://map.ir/distancematrix', params=request.POST)
     # else:
-    r = requests.get('https://map.ir/distancematrix', params=request.GET)
-    if r.status_code == 200:
-        response_data = r.json()
-        # Serialize the response into a pretty JSON string
-        json_str = json.dumps(response_data, indent=4)
-        return HttpResponse(json_str, content_type='application/json')
-    return HttpResponse('Could not save data')
+    # r = requests.get('https://map.ir/distancematrix', params=request.GET)
+    # if r.status_code == 200:
+    #     response_data = r.json()
+    #     # Serialize the response into a pretty JSON string
+    #     json_str = json.dumps(response_data, indent=4)
+    #     return HttpResponse(json_str, content_type='application/json')
+    # return HttpResponse('Could not save data')
+    type_vehicle = 'car'
+    origins = request.GET.get('origins')
+    destinations = '36.35067,59.5451965|36.337005,59.5300'
+    url = f'https://api.neshan.org/v1/distance-matrix?origins={origins}&destinations={destinations}'
+    
+    response = requests.get(url)
+    data = response.json()
+    
+    return JsonResponse(data)
