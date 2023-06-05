@@ -296,6 +296,9 @@ def add_to_Order(request, *args, **kwargs):
     except Exception as error:
         # handle the exception
         print("An exception occurred:", error) 
+    food = Food.objects.get(id = kwargs['food_id'])
+    food.remainder -= 1
+    food.save()
     serializer = OrderItemSerializer(instance)
     serialized_data = serializer.data
 
@@ -337,7 +340,10 @@ def remove_from_Order(request, *args, **kwargs):
         print("An exception occurred:", error)  
     serializer = OrderItemSerializer(instance)
     serialized_data = serializer.data
-
+    
+    food = Food.objects.get(id = kwargs['food_id'])
+    food.remainder += 1
+    food.save()
     user = Customer.objects.get(id = kwargs['userId'])
     user.wallet_balance += Decimal(serialized_data['name_and_price']['price'])
     user.save()
