@@ -99,7 +99,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "NoWaste.asgi.application"
+WSGI_APPLICATION = "NoWaste.wsgi.application"
 ASGI_APPLICATION = "NoWaste.asgi.application"
 
 
