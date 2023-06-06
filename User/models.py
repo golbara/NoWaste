@@ -46,6 +46,8 @@ class Restaurant(models.Model):
     )
     type = models.CharField(choices=category,max_length=255, blank=True)
     address = models.CharField(max_length=255)
+    lat = models.FloatField(default= 0 , blank= True,null= True)
+    lon = models.FloatField(default= 0 ,blank= True,null= True)
     name = models.CharField(max_length=255, unique=True)
     restaurant_image = models.TextField(null= True , blank= True)
     logo = models.TextField(null= True , blank= True)

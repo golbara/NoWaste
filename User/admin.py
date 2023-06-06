@@ -34,7 +34,7 @@ class UserAdmin(BaseUserAdmin):
         obj.set_password(obj.password)
         super().save_model(request, obj, form, change)
 
-admin.site.register(MyAuthor, UserAdmin)
+# admin.site.register(MyAuthor, UserAdmin)
 
 # class UserAdmin(BaseUserAdmin):
 #     pass
@@ -70,8 +70,8 @@ class VC_CodesAdmin(admin.ModelAdmin):
     list_filter = ['name','vc_code']
     search_fields = ('name','vc_code')
 
-admin.site.register(Customer,CustomerAdmin)
-admin.site.register(Restaurant,RestaurantAdmin)
-admin.site.register(VC_Codes,VC_CodesAdmin)
-admin.site.register(RestaurantManager,RestaurantManagerAdmin)
+# admin.site.register(Customer,CustomerAdmin)
+# admin.site.register(Restaurant,RestaurantAdmin)
+# admin.site.register(VC_Codes,VC_CodesAdmin)
+# admin.site.register(RestaurantManager,RestaurantManagerAdmin)
 # admin.site.register(CountryCityDict)
