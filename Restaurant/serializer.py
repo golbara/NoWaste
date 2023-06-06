@@ -251,3 +251,5 @@ class CommentSerializer(serializers.ModelSerializer):
         # writer_username = validated_data.pop('writer_username',None)
         # restaurant_name = validated_data.pop('restaurant_name',None)
         # return super().create(validated_data)
+
+# this is comment for make change to commit
