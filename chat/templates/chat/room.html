@@ -74,8 +74,9 @@
             const chatSocket = new WebSocket(
             'ws://'
             + window.location.host
-            // + ':4000'
+            // + ':8000'
             + '/ws/chat/room/'
+            // + '/chat/room/'
             + roomName
             + '/'
         );
@@ -107,7 +108,7 @@
                     'user_id': userID,
                     'username': username,
                     'room_name': roomName,
-                    // 'sender_type':"SERVER"
+                    'sender_type':"SERVER"
                 }));
 
                 messageInputDom.value = '';
