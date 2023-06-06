@@ -18,9 +18,11 @@ urlpatterns = [
     path('favorite-restaurant/', AddRemoveFavorite.as_view(), name='favorite-restaurant'),
     path('charge-wallet/', ChargeWalletView.as_view(), name='charge-wallet'),
     path('withdraw-wallet/', WithdrawFromWalletView.as_view(), name='withdraw-wallet'),
-    path('withdraw-wallet/', WithdrawFromWalletView.as_view(), name='withdraw-wallet'),
-    path('withdraw-wallet/', WithdrawFromWalletView.as_view(), name='withdraw-wallet'),
-    path('city-country/', CitiesView.as_view(), name='city-country'),
+    # path('city-country/', CitiesView.as_view(), name='city-country'),
+    # path('full-city-country/', FullCountryCityDict.as_view(), name='full-city-country'),
+    # path('show-city-country/', ShowCountryCityDict.as_view(), name='show-city-country'),
+    path('all-countries/', ShowAllCountry.as_view(), name='all-countries'),
+    path('cities-of-country/', CitiesOfCountry.as_view(), name='cities-of-country'),
 
 
 ]
