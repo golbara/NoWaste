@@ -51,4 +51,4 @@ class ChatAdmin(admin.ModelAdmin):
     list_display = ['room_name', 'sender', 'date_created']
     list_filter = ['sender','room_name']
     search_fields = ('room_name',)
-admin.site.register(Chat, ChatAdmin)
+# admin.site.register(Chat, ChatAdmin)

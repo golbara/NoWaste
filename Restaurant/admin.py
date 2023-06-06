@@ -29,7 +29,7 @@ class CommentAdmin(admin.ModelAdmin):
 
 
 # admin.site.register(Food,FoodAdmin)
-admin.site.register(Order, OrderAdmin)
-admin.site.register(OrderItem, OrderItemAdmin)
+# admin.site.register(Order, OrderAdmin)
+# admin.site.register(OrderItem, OrderItemAdmin)
 
-admin.site.register(Comment, CommentAdmin)
+# admin.site.register(Comment, CommentAdmin)
