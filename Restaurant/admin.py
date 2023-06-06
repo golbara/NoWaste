@@ -28,7 +28,7 @@ class CommentAdmin(admin.ModelAdmin):
     search_fields = ('writer',)
 
 
-admin.site.register(Food,FoodAdmin)
+# admin.site.register(Food,FoodAdmin)
 admin.site.register(Order, OrderAdmin)
 admin.site.register(OrderItem, OrderItemAdmin)
 
