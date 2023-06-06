@@ -16,10 +16,10 @@ class RestaurantSerializer(serializers.ModelSerializer):
     class Meta:
         model = Restaurant
         address = serializers.CharField(source = 'address')
-        fields = ('number','name','address','rate','discount','date_of_establishment','description','restaurant_image','menu','id')
+        fields = ('number','name','address','rate','discount','date_of_establishment','description','restaurant_image','id')
 
         extra_kwargs = {
-            'menu': {'read_only': True},
+            # 'menu': {'read_only': True},
             'address': {'required': False},
             'name' : {'required': False},
         }
@@ -251,3 +251,5 @@ class CommentSerializer(serializers.ModelSerializer):
         # writer_username = validated_data.pop('writer_username',None)
         # restaurant_name = validated_data.pop('restaurant_name',None)
         # return super().create(validated_data)
+
+# this is comment for make change to commit
