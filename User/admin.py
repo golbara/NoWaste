@@ -70,8 +70,11 @@ class VC_CodesAdmin(admin.ModelAdmin):
     list_filter = ['name','vc_code']
     search_fields = ('name','vc_code')
 
-# admin.site.register(Customer,CustomerAdmin)
-# admin.site.register(Restaurant,RestaurantAdmin)
-# admin.site.register(VC_Codes,VC_CodesAdmin)
-# admin.site.register(RestaurantManager,RestaurantManagerAdmin)
+admin.site.register(Customer,CustomerAdmin)
+admin.site.register(Restaurant,RestaurantAdmin)
+admin.site.register(VC_Codes,VC_CodesAdmin)
+admin.site.register(RestaurantManager,RestaurantManagerAdmin)
+admin.site.register(MyAuthor, UserAdmin)
+
+
 # admin.site.register(CountryCityDict)
