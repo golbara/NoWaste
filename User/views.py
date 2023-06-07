@@ -92,6 +92,7 @@ class LoginView(APIView):
         password = request.data.get('password')
         try :
             user = MyAuthor.objects.get(email = email)
+            
         except Exception as error :
             return Response({'error': 'Invalid email or password'}, status=status.HTTP_401_UNAUTHORIZED)
         if user is not None and user.check_password(password):
