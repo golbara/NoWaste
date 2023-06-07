@@ -271,7 +271,7 @@ class OrderAPIView(generics.RetrieveUpdateAPIView,generics.CreateAPIView):
     def patch(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
 
-@login_required
+# @login_required
 def add_to_Order(request, *args, **kwargs):
     order  =  Order.objects.filter(restaurant_id=kwargs['restaurant_id'],userId_id = kwargs['userId'],status = 'notOrdered').first()
     instance = order
@@ -311,7 +311,7 @@ def add_to_Order(request, *args, **kwargs):
     content = JSONRenderer().render(serialized_data)
     return HttpResponse(content, content_type='application/json')
 
-@login_required
+# @login_required
 def remove_from_Order(request, *args, **kwargs):
     order  =  Order.objects.filter(restaurant_id=kwargs['restaurant_id'],userId_id = kwargs['userId'],status = 'notOrdered').first()
     instance = OrderItem.objects.create()

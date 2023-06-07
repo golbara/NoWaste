@@ -101,6 +101,7 @@ class LoginView(APIView):
             token, _ = Token.objects.get_or_create(user_id = id)
             if user.role == "customer":
                 c = Customer.objects.get (email = email)
+                name = c.name
                 WalletBalance = c.wallet_balance
                 listOfFavorite = list(c.list_of_favorites_res.values_list('name', flat=True))
                 result_fav = []
@@ -108,9 +109,10 @@ class LoginView(APIView):
                     res = Restaurant.objects.get(name = r)
                     result_fav.append({'address': res.address, 'name': res.name, 'restaurant_image': res.restaurant_image, 'discount': res.discount, 'number': res.number, 'rate': res.rate, 'date_of_establishment': res.date_of_establishment, 'description': res.description, 'id': res.id})
                 # listOfFavorite = list(c.list_of_favorites_res)
-                return Response({'token': token.key,'id' : user.id, 'wallet_balance':WalletBalance, 'role':user.role, 'list_of_favorites_res':result_fav})
+                return Response({'token': token.key,'id' : user.id, 'wallet_balance':WalletBalance, 'role':user.role, 'list_of_favorites_res':result_fav, 'name':name})
             else:
-                return Response({'token': token.key,'id' : user.id, 'role':user.role})
+                r = RestaurantManager.objects.get(email = email)
+                return Response({'token': token.key,'id' : user.id, 'role':user.role, 'name':r.name})
 
         else:
             return Response({'error': 'Invalid email or password'}, status=status.HTTP_401_UNAUTHORIZED)
