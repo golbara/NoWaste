@@ -6,6 +6,7 @@ from .models import *
 # from Restaurant.serializer import RestaurantSerializer
 
 
+
 class BaseCreateUserSerializer(serializers.ModelSerializer): 
     role = serializers.CharField(max_length=255, default="default")
     code = serializers.CharField(max_length=10)

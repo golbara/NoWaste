@@ -11,6 +11,7 @@ from django.conf import settings
 from datetime import *
 from cities_light.models import Country, City
 
+
 class MyAuthor(AbstractBaseUser):
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []

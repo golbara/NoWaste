@@ -2,6 +2,7 @@ from django.urls import path, include
 from .views import *
 from rest_framework import routers
 
+
 # router = routers.DefaultRouter()
 # router.register(r'update_profile', UpdateProfileView, basename='update_profile')
 urlpatterns = [
