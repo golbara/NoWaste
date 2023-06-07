@@ -12,6 +12,7 @@ class UserAdmin(BaseUserAdmin):
     # list_display_links = ('colored_role')
     def Role(self, obj):
         if obj.role == "customer":
+            
             return format_html (f'<span style="color:blue">{obj.role}</span>')
         else:
             return format_html (f'<span style="color:green">{obj.role}</span>')
