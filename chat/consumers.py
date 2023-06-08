@@ -35,13 +35,7 @@ class ChatConsumer(WebsocketConsumer):
         message = data['message']
         user_id = data['user_id']
         room = data['room_name']
-        user = user_id
         user = MyAuthor.objects.get(id= user_id)
-        # try : 
-        #     user = Customer.objects.get(id=user_id)
-        # except Exception as error:
-        #     user = Restaurant.objects.get(id=user_id)
-        # async_to_sync(self.save_message)(user, room, message, sender_type)
         async_to_sync(self.save_message)(user, room, message)
         date = datetime.now()
         # Send message to room group
