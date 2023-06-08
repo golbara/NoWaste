@@ -461,7 +461,7 @@ def get_addr(request):
         'Api-Key': 'service.f3f70682948d40999d64243013ff5b95',
     }
     
-    url = f'https://api.neshan.org/v1/distance-matrix/no-traffic?type={type_vehicle}&origins={origins}&destinations={destinations}'
+    url = f'https://api.neshan.org/v5/reverse?lat=LATITUDE&lng=LONGITUDE'
     
     response = requests.get(url,headers= headers)
     data = response.json()

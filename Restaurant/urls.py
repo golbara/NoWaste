@@ -38,7 +38,7 @@ urlpatterns = [
     path('comment/restaurant_id/<int:restaurant_id>/', RestaurantCommentListAPIView.as_view(), name='restaurant-comments'),
     # path('nearest_restaurant/<str:origin>',search_nearest_restaurant,name='search_nearest_restaurant'),
     path('nearest_restaurant',search_nearest_restaurant,name='search_nearest_restaurant'),
-    # path('get_addr',get_addr,name='search_nearest_restaurant'),
+    path('get_addr',get_addr,name='get_addr'),
 ]
 
 
