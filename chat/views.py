@@ -72,7 +72,7 @@ class ChatViewSet(ModelViewSet):
         user = sender_id
         try : 
             user = Customer.objects.get(id=sender_id)
-        except:
+        except Exception as error:
             user = Restaurant.objects.get(id=sender_id)
         return render(json.dumps({'room_name': room_name, 'user_id':sender_id, 'messages': messages, 'username': user.username}, indent = 4) )
         return render(request, 'chat/room.html', {'room_name': room_name, 'user_id':sender_id, 'messages': messages, 'username': user.username})
