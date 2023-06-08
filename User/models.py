@@ -65,6 +65,7 @@ class Restaurant(models.Model):
     def save(self, *args, **kwargs):
         if self.restaurant_image == "" or self.restaurant_image==None:
             self.restaurant_image = default_res_image
+        super().save(*args, **kwargs)
     def __str__(self) -> str:
         return self.name
 
