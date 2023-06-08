@@ -59,17 +59,7 @@ class ChatViewSet(ModelViewSet):
         except Exception as error:
             return Response(error, status=status.HTTP_400_BAD_REQUEST)
         
-    def room(request,sender_id,reciever_id):
-        u1 = 0
-        u2 = 0
-        if (reciever_id <sender_id):
-            u1 = reciever_id
-            u2 =sender_id
-        else :
-            u1 =sender_id
-            u2 = reciever_id
-        room_name = f'{u1}{u2}'
-        sender_type = request.GET.get('type')
+    def room(request,sender_id,room_name):
         messages = Chat.objects.filter(room_name=room_name)
         user = sender_id
         user = MyAuthor.objects.get(id=sender_id)

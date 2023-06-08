@@ -5,7 +5,7 @@ from asgiref.sync import async_to_sync,  sync_to_async
 from channels.generic.websocket import WebsocketConsumer , AsyncWebsocketConsumer
 from .models import * 
 from User.models import *
-import datetime
+from datetime import datetime
 
 
 class ChatConsumer(WebsocketConsumer):
@@ -30,6 +30,12 @@ class ChatConsumer(WebsocketConsumer):
         )
 
     # Receive message from web socket
+    # Define a custom function to serialize datetime objects
+    def serialize_datetime(obj):
+        if isinstance(obj, datetime.datetime):
+            return obj.isoformat()
+        raise TypeError("Type not serializable")
+  
     def receive(self, text_data):
         data = json.loads(text_data)
         message = data['message']
@@ -37,7 +43,9 @@ class ChatConsumer(WebsocketConsumer):
         room = data['room_name']
         user = MyAuthor.objects.get(id= user_id)
         async_to_sync(self.save_message)(user, room, message)
+        
         date = datetime.now()
+        date = date.strftime("%Y-%m-%d %H:%M:%S")
         # Send message to room group
         async_to_sync(self.channel_layer.group_send)(
             self.room_group_name,

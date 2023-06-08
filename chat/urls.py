@@ -25,6 +25,6 @@ router.register('', views.ChatViewSet, basename='chat')
 
 urlpatterns = [
     path("", views.ChatViewSet.index, name="index"),
-    path('room/<int:sender_id>/<int:reciever_id>', views.ChatViewSet.room, name='room'),
+    path('room/<int:sender_id>/<str:room_name>', views.ChatViewSet.room, name='room'),
 
 ]
