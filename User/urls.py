@@ -25,5 +25,4 @@ urlpatterns = [
     path('all-countries/', ShowAllCountry.as_view(), name='all-countries'),
     path('cities-of-country/', CitiesOfCountry.as_view(), name='cities-of-country'),
 
-
 ]
