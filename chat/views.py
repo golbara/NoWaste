@@ -13,7 +13,7 @@ from .serializers import ChatSerializer
 from .models import *
 from User.models import *
 from rest_framework.authentication import TokenAuthentication
-
+from django.http import JsonResponse
 class ChatViewSet(ModelViewSet):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -78,6 +78,6 @@ class ChatViewSet(ModelViewSet):
         # # try : 
         #     user = Customer.objects.get(id=sender_id)
         # except Exception as error:
-        return render(json.dumps({'messages': messages}, indent = 4) )
+        return render(JsonResponse({'messages': messages}, indent = 4) )
         return render(json.dumps({'room_name': room_name, 'user_id':sender_id, 'messages': messages, 'username': user.username}, indent = 4) )
         return render(request, 'chat/room.html', {'room_name': room_name, 'user_id':sender_id, 'messages': messages, 'username': user.username})
