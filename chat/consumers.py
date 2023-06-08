@@ -38,7 +38,7 @@ class ChatConsumer(WebsocketConsumer):
         user = user_id
         try : 
             user = Customer.objects.get(id=user_id)
-        except:
+        except Exception as error:
             user = Restaurant.objects.get(id=user_id)
         # async_to_sync(self.save_message)(user, room, message, sender_type)
         async_to_sync(self.save_message)(user, room, message)
