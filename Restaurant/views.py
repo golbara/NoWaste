@@ -449,7 +449,7 @@ def search_nearest_restaurant(request):
     sorted_list = sorted(des_dist_list, key=lambda x: x[1])
     return JsonResponse(sorted_list,safe= False)
 
-def get_addrr(request):
+def get_addr(request):
 # def search_nearest_restaurant(request,origin):
     type_vehicle = 'car'
     origins = request.GET.get('origins')

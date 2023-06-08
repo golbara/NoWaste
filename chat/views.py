@@ -71,11 +71,12 @@ class ChatViewSet(ModelViewSet):
         sender_type = request.GET.get('type')
         messages = Chat.objects.filter(room_name=room_name)
         user = sender_id
-        if (sender_type == 'restaurant'):
-            user = Restaurant.objects.get(id=sender_id)
-        else :
-        # try : 
-            user = Customer.objects.get(id=sender_id)
+        user = MyAuthor.objects.get(id=sender_id)
+        # if (sender_type == 'restaurant'):
+        #     user = Restaurant.objects.get(id=sender_id)
+        # else :
+        # # try : 
+        #     user = Customer.objects.get(id=sender_id)
         # except Exception as error:
         return render(json.dumps({'room_name': room_name, 'user_id':sender_id, 'messages': messages, 'username': user.username}, indent = 4) )
         return render(json.dumps({'room_name': room_name, 'user_id':sender_id, 'messages': messages, 'username': user.username}, indent = 4) )
