@@ -188,7 +188,7 @@ class GetOrderSerializer(serializers.ModelSerializer):
     restaurantDetails = serializers.SerializerMethodField()
     class Meta : 
         model = Order
-        fields = ('id','orderItems','userAddress','Subtotal_Grandtotal_discount','status')
+        fields = ('id','orderItems','restaurantDetails','userAddress','Subtotal_Grandtotal_discount','status')
 
         extra_kwargs = {
         'orderItems': {'read_only': True},

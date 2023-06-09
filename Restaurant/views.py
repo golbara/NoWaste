@@ -244,8 +244,8 @@ class RestaurantManagerRestaurantDetailView(generics.RetrieveUpdateDestroyAPIVie
 
 
 class OrderAPIView(generics.RetrieveUpdateAPIView,generics.CreateAPIView):
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    # authentication_classes = [TokenAuthentication]
+    # permission_classes = [IsAuthenticated]
     serializer_class = GetOrderSerializer
     lookup_field = 'pk'
     def get_queryset(self):
