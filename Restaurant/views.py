@@ -249,7 +249,7 @@ class OrderAPIView(generics.RetrieveUpdateAPIView,generics.CreateAPIView):
     serializer_class = GetOrderSerializer
     lookup_field = 'pk'
     def get_queryset(self):
-        return Order.objects.filter(restaurant_id=self.kwargs['restaurant_id'] ,userId_id = self.kwargs['userId']).prefetch_related('orderItems').select_related('userId').select_related('restaurant')
+        return Order.objects.filter(restaurant_id=self.kwargs['restaurant_id'] ,userId_id = self.kwargs['userId'],status = "notOrdered").prefetch_related('orderItems').select_related('userId').select_related('restaurant')
     
     def get_serializer_class(self, *args, **kwargs):
         return GetOrderSerializer
