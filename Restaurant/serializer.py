@@ -149,6 +149,11 @@ class OrderItemSerializer(serializers.ModelSerializer):
         model = OrderItem
         fields = ('quantity', 'new_wallet_balance', 'new_remainder','name_and_price')
 
+class SimpleRestaurantSerializer(serializers.ModelSerializer):
+    class Meta : 
+        model = Restaurant
+        fields = ['name','address','logo','number','id']
+
 class GetOrderSerializer(serializers.ModelSerializer):
     def get_Subtotal_Grandtotal_discount(self, order:Order):
         quantities = []
@@ -173,11 +178,14 @@ class GetOrderSerializer(serializers.ModelSerializer):
 
     def get_userAddress(self,order :Order):
         return order.userId.address
+
+    def get_restaurantDetails(self,order):
+        return SimpleRestaurantSerializer(order.restaurant).data
     
     orderItems = OrderItemSerializer(many=True, read_only=True)
     Subtotal_Grandtotal_discount = serializers.SerializerMethodField()
     userAddress = serializers.SerializerMethodField()
-
+    restaurantDetails = serializers.SerializerMethodField()
     class Meta : 
         model = Order
         fields = ('id','orderItems','userAddress','Subtotal_Grandtotal_discount','status')
@@ -194,10 +202,6 @@ class GetOrderSerializer(serializers.ModelSerializer):
 #     class Meta : 
 #         model = Order
 #         fields = ['userId_id','restaurant_id']
-class SimpleRestaurantSerializer(serializers.ModelSerializer):
-    class Meta : 
-        model = Restaurant
-        fields = ['name','address','logo','number','id']
 
 class CustomerViewOrderSerializer(serializers.ModelSerializer):
     def get_orderDetails(self,order):
