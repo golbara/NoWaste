@@ -143,11 +143,11 @@ class OrderItemSerializer(serializers.ModelSerializer):
     def get_name_and_price(self,orderitem):
         return SimpleFoodSerializer(orderitem.food).data
     name_and_price = serializers.SerializerMethodField()
-    new_wallet_balance = serializers.DecimalField(decimal_places=2, max_digits= 20, read_only=True)
+    # new_wallet_balance = serializers.DecimalField(decimal_places=2, max_digits= 20, read_only=True)
     new_remainder = serializers.IntegerField(read_only=True)
     class Meta : 
         model = OrderItem
-        fields = ('quantity', 'new_wallet_balance', 'new_remainder','name_and_price')
+        fields = ('quantity', 'new_remainder','name_and_price')
 
 class SimpleRestaurantSerializer(serializers.ModelSerializer):
     class Meta : 
