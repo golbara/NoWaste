@@ -377,6 +377,8 @@ class RestaurantOrderViewAPI(generics.ListAPIView):
 class UpdateOrderStatusAPI(generics.UpdateAPIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
+    lookup_field = 'id'
+    lookup_url_kwarg = 'order_id'
     def get_serializer_class(self, *args, **kwargs):
         return UpdateOrderSerializer
     def get_queryset(self):
