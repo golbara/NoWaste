@@ -389,7 +389,7 @@ class UpdateOrderStatusAPI(generics.UpdateAPIView):
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data)
         serializer.is_valid(raise_exception=True)
-        self.save()
+        serializer.save()
         return Response(serializer.data)
     def put(self, request, *args, **kwargs):
         return self.patch(request, *args, **kwargs)
