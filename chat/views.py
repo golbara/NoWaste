@@ -1,0 +1,76 @@
+from django.shortcuts import render, get_object_or_404
+from django.utils.safestring import mark_safe
+from django.contrib.auth.decorators import  login_required
+import json
+from django.http import HttpRequest, HttpResponse
+from rest_framework.decorators import permission_classes
+from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework import status
+from .serializers import ChatSerializer
+from .models import *
+from User.models import *
+from rest_framework.authentication import TokenAuthentication
+from django.http import JsonResponse
+from django.core import serializers
+class ChatViewSet(ModelViewSet):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    queryset = Chat.objects.all()
+    serializer_class = ChatSerializer
+    @action(
+        detail=False,
+        methods=['get', 'post'],
+        url_path=r'index',
+        url_name='chat_index',
+        permission_classes=[AllowAny]
+    )
+    def index(self, request):
+        return render(request, 'chat/index.html')
+    
+    # @action(
+    #     detail=True,
+    #     methods=['get', 'post'],
+    #     url_path=r'room/(?P<room_name>\w+)/user_id/(?P<user_id>\w+)',
+    #     url_name='chat_room',
+    #     permission_classes=[AllowAny]
+    # )
+    # def room(self, request, room_name, user_id):
+    #     messages = Chat.objects.filter(room=room_name)
+    #     print("messssssages22222:")
+    #     print (messages)
+    #     return render(request, 'chat/room.html', {'room_name': room_name, 'user_id': user_id, 'messages': messages})
+    
+    @action(
+        detail=False,
+        methods=['get', 'post'],
+        url_path=r'room/messages/(?P<room_name>\w+)',
+        url_name='chat_room',
+        permission_classes=[IsAuthenticated]
+    )
+    def get_room_messages(self, request, room_name, *args, **kwargs):
+        
+        try:
+            chats = Chat.objects.filter(room_name=room_name)
+            serializer = ChatSerializer(chats, many=True)
+            return Response(serializer.data,status=status.HTTP_200_OK)
+        except Exception as error:
+            return Response(error, status=status.HTTP_400_BAD_REQUEST)
+        
+    def room(request,sender_id,room_name):
+        messages = Chat.objects.filter(room_name=room_name)
+        user = sender_id
+        user = MyAuthor.objects.get(id=sender_id)
+        # if (sender_type == 'restaurant'):
+        #     user = Restaurant.objects.get(id=sender_id)
+        # else :
+        # # try : 
+        #     user = Customer.objects.get(id=sender_id)
+        # except Exception as error:
+        data = serializers.serialize('json', messages)
+        return HttpResponse(data, content_type="application/json")
+        return render(JsonResponse({'messages': messages}, indent = 4) )
+        return render(json.dumps({'room_name': room_name, 'user_id':sender_id, 'messages': messages, 'username': user.username}, indent = 4) )
+        return render(request, 'chat/room.html', {'room_name': room_name, 'user_id':sender_id, 'messages': messages, 'username': user.username})

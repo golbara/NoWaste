@@ -6,6 +6,7 @@ from .models import *
 # from Restaurant.serializer import RestaurantSerializer
 
 
+
 class BaseCreateUserSerializer(serializers.ModelSerializer): 
     role = serializers.CharField(max_length=255, default="default")
     code = serializers.CharField(max_length=10)
@@ -99,7 +100,7 @@ class ChangePasswordSerializer(serializers.ModelSerializer):
     old_password = serializers.CharField(write_only=True, required=True,source = 'password')
 
     class Meta:
-        model = Customer
+        model = MyAuthor
         fields = ('old_password', 'password', 'password2')
 
     def validate(self, attrs):
@@ -202,3 +203,23 @@ class WalletSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
         fields = ['email', 'amount']
+
+
+# class CountryCityDictSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = CountryCityDict
+#         fields = '__all__'
+
+class CountrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Country
+        fields = ['name']
+    def to_representation(self, instance):
+        return instance.name
+    
+class CitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = City
+        fields = ['name']
+    def to_representation(self, instance):
+        return instance.name
