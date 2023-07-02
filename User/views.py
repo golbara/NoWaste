@@ -280,7 +280,7 @@ class RateRestaurantView(APIView):
                 restaurant = Restaurant.objects.get(name=name)
             except Restaurant.DoesNotExist:
                 return Response("There is not any restaurant with the given name" , status=status.HTTP_404_NOT_FOUND)
-            restaurant.rate = ((restaurant.rate)*restaurant.count_rates + serializer.validated_data['rate'])/(restaurant.count_rates+1)
+            restaurant.rate = round(((restaurant.rate) * restaurant.count_rates + serializer.validated_data['rate']) / (restaurant.count_rates + 1), 1)
             restaurant.count_rates += 1
             restaurant.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
