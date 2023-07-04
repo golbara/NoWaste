@@ -7,6 +7,7 @@ class RestaurantFilter(FilterSet):
     fields = {
         'rate': ['gte', 'lte'],
         'discount': ['gte', 'lte'],
+        'type': ['exact'],
     }
 
 class FoodFilter(FilterSet):
