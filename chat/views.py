@@ -89,17 +89,29 @@ def get_names(request,*args,**kwargs):
     if rcvs.count()>0 :
         for rcv in rcvs:
             if(rcv.reciever.role == 'customer'):
-                name = Customer.objects.get(myauthor_ptr_id = rcv.reciever.id).name
+                try :
+                    name = Customer.objects.get(myauthor_ptr_id = rcv.reciever.id).name
+                except Exception as E :
+                    return Response("There is not any user with the given email" , status=status.HTTP_404_NOT_FOUND)  
             else:
-                name = RestaurantManager.objects.get(myauthor_ptr_id = rcv.reciever.id).name
+                try :
+                    name = RestaurantManager.objects.get(myauthor_ptr_id = rcv.reciever.id).name
+                except Exception as E :
+                    return Response("There is not any user with the given email" , status=status.HTTP_404_NOT_FOUND)
             names.add(name)
     if snds.count() >0 :
         for snd in snds:
             if(snd.sender.role == 'customer'):
                 print("****************************",snd.sender.id)
-                name = Customer.objects.get(myauthor_ptr_id = snd.sender.id).name
+                try:
+                    name = Customer.objects.get(myauthor_ptr_id = snd.sender.id).name
+                except Exception as E :
+                    return Response("There is not any user with the given email" , status=status.HTTP_404_NOT_FOUND)
             else:
-                name = RestaurantManager.objects.get(myauthor_ptr_id = snd.sender.id).name
+                try :
+                    name = RestaurantManager.objects.get(myauthor_ptr_id = snd.sender.id).name
+                except Exception as E :
+                    return Response("There is not any user with the given email" , status=status.HTTP_404_NOT_FOUND)                
             names.add(name)
     # names = Chat.objects.filter(Q(sender_id= uid) | Q(reciever_id = uid )).
     return JsonResponse( list(names), safe=False)
