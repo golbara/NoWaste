@@ -83,7 +83,12 @@ class RestaurantCustomerView(mixins.ListModelMixin,mixins.RetrieveModelMixin,vie
     queryset = Restaurant.objects.all()
     serializer_class = RestaurantSerializer
     lookup_field = 'id'
-    
+
+
+def get_lat_long(request, *args, **kwargs):
+    rest = get_object_or_404(Restaurant,id =kwargs['restaurant_id'])
+    content = JSONRenderer().render({'lat':rest.lat,'long':rest.lon})
+    return HttpResponse(content, content_type='application/json')
 class FoodViewSet(ModelViewSet):
     serializer_class = FoodSerializer
     def get_queryset(self):
@@ -456,25 +461,18 @@ def search_nearest_restaurant(request):
 def get_addr(request):
 # def search_nearest_restaurant(request,origin):
     type_vehicle = 'car'
-    origins = request.GET.get('origins')
+    Lattitude = request.GET.get('lat')
+    longitude = request.GET.get('lng')
     destinations = '36.35067,59.5451965%7C36.337005,59.5300'
     # destinations = Restaurant.objects.values_list('lat', 'lon')
     # destinations = '%7C'.join([urllib.parse.quote(dest) for dest in destinations])
 
     headers = {
-        'Api-Key': 'service.f3f70682948d40999d64243013ff5b95',
+        'Api-Key': 'service.7f461dfe908a40899d8900c2802f48a0',
     }
     
-    url = f'https://api.neshan.org/v5/reverse?lat=LATITUDE&lng=LONGITUDE'
+    url = f'https://api.neshan.org/v5/reverse?lat={Lattitude}&lng={longitude}'
     
     response = requests.get(url,headers= headers)
     data = response.json()
-    elements = data['rows'][0]['elements']
-    destination_addresses = data['destination_addresses']
-    dists = [element['distance']['value'] for element in elements]
-    des_len = len(destination_addresses)
-    des_dist_list = []
-    for i in range(des_len):
-        des_dist_list.append((elements[i]['distance']['value'],destination_addresses[i]))
-    sorted_list = sorted(des_dist_list, key=lambda x: x[1])
-    return JsonResponse(sorted_list,safe= False)
+    return JsonResponse(data,safe= False)

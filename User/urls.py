@@ -24,5 +24,5 @@ urlpatterns = [
     # path('show-city-country/', ShowCountryCityDict.as_view(), name='show-city-country'),
     path('all-countries/', ShowAllCountry.as_view(), name='all-countries'),
     path('cities-of-country/', CitiesOfCountry.as_view(), name='cities-of-country'),
-
+    path('<int:user_id>/lat_long/',get_lat_long,name='get_lat_long'),
 ]
