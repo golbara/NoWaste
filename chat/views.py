@@ -13,7 +13,7 @@ from .serializers import ChatSerializer
 from .models import *
 from User.models import *
 from rest_framework.authentication import TokenAuthentication
-
+from django.http import JsonResponse
 class ChatViewSet(ModelViewSet):
     # authentication_classes = [TokenAuthentication]
     # permission_classes = [IsAuthenticated]
@@ -59,16 +59,18 @@ class ChatViewSet(ModelViewSet):
         except Exception as error:
             return Response(error, status=status.HTTP_400_BAD_REQUEST)
         
-    def room(request,sender_id,reciever_id):
-        u1 = 0
-        u2 = 0
-        if (reciever_id <sender_id):
-            u1 = reciever_id
-            u2 =sender_id
-        else :
-            u1 =sender_id
-            u2 = reciever_id
-        room_name = f'{u1}{u2}'
+    def room(request):
+        custid = request.kwargs['custId']
+        mngid = request.kwargs['mngId']
+        room_name = f'{custid}&{mngid}'
         messages = Chat.objects.filter(room_name=room_name)
-        user = Customer.objects.get(id=sender_id)
-        return render(request, 'chat/room.html', {'room_name': room_name, 'user_id':sender_id, 'messages': messages, 'username': user.username})
+        # return render(request, 'chat/room.html', {'room_name': room_name, 'messages': messages})
+        return render(request, {'room_name': room_name, 'messages': messages})
+
+    
+def get_names(request):
+    UId = request.GET.get(['Id'])
+    names = Chat.objects.filter(manager = mngId).select_related('customer').values('name')
+    return JsonResponse(list(names), safe=False)
+
+
