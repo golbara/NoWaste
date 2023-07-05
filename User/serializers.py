@@ -223,3 +223,8 @@ class CitySerializer(serializers.ModelSerializer):
         fields = ['name']
     def to_representation(self, instance):
         return instance.name
+    
+class LatLongSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Customer
+        fields = ['lat','lon']
