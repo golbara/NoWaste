@@ -86,6 +86,9 @@ def get_names(request,*args,**kwargs):
     # s_names = s_names.values('name')                    
     names = set()
     name = ""
+    print(rcvs)
+    print("&&&&&&&&&&&&&&&&&&&&")
+    print(snds)
     if rcvs.count()>0 :
         print(rcvs.count())
         print(rcvs)
@@ -123,4 +126,8 @@ def get_names(request,*args,**kwargs):
     # names = Chat.objects.filter(Q(sender_id= uid) | Q(reciever_id = uid )).
     return JsonResponse( list(names), safe=False)
 
-
+def delete_all_chats(request):
+    messages =  Chat.objects.all()
+    for ms in messages:
+        Chat.objects.filter(id = ms.id).delete()
+    return HttpResponse("done",status = status.HTTP_200_OK)
