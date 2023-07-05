@@ -87,15 +87,21 @@ def get_names(request,*args,**kwargs):
     names = set()
     name = ""
     if rcvs.count()>0 :
+        print(rcvs.count())
+        print(rcvs)
         for rcv in rcvs:
             if(rcv.reciever.role == 'customer'):
                 try :
-                    name = Customer.objects.get(myauthor_ptr_id = rcv.reciever.myauthor_ptr_id).name
+                    print("*********************************")
+                    print(rcv.reciever.id)
+                    print(Customer.objects.get(myauthor_ptr_id = rcv.reciever.id))
+                    print("****************************")
+                    name = Customer.objects.get(myauthor_ptr_id = rcv.reciever.id).name
                 except Exception as E :
-                    return HttpResponse("There is not any reciever with the given Id" , status=status.HTTP_404_NOT_FOUND)
+                    return HttpResponse("There is not any reciever with the given Id and email {rcv.reciever.email}" , status=status.HTTP_404_NOT_FOUND)
             else:
                 try :
-                    name = RestaurantManager.objects.get(myauthor_ptr_id = rcv.reciever.myauthor_ptr_id).name
+                    name = RestaurantManager.objects.get(myauthor_ptr_id = rcv.reciever.id).name
                 except Exception as E :
                     return HttpResponse("There is not any reciever with the given Id" , status=status.HTTP_404_NOT_FOUND)
             names.add(name)
@@ -104,12 +110,13 @@ def get_names(request,*args,**kwargs):
             if(snd.sender.role == 'customer'):
                 print("****************************",snd.sender.id)
                 try:
-                    name = Customer.objects.get(myauthor_ptr_id = snd.sender.myauthor_ptr_id).name
+                    # print(Customer.objects.get(myauthor_ptr_id = snd.sender.id))
+                    name = Customer.objects.get(myauthor_ptr_id = snd.sender.id).name
                 except Exception as E :
                     return HttpResponse("There is not any sender with the given Id" , status=status.HTTP_404_NOT_FOUND)
             else:
                 try :
-                    name = RestaurantManager.objects.get(myauthor_ptr_id = snd.sender.myauthor_ptr_id).name
+                    name = RestaurantManager.objects.get(myauthor_ptr_id = snd.sender.id).name
                 except Exception as E :
                     return HttpResponse("There is not any sender with the given Id" , status=status.HTTP_404_NOT_FOUND)           
             names.add(name)
