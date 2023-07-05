@@ -256,3 +256,8 @@ class CommentSerializer(serializers.ModelSerializer):
         # restaurant_name = validated_data.pop('restaurant_name',None)
         # return super().create(validated_data)
 
+class LatLongSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Restaurant
+        fields = ['lat','lon']
