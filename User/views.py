@@ -376,8 +376,8 @@ class CitiesOfCountry(APIView):
         serializer = CountrySerializer()
         return Response(serializer.data, status=status.HTTP_200_OK)
 class LatLongUpdateRetreive(generics.RetrieveUpdateAPIView):
-    # authentication_classes = [TokenAuthentication]
-    # permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
     serializer_class = LatLongSerializer
     lookup_field = 'pk'
     lookup_url_kwarg = 'user_id'
