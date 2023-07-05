@@ -20,6 +20,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import obtain_auth_token
 
 from rest_framework.authentication import TokenAuthentication
+from rest_framework.renderers import JSONRenderer
 ###############################################
 # from rest_framework_simplejwt.tokens import RefreshToken
 # from rest_framework_jwt.settings import api_settings
@@ -84,6 +85,7 @@ class SignUpView(APIView):
         serializer = SignUpSerializer()
         return Response(serializer.data)
     
+    
 class LoginView(APIView):
     serializer_class = MyAuthorSerializer
     permission_classes = (permissions.AllowAny,)
@@ -92,6 +94,7 @@ class LoginView(APIView):
         password = request.data.get('password')
         try :
             user = MyAuthor.objects.get(email = email)
+
         except Exception as error :
             return Response({'error': 'Invalid email or password'}, status=status.HTTP_401_UNAUTHORIZED)
         if user is not None and user.check_password(password):
@@ -99,6 +102,7 @@ class LoginView(APIView):
             token, _ = Token.objects.get_or_create(user_id = id)
             if user.role == "customer":
                 c = Customer.objects.get (email = email)
+                name = c.name
                 WalletBalance = c.wallet_balance
                 listOfFavorite = list(c.list_of_favorites_res.values_list('name', flat=True))
                 result_fav = []
@@ -106,9 +110,10 @@ class LoginView(APIView):
                     res = Restaurant.objects.get(name = r)
                     result_fav.append({'address': res.address, 'name': res.name, 'restaurant_image': res.restaurant_image, 'discount': res.discount, 'number': res.number, 'rate': res.rate, 'date_of_establishment': res.date_of_establishment, 'description': res.description, 'id': res.id})
                 # listOfFavorite = list(c.list_of_favorites_res)
-                return Response({'token': token.key,'id' : user.id, 'wallet_balance':WalletBalance, 'role':user.role, 'list_of_favorites_res':result_fav})
+                return Response({'token': token.key,'id' : user.id, 'wallet_balance':WalletBalance, 'role':user.role, 'list_of_favorites_res':result_fav, 'name':name})
             else:
-                return Response({'token': token.key,'id' : user.id, 'role':user.role})
+                r = RestaurantManager.objects.get(email = email)
+                return Response({'token': token.key,'id' : user.id, 'role':user.role, 'name':r.name})
 
         else:
             return Response({'error': 'Invalid email or password'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -119,7 +124,6 @@ class LoginView(APIView):
 
 class LogoutView(APIView):
     authentication_classes = [TokenAuthentication]
-    
     permission_classes = [IsAuthenticated]
     def get(self, request):
         user = request.user
@@ -221,8 +225,7 @@ class ChangePasswordView(generics.UpdateAPIView):
 
 
 class UpdateRetrieveProfileView(generics.RetrieveUpdateAPIView):
-    authentication_classes = [TokenAuthentication]
-    
+    authentication_classes = [TokenAuthentication]  
     permission_classes = [IsAuthenticated]
     def get_queryset(self):
         return Customer.objects.filter(id=self.kwargs['id'])
@@ -252,6 +255,8 @@ class UpdateRetrieveProfileView(generics.RetrieveUpdateAPIView):
 
 
 class CustomerProfileView(generics.RetrieveAPIView):  
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
     serializer_class = CustomerSerializer
     lookup_field = 'id'
     def get_queryset(self):
@@ -264,7 +269,6 @@ class CustomerProfileView(generics.RetrieveAPIView):
 
 class RateRestaurantView(APIView):
     authentication_classes = [TokenAuthentication]
-    
     permission_classes = [IsAuthenticated]
     def post(self, request):
         serializer = RateRestaurantSerializer(data=request.data)
@@ -274,7 +278,7 @@ class RateRestaurantView(APIView):
                 restaurant = Restaurant.objects.get(name=name)
             except Restaurant.DoesNotExist:
                 return Response("There is not any restaurant with the given name" , status=status.HTTP_404_NOT_FOUND)
-            restaurant.rate = ((restaurant.rate)*restaurant.count_rates + serializer.validated_data['rate'])/(restaurant.count_rates+1)
+            restaurant.rate = round(((restaurant.rate) * restaurant.count_rates + serializer.validated_data['rate']) / (restaurant.count_rates + 1), 1)
             restaurant.count_rates += 1
             restaurant.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -286,7 +290,6 @@ class RateRestaurantView(APIView):
 
 class AddRemoveFavorite(APIView):
     authentication_classes = [TokenAuthentication]
-    
     permission_classes = [IsAuthenticated]
     def post(self, request):
         serializer = AddRemoveFavoriteSerializer(data=request.data)
@@ -316,7 +319,6 @@ class AddRemoveFavorite(APIView):
     
 class ChargeWalletView(APIView):
     authentication_classes = [TokenAuthentication]
-    
     permission_classes = [IsAuthenticated]
     def post(self, request):
         serializer = WalletSerializer(data=request.data)
@@ -335,8 +337,7 @@ class ChargeWalletView(APIView):
         return Response(serializer.data)
     
 class WithdrawFromWalletView(APIView):
-    authentication_classes = [TokenAuthentication]
-    
+    authentication_classes = [TokenAuthentication] 
     permission_classes = [IsAuthenticated]
     def post(self, request):
         serializer = WalletSerializer(data=request.data)
@@ -357,22 +358,46 @@ class WithdrawFromWalletView(APIView):
         serializer = WalletSerializer()
         return Response(serializer.data)
 
-class CitiesView(APIView):
-    # def get(self, request):
-    #     country_choices = Country.objects.all()
-    #     city_choices = City.objects.all()
-        # return Response({'country_choices' : country_choices, 'city_choices':city_choices})
+
+class ShowAllCountry(APIView):
     def get(self, request):
-        cities = City.objects.all()
-        # print(cities)
-        city_choices = {}
-        country_choices = list(Country.objects.all().values_list('name', flat=True))
+        datas = Country.objects.all()
+        serializer = CountrySerializer(datas, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+class CitiesOfCountry(APIView):
+    def post(self, request):
+        country_name = request.data['name']
+        country_id = Country.objects.get(name = country_name)
+        cities = City.objects.filter(country_id = country_id)
+        serializer = CitySerializer(cities, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    def get(self, request):
+        serializer = CountrySerializer()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+class LatLongUpdateRetreive(generics.RetrieveUpdateAPIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    serializer_class = LatLongSerializer
+    lookup_field = 'pk'
+    lookup_url_kwarg = 'user_id'
+    def get_queryset(self):
+        print(self.kwargs)
+        return Customer.objects.filter(id=self.kwargs['user_id'])
 
-        for city in cities:
-            contry= Country.objects.get(id = city.country_id)
-            country_name = contry.name # Get the country name as the key
-            if country_name not in city_choices:
-                city_choices[country_name] = []  # Create an empty list for the country if it doesn't exist
-            city_choices[country_name].append((city.name))  # Append the city to the country's list
+    def get_serializer_context(self):
+        print(self.kwargs)
+        return {'user_id': self.kwargs['user_id']}
 
-        return Response({'country_choices': country_choices, 'city_choices': city_choices})
+    def patch(self, request, id):
+        instance = self.get_object(id= id)
+        for key , value in request.data.items():
+            setattr(instance,key,value)
+        serializer = self.get_serializer(instance, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)    
+def get_lat_long(request, *args, **kwargs):
+    cust = get_object_or_404(Customer,id =kwargs['user_id'])
+    content = JSONRenderer().render({'lat':cust.lat,'long':cust.lon})
+    return HttpResponse(content, content_type='application/json')

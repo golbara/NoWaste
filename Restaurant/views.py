@@ -18,8 +18,13 @@ from .filters import RestaurantFilter , FoodFilter
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
+from django.contrib.auth.decorators import login_required
 from rest_framework.renderers import JSONRenderer
 from django.db.models import Q
+import requests
+import json
+from django.http import JsonResponse
+import urllib
 class ChangePasswordView(generics.UpdateAPIView):
     # queryset = Restaurant.objects.all()
     authentication_classes = [TokenAuthentication]
@@ -32,20 +37,6 @@ class ChangePasswordView(generics.UpdateAPIView):
         super().update(request, *args, **kwargs) 
         return Response({"message" :"Password changed successfully!"},status= status.HTTP_200_OK)
 
-
-class RestaurantView(viewsets.ViewSet):
-
-    def get_queryset(self):
-        return Restaurant.objects.all()
-    serializer_class = RestaurantSerializer
-    lookup_field = 'id'
-
-
-# class RestaurantProfileView(generics.RetrieveUpdateAPIView):
-#     def get_queryset(self):
-#         return Restaurant.objects.get(self.kwargs['id'])
-#     lookup_field = 'id'
-#     serializer_class = RestaurantSerializer
 
 class RestaurantProfileViewSet(viewsets.ViewSet):
     authentication_classes = [TokenAuthentication]
@@ -92,10 +83,10 @@ class RestaurantCustomerView(mixins.ListModelMixin,mixins.RetrieveModelMixin,vie
     queryset = Restaurant.objects.all()
     serializer_class = RestaurantSerializer
     lookup_field = 'id'
-    
+
+
 class FoodViewSet(ModelViewSet):
     serializer_class = FoodSerializer
-    # queryset = Food.objects.all()
     def get_queryset(self):
         print(self.kwargs)
         return Food.objects.filter(restaurant_id=self.kwargs['restaurant__id'])
@@ -128,10 +119,6 @@ class ManagerFoodListCreateAPIView(generics.ListCreateAPIView):
         return {'restaurant_id': self.kwargs['restaurant_id']}
 
     def create(self, request, *args, **kwargs):
-        # instance = request.data
-        # instance['restaurant_id'] = self.kwargs['restaurant_id']
-        # print(instance)
-        # serializer = FoodSerializer(data= instance)
         serializer = FoodSerializer(data= request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -242,6 +229,8 @@ class RestaurantManagerRestaurantListView(generics.ListCreateAPIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
         
 class RestaurantManagerRestaurantDetailView(generics.RetrieveUpdateDestroyAPIView):
     authentication_classes = [TokenAuthentication]
@@ -256,12 +245,12 @@ class RestaurantManagerRestaurantDetailView(generics.RetrieveUpdateDestroyAPIVie
 
 
 class OrderAPIView(generics.RetrieveUpdateAPIView,generics.CreateAPIView):
-    # authentication_classes = [TokenAuthentication]
-    # permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
     serializer_class = GetOrderSerializer
     lookup_field = 'pk'
     def get_queryset(self):
-        return Order.objects.filter(restaurant_id=self.kwargs['restaurant_id'] ,userId_id = self.kwargs['userId']).prefetch_related('orderItems').select_related('userId').select_related('restaurant')
+        return Order.objects.filter(restaurant_id=self.kwargs['restaurant_id'] ,userId_id = self.kwargs['userId'],status = "notOrdered").prefetch_related('orderItems').select_related('userId').select_related('restaurant')
     
     def get_serializer_class(self, *args, **kwargs):
         return GetOrderSerializer
@@ -285,7 +274,7 @@ class OrderAPIView(generics.RetrieveUpdateAPIView,generics.CreateAPIView):
     def patch(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
 
-
+# @login_required
 def add_to_Order(request, *args, **kwargs):
     order  =  Order.objects.filter(restaurant_id=kwargs['restaurant_id'],userId_id = kwargs['userId'],status = 'notOrdered').first()
     instance = order
@@ -303,22 +292,34 @@ def add_to_Order(request, *args, **kwargs):
                 instance = OrderItem.objects.create(food_id = kwargs['food_id'], order_id = order.id)
             except Exception as error:
             # handle the exception
-                print("An exception occurred:", error)       
+                print("An exception occurred:", error)   
+    food = Food.objects.get(id = kwargs['food_id'])    
+    # user = Customer.objects.get(id = kwargs['userId'])
+    serializer = OrderItemSerializer(instance)
+    serialized_data = serializer.data
     try:  
-        instance.quantity = instance.quantity+ 1
-        instance.save()  
+        if food.remainder>0:
+            instance.quantity = instance.quantity+ 1
+            instance.save()  
+            food.remainder -= 1
+            food.save()
+            # user.wallet_balance -= Decimal(serialized_data['name_and_price']['price'])
+            # user.save()
     except Exception as error:
         # handle the exception
         print("An exception occurred:", error) 
-    serializer = OrderItemSerializer(instance)
-    serialized_data = serializer.data
+
+    # serialized_data['new_wallet_balance'] = user.wallet_balance
+    serialized_data['new_remainder'] = food.remainder
 
     content = JSONRenderer().render(serialized_data)
     return HttpResponse(content, content_type='application/json')
 
+# @login_required
 def remove_from_Order(request, *args, **kwargs):
     order  =  Order.objects.filter(restaurant_id=kwargs['restaurant_id'],userId_id = kwargs['userId'],status = 'notOrdered').first()
-    instance = OrderItem.objects.create()
+    # instance = OrderItem.objects.create()
+    instance = order
     if(order is None):
         try:
             order = Order.objects.create(restaurant_id=kwargs['restaurant_id'],userId_id = kwargs['userId'])
@@ -344,14 +345,24 @@ def remove_from_Order(request, *args, **kwargs):
         print("An exception occurred:", error)  
     serializer = OrderItemSerializer(instance)
     serialized_data = serializer.data
+    
+    food = Food.objects.get(id = kwargs['food_id'])
+    # user = Customer.objects.get(id = kwargs['userId'])
+    if instance.quantity > 0:
+        food.remainder += 1
+        food.save()
+        # user.wallet_balance += Decimal(serialized_data['name_and_price']['price'])
+        # user.save()
+    # serialized_data['new_wallet_balance'] = user.wallet_balance
+    serialized_data['new_remainder'] = food.remainder
 
     content = JSONRenderer().render(serialized_data)
     return HttpResponse(content, content_type='application/json')
 
 
 class CustomerOrderViewAPI(generics.ListAPIView):
-    # authentication_classes = [TokenAuthentication]
-    # permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
     def get_serializer_class(self):
         return CustomerViewOrderSerializer
 
@@ -369,6 +380,8 @@ class RestaurantOrderViewAPI(generics.ListAPIView):
 class UpdateOrderStatusAPI(generics.UpdateAPIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
+    lookup_field = 'id'
+    lookup_url_kwarg = 'order_id'
     def get_serializer_class(self, *args, **kwargs):
         return UpdateOrderSerializer
     def get_queryset(self):
@@ -377,7 +390,7 @@ class UpdateOrderStatusAPI(generics.UpdateAPIView):
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data)
         serializer.is_valid(raise_exception=True)
-        self.save()
+        serializer.save()
         return Response(serializer.data)
     def put(self, request, *args, **kwargs):
         return self.patch(request, *args, **kwargs)
@@ -414,3 +427,75 @@ class RestaurantCommentListAPIView(generics.ListAPIView):
     def get_queryset(self):
         restaurant_id = self.kwargs['restaurant_id']
         return Comment.objects.filter(restaurant_id=restaurant_id)
+
+def search_nearest_restaurant(request):
+# def search_nearest_restaurant(request,origin):
+    type_vehicle = 'car'
+    origins = request.GET.get('origins')
+    destinations = '36.35067,59.5451965%7C36.337005,59.5300'
+    # destinations = Restaurant.objects.values_list('lat', 'lon')
+    # destinations = '%7C'.join([urllib.parse.quote(dest) for dest in destinations])
+
+    headers = {
+        'Api-Key': 'service.f3f70682948d40999d64243013ff5b95',
+    }
+    
+    url = f'https://api.neshan.org/v1/distance-matrix/no-traffic?type={type_vehicle}&origins={origins}&destinations={destinations}'
+    
+    response = requests.get(url,headers= headers)
+    data = response.json()
+    elements = data['rows'][0]['elements']
+    destination_addresses = data['destination_addresses']
+    dists = [element['distance']['value'] for element in elements]
+    des_len = len(destination_addresses)
+    des_dist_list = []
+    for i in range(des_len):
+        des_dist_list.append((elements[i]['distance']['value'],destination_addresses[i]))
+    sorted_list = sorted(des_dist_list, key=lambda x: x[1])
+    return JsonResponse(sorted_list,safe= False)
+
+def get_addr(request):
+# def search_nearest_restaurant(request,origin):
+    type_vehicle = 'car'
+    Lattitude = request.GET.get('lat')
+    longitude = request.GET.get('lng')
+    destinations = '36.35067,59.5451965%7C36.337005,59.5300'
+    # destinations = Restaurant.objects.values_list('lat', 'lon')
+    # destinations = '%7C'.join([urllib.parse.quote(dest) for dest in destinations])
+
+    headers = {
+        'Api-Key': 'service.7f461dfe908a40899d8900c2802f48a0',
+    }
+    
+    url = f'https://api.neshan.org/v5/reverse?lat={Lattitude}&lng={longitude}'
+    
+    response = requests.get(url,headers= headers)
+    data = response.json()
+    return JsonResponse(data,safe= False)
+
+class LatLongUpdateRetreive(generics.RetrieveUpdateAPIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    serializer_class = LatLongSerializer
+    lookup_field = 'pk'
+    lookup_url_kwarg = 'restaurant_id'
+    def get_queryset(self):
+        print(self.kwargs)
+        return Restaurant.objects.filter(id=self.kwargs['restaurant_id'])
+
+    def get_serializer_context(self):
+        print(self.kwargs)
+        return {'restaurant_id': self.kwargs['restaurant_id']}
+
+    def patch(self, request, id):
+        instance = self.get_object(id= id)
+        for key , value in request.data.items():
+            setattr(instance,key,value)
+        serializer = self.get_serializer(instance, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+def get_lat_long(request, *args, **kwargs):
+    rest = get_object_or_404(Restaurant,id =kwargs['restaurant_id'])
+    content = JSONRenderer().render({'lat':rest.lat,'long':rest.lon})
+    return HttpResponse(content, content_type='application/json')
