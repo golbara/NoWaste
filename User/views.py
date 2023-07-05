@@ -20,6 +20,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import obtain_auth_token
 
 from rest_framework.authentication import TokenAuthentication
+from rest_framework.renderers import JSONRenderer
 ###############################################
 # from rest_framework_simplejwt.tokens import RefreshToken
 # from rest_framework_jwt.settings import api_settings
@@ -374,3 +375,8 @@ class CitiesOfCountry(APIView):
     def get(self, request):
         serializer = CountrySerializer()
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+def get_lat_long(request, *args, **kwargs):
+    cust = get_object_or_404(Customer,id =kwargs['user_id'])
+    content = JSONRenderer().render({'lat':cust.lat,'long':cust.lon})
+    return HttpResponse(content, content_type='application/json')
