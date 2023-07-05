@@ -8,7 +8,7 @@ from chat.consumers import ChatConsumer
 from django.urls.conf import include
 from rest_framework.routers import DefaultRouter
 from rest_framework_nested import routers
-from . import views
+from .views import *
 # from .views import *
 
 
@@ -21,11 +21,12 @@ from . import views
 app_name = 'chat'
 
 router = routers.DefaultRouter()
-router.register('', views.ChatViewSet, basename='chat')
+router.register('', ChatViewSet, basename='chat')
 
 urlpatterns = [
     # path('', include(router.urls)),
-    path("", views.ChatViewSet.index, name="index"),
-    path('room/<int:custId>/<int:mngId>/', views.ChatViewSet.room, name='room'),
+    path("", ChatViewSet.index, name="index"),
+    path('room/<int:custId>/<int:mngId>/', ChatViewSet.room, name='room'),
+    path('<int:user_id>/', get_names, name='room'),
     # re_path(r'room/(?P<room_name>\w+)/$', ChatConsumer.as_asgi())
 ]

@@ -14,6 +14,8 @@ from .models import *
 from User.models import *
 from rest_framework.authentication import TokenAuthentication
 from django.http import JsonResponse
+from django.db.models import Q
+from itertools import chain
 class ChatViewSet(ModelViewSet):
     # authentication_classes = [TokenAuthentication]
     # permission_classes = [IsAuthenticated]
@@ -68,9 +70,37 @@ class ChatViewSet(ModelViewSet):
         return render(request, {'room_name': room_name, 'messages': messages})
 
     
-def get_names(request):
-    UId = request.GET.get(['Id'])
-    names = Chat.objects.filter(manager = mngId).select_related('customer').values('name')
-    return JsonResponse(list(names), safe=False)
+def get_names(request,*args,**kwargs):
+    uid = kwargs['user_id']
+    rcvs = Chat.objects.filter( sender_id=uid).select_related('reciever').all()
+    # print("***************************************************************************8")
+    # print(r_names)
+    snds = Chat.objects.filter( reciever_id=uid).select_related('sender').all()
+    # print("***************************************************************************8")
+    # print(s_names)
+    # for s in s_names :
+    #     print("&&&&&&&&&&&&&&&")
+    #     print(s)
+    # r_names = r_names.values('name')
+    # s_names = s_names.values('name')                    
+    names = set()
+    name = ""
+    if rcvs.count()>0 :
+        for rcv in rcvs:
+            if(rcv.reciever.role == 'customer'):
+                name = Customer.objects.get(myauthor_ptr_id = rcv.reciever.id).name
+            else:
+                name = RestaurantManager.objects.get(myauthor_ptr_id = rcv.reciever.id).name
+            names.add(name)
+    if snds.count() >0 :
+        for snd in snds:
+            if(snd.sender.role == 'customer'):
+                print("****************************",snd.sender.id)
+                name = Customer.objects.get(myauthor_ptr_id = snd.sender.id).name
+            else:
+                name = RestaurantManager.objects.get(myauthor_ptr_id = snd.sender.id).name
+            names.add(name)
+    # names = Chat.objects.filter(Q(sender_id= uid) | Q(reciever_id = uid )).
+    return JsonResponse( list(names), safe=False)
 
 
