@@ -7,11 +7,14 @@ router = routers.DefaultRouter()
 router.register('restaurant-search', RestaurantSearchViewSet, basename='restaurant-search')
 router.register('restaurant_profile',RestaurantProfileViewSet,basename = 'rest-profile')
 router.register('filter-food', FilterFoodViewSet, basename='filter-food')
-# router.register('order', OrderViewSet)
+
+restaurant_router = routers.NestedSimpleRouter(router, 'restaurant_profile', lookup='id')
+restaurant_router.register('food', FoodViewSet, basename='restaurant-food')
+
+order_router = routers.NestedSimpleRouter(router, 'restaurant_profile', lookup='id')
+
 
 router.register('restaurant_view', RestaurantCustomerView, basename='restaurant')
-# order_router = routers.NestedSimpleRouter(router, 'restaurant_view', lookup='restaurant')
-# order_router.register('order', OrderViewSet , basename='order')
 
 restaurant_router = routers.NestedSimpleRouter(router, 'restaurant_view', lookup='restaurant')
 restaurant_router.register('food', FoodViewSet, basename='restaurant-food')
@@ -33,7 +36,10 @@ urlpatterns = [
     path('managers/<int:manager_id>/restaurants/<int:restaurant_id>/food/<int:pk>/',  ManagerFoodViewSet.as_view(), name='food-detail'),
     path('comment/user_id/<int:user_id>/restaurant_id/<int:restaurant_id>/', CommentAPI.as_view(), name='comment'),
     path('comment/restaurant_id/<int:restaurant_id>/', RestaurantCommentListAPIView.as_view(), name='restaurant-comments'),
-
+    # path('nearest_restaurant/<str:origin>',search_nearest_restaurant,name='search_nearest_restaurant'),
+    path('nearest_restaurant',search_nearest_restaurant,name='search_nearest_restaurant'),
+    path('getaddr',get_addr,name='get_addr'),
+    path('<int:restaurant_id>/lat_long',LatLongUpdateRetreive.as_view(),name='get_update_lat_long'),
 ]
 
 

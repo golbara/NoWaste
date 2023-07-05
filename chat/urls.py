@@ -24,6 +24,7 @@ router = routers.DefaultRouter()
 router.register('', ChatViewSet, basename='chat')
 
 urlpatterns = [
+
     # path('', include(router.urls)),
     path("", ChatViewSet.index, name="index"),
     path('room/<int:custId>/<int:mngId>/', ChatViewSet.room, name='room'),

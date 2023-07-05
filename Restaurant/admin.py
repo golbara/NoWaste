@@ -4,9 +4,9 @@ from .models import *
 
 class FoodAdmin(admin.ModelAdmin):
     ordering = ['name']
-    list_display = ['name', 'restaurant', 'type']
-    list_filter = ['type','restaurant']
-    search_fields = ('name','type')
+    list_display = ['name', 'restaurant']
+    list_filter = ['restaurant']
+    search_fields = ['name']
 
 class OrderAdmin(admin.ModelAdmin):
     ordering = ['created_at', 'userId']
