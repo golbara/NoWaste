@@ -84,7 +84,7 @@ def get_names(request,*args,**kwargs):
     #     print(s)
     # r_names = r_names.values('name')
     # s_names = s_names.values('name')                    
-    names = set()
+    names = {}
     name = ""
     print(rcvs)
     print("&&&&&&&&&&&&&&&&&&&&")
@@ -107,7 +107,7 @@ def get_names(request,*args,**kwargs):
                     name = RestaurantManager.objects.get(myauthor_ptr_id = rcv.reciever.id).name
                 except Exception as E :
                     return HttpResponse("There is not any reciever with the given Id" , status=status.HTTP_404_NOT_FOUND)
-            names.add(name)
+            names[name] = rcv.reciever.id
     if snds.count() >0 :
         for snd in snds:
             if(snd.sender.role == 'customer'):
@@ -122,9 +122,9 @@ def get_names(request,*args,**kwargs):
                     name = RestaurantManager.objects.get(myauthor_ptr_id = snd.sender.id).name
                 except Exception as E :
                     return HttpResponse("There is not any sender with the given Id" , status=status.HTTP_404_NOT_FOUND)           
-            names.add(name)
+            names[name] = snd.sender.id
     # names = Chat.objects.filter(Q(sender_id= uid) | Q(reciever_id = uid )).
-    return JsonResponse( list(names), safe=False)
+    return  HttpResponse( json.dumps( names ) )
 
 def delete_all_chats(request):
     messages =  Chat.objects.all()
