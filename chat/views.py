@@ -90,28 +90,28 @@ def get_names(request,*args,**kwargs):
         for rcv in rcvs:
             if(rcv.reciever.role == 'customer'):
                 try :
-                    name = Customer.objects.get(myauthor_ptr_id = rcv.reciever.id).name
+                    name = Customer.objects.get(myauthor_ptr_id = rcv.reciever.myauthor_ptr_id).name
                 except Exception as E :
-                    return HttpResponse("There is not any user with the given email" , status=status.HTTP_404_NOT_FOUND)
+                    return HttpResponse("There is not any reciever with the given Id" , status=status.HTTP_404_NOT_FOUND)
             else:
                 try :
-                    name = RestaurantManager.objects.get(myauthor_ptr_id = rcv.reciever.id).name
+                    name = RestaurantManager.objects.get(myauthor_ptr_id = rcv.reciever.myauthor_ptr_id).name
                 except Exception as E :
-                    return HttpResponse("There is not any user with the given email" , status=status.HTTP_404_NOT_FOUND)
+                    return HttpResponse("There is not any reciever with the given Id" , status=status.HTTP_404_NOT_FOUND)
             names.add(name)
     if snds.count() >0 :
         for snd in snds:
             if(snd.sender.role == 'customer'):
                 print("****************************",snd.sender.id)
                 try:
-                    name = Customer.objects.get(myauthor_ptr_id = snd.sender.id).name
+                    name = Customer.objects.get(myauthor_ptr_id = snd.sender.myauthor_ptr_id).name
                 except Exception as E :
-                    return HttpResponse("There is not any user with the given email" , status=status.HTTP_404_NOT_FOUND)
+                    return HttpResponse("There is not any sender with the given Id" , status=status.HTTP_404_NOT_FOUND)
             else:
                 try :
-                    name = RestaurantManager.objects.get(myauthor_ptr_id = snd.sender.id).name
+                    name = RestaurantManager.objects.get(myauthor_ptr_id = snd.sender.myauthor_ptr_id).name
                 except Exception as E :
-                    return HttpResponse("There is not any user with the given email" , status=status.HTTP_404_NOT_FOUND)           
+                    return HttpResponse("There is not any sender with the given Id" , status=status.HTTP_404_NOT_FOUND)           
             names.add(name)
     # names = Chat.objects.filter(Q(sender_id= uid) | Q(reciever_id = uid )).
     return JsonResponse( list(names), safe=False)
