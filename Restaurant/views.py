@@ -85,10 +85,6 @@ class RestaurantCustomerView(mixins.ListModelMixin,mixins.RetrieveModelMixin,vie
     lookup_field = 'id'
 
 
-def get_lat_long(request, *args, **kwargs):
-    rest = get_object_or_404(Restaurant,id =kwargs['restaurant_id'])
-    content = JSONRenderer().render({'lat':rest.lat,'long':rest.lon})
-    return HttpResponse(content, content_type='application/json')
 class FoodViewSet(ModelViewSet):
     serializer_class = FoodSerializer
     def get_queryset(self):
@@ -476,3 +472,30 @@ def get_addr(request):
     response = requests.get(url,headers= headers)
     data = response.json()
     return JsonResponse(data,safe= False)
+
+class LatLongUpdateRetreive(generics.RetrieveUpdateAPIView):
+    # authentication_classes = [TokenAuthentication]
+    # permission_classes = [IsAuthenticated]
+    serializer_class = LatLongSerializer
+    lookup_field = 'pk'
+    lookup_url_kwarg = 'restaurant_id'
+    def get_queryset(self):
+        print(self.kwargs)
+        return Restaurant.objects.filter(id=self.kwargs['restaurant_id'])
+
+    def get_serializer_context(self):
+        print(self.kwargs)
+        return {'restaurant_id': self.kwargs['restaurant_id']}
+
+    def patch(self, request, id):
+        instance = self.get_object(id= id)
+        for key , value in request.data.items():
+            setattr(instance,key,value)
+        serializer = self.get_serializer(instance, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+def get_lat_long(request, *args, **kwargs):
+    rest = get_object_or_404(Restaurant,id =kwargs['restaurant_id'])
+    content = JSONRenderer().render({'lat':rest.lat,'long':rest.lon})
+    return HttpResponse(content, content_type='application/json')
