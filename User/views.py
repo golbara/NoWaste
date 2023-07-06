@@ -379,7 +379,7 @@ class LatLongUpdateRetreive(generics.RetrieveUpdateAPIView):
     # authentication_classes = [TokenAuthentication]
     # permission_classes = [IsAuthenticated]
     serializer_class = LatLongSerializer
-    lookup_field = 'pk'
+    lookup_field = 'myauthor_ptr_id'
     lookup_url_kwarg = 'user_id'
     def get_queryset(self):
         print(self.kwargs)
@@ -390,14 +390,14 @@ class LatLongUpdateRetreive(generics.RetrieveUpdateAPIView):
         return {'user_id': self.kwargs['user_id']}
 
     def patch(self, request, user_id):
-        instance = self.get_object(id= user_id)
+        instance = get_object_or_404(Customer,myauthor_ptr_id = user_id)
         for key , value in request.data.items():
             setattr(instance,key,value)
         serializer = self.get_serializer(instance, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)    
-def get_lat_long(request, *args, **kwargs):
-    cust = get_object_or_404(Customer,id =kwargs['user_id'])
+def get_lat_long(user_id):
+    cust = get_object_or_404(Customer,id = user_id)
     content = JSONRenderer().render({'lat':cust.lat,'long':cust.lon})
     return HttpResponse(content, content_type='application/json')
