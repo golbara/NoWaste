@@ -479,8 +479,8 @@ def get_addr(request):
     return JsonResponse(data,safe= False)
 
 class LatLongUpdateRetreive(generics.RetrieveUpdateAPIView):
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    # authentication_classes = [TokenAuthentication]
+    # permission_classes = [IsAuthenticated]
     serializer_class = LatLongSerializer
     lookup_field = 'pk'
     lookup_url_kwarg = 'restaurant_id'
