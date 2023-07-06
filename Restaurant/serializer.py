@@ -16,7 +16,7 @@ class RestaurantSerializer(serializers.ModelSerializer):
     class Meta:
         model = Restaurant
         address = serializers.CharField(source = 'address')
-        fields = ('number','name','address','rate','discount','date_of_establishment','description','restaurant_image','id', 'type','lat','lon')
+        fields = ('number','name','address','rate','discount','date_of_establishment','description','restaurant_image','id', 'type','lat','lon','manager_id')
 
         extra_kwargs = {
             # 'menu': {'read_only': True},
@@ -231,7 +231,7 @@ class RestaurantOrderViewSerializer(serializers.ModelSerializer):
     status = serializers.CharField()
     class Meta : 
         model = Order
-        fields = ['orderDetails','userDetails','status','created_at','manager_id']
+        fields = ['orderDetails','userDetails','status','created_at']
 class UpdateOrderSerializer(serializers.ModelSerializer):
     class Meta : 
         model = Order
