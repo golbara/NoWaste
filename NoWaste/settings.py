@@ -48,6 +48,10 @@ INSTALLED_APPS = [
     "Restaurant",
     'rest_framework.authtoken',
     'django_filters',
+    'chat',
+    'cities_light',
+    # 'django-cities-light',
+    # 'cities',
     # 'rest_framework_jwt',
 ]
 
@@ -61,7 +65,10 @@ INSTALLED_APPS = [
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
     'rest_framework.authentication.TokenAuthentication',
-    )
+    ),
+    # 'DEFUAULT_PERMISSION_CLASSES':[
+    #     'rest_framework.permissions.AllowAny'
+    # ]
 }
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -171,8 +178,8 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 # EMAIL_HOST_USER = 'NoWaste.39@gmail.com'
 # EMAIL_HOST_PASSWORD = 'tznlpoehlwahkjtg'
-EMAIL_HOST_USER = 'NoWaste.gen39@gmail.com'
-EMAIL_HOST_PASSWORD = 'qspptdyffzsqptrh'
+EMAIL_HOST_USER = 'gen39.nowaste@gmail.com'
+EMAIL_HOST_PASSWORD = 'kjdkhcyjbllacpnv'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 CORS_ORIGIN_ALLOW_ALL = True
 # CORS_ORIGIN_WHITELIST = (
@@ -182,8 +189,9 @@ CORS_ORIGIN_ALLOW_ALL = True
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
+        # 'BACKEND': 'channels.layers.InMemoryChannelLayer',
         "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)],
+            "hosts": [("127.0.0.1" , 6379)],
         },
     },
 }
@@ -192,3 +200,4 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR,'static')
 ]
 
+# CITIES_LIGHT_CITY_SOURCES = ['openstreetmap']
