@@ -474,8 +474,8 @@ def get_addr(request):
     return JsonResponse(data,safe= False)
 
 class LatLongUpdateRetreive(generics.RetrieveUpdateAPIView):
-    # authentication_classes = [TokenAuthentication]
-    # permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
     serializer_class = LatLongSerializer
     lookup_field = 'pk'
     lookup_url_kwarg = 'restaurant_id'
@@ -487,8 +487,8 @@ class LatLongUpdateRetreive(generics.RetrieveUpdateAPIView):
         print(self.kwargs)
         return {'restaurant_id': self.kwargs['restaurant_id']}
 
-    def patch(self, request, id):
-        instance = self.get_object(id= id)
+    def patch(self, request, restaurant_id):
+        instance = self.get_object(id= restaurant_id)
         for key , value in request.data.items():
             setattr(instance,key,value)
         serializer = self.get_serializer(instance, data=request.data)
