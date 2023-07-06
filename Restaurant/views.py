@@ -295,8 +295,6 @@ def add_to_Order(request, *args, **kwargs):
                 print("An exception occurred:", error)   
     food = Food.objects.get(id = kwargs['food_id'])    
     # user = Customer.objects.get(id = kwargs['userId'])
-    serializer = OrderItemSerializer(instance)
-    serialized_data = serializer.data
     try:  
         if food.remainder>0:
             instance.quantity = instance.quantity+ 1
@@ -308,7 +306,8 @@ def add_to_Order(request, *args, **kwargs):
     except Exception as error:
         # handle the exception
         print("An exception occurred:", error) 
-
+    serializer = OrderItemSerializer(instance)
+    serialized_data = serializer.data
     # serialized_data['new_wallet_balance'] = user.wallet_balance
     serialized_data['new_remainder'] = food.remainder
 
@@ -321,31 +320,37 @@ def remove_from_Order(request, *args, **kwargs):
     # instance = OrderItem.objects.create()
     instance = order
     if(order is None):
-        try:
-            order = Order.objects.create(restaurant_id=kwargs['restaurant_id'],userId_id = kwargs['userId'])
-            instance = OrderItem.objects.create(food_id = kwargs['food_id'], order_id = order.id)
-        except Exception as error:
-            # handle the exception
-            print("An exception occurred:", error) 
+        return HttpResponse("There is not any order between these user and restaurant" , status=status.HTTP_404_NOT_FOUND)
+        # try:
+        #     order = Order.objects.create(restaurant_id=kwargs['restaurant_id'],userId_id = kwargs['userId'])
+        #     instance = OrderItem.objects.create(food_id = kwargs['food_id'], order_id = order.id)
+        # except Exception as error:
+        #     # handle the exception
+        #     print("An exception occurred:", error) 
     else :
         instance = OrderItem.objects.filter(food_id = kwargs['food_id'], order_id = order.id).first()
         if (instance is None):
-            try:
-                instance = OrderItem.objects.create(food_id = kwargs['food_id'], order_id = order.id)
-            except Exception as error:
-            # handle the exception
-                print("An exception occurred:", error) 
+            return HttpResponse("Customer didn't order this food" , status=status.HTTP_404_NOT_FOUND)
+            # try:
+            #     instance = OrderItem.objects.create(food_id = kwargs['food_id'], order_id = order.id)
+            # except Exception as error:
+            # # handle the exception
+            #     print("An exception occurred:", error) 
     try:
         instance.quantity = instance.quantity- 1
-        if(instance.quantity < 0) :
-            instance.quantity = 0 
         instance.save()
+        print(instance.quantity)
+        if (instance.quantity <= 0):
+            instance.delete()
+            return HttpResponse("The order item deleted from order" , status=status.HTTP_200_OK)
+        # if(instance.quantity < 0) :
+        #     instance.quantity = 0 
+        # instance.save()
     except Exception as error:
     # handle the exception
-        print("An exception occurred:", error)  
+        print("An exception occurred:", error) 
     serializer = OrderItemSerializer(instance)
     serialized_data = serializer.data
-    
     food = Food.objects.get(id = kwargs['food_id'])
     # user = Customer.objects.get(id = kwargs['userId'])
     if instance.quantity > 0:
@@ -355,9 +360,9 @@ def remove_from_Order(request, *args, **kwargs):
         # user.save()
     # serialized_data['new_wallet_balance'] = user.wallet_balance
     serialized_data['new_remainder'] = food.remainder
-
     content = JSONRenderer().render(serialized_data)
     return HttpResponse(content, content_type='application/json')
+
 
 
 class CustomerOrderViewAPI(generics.ListAPIView):

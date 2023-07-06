@@ -60,7 +60,7 @@ class Restaurant(models.Model):
     rate = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(5)], default=0.0,blank= True)
     count_rates = models.IntegerField(default=0,blank= True)
     date_of_establishment = models.DateField(default=date.today())
-    description = models.CharField(max_length=1024 , default= "")
+    description = models.CharField(max_length=1024 , default= "", blank=True)
     manager = models.ForeignKey(RestaurantManager, on_delete=models.CASCADE)
     def save(self, *args, **kwargs):
         if self.restaurant_image == "" or self.restaurant_image==None:
