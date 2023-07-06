@@ -231,7 +231,7 @@ class RestaurantOrderViewSerializer(serializers.ModelSerializer):
     status = serializers.CharField()
     class Meta : 
         model = Order
-        fields = ['orderDetails','userDetails','status','created_at']
+        fields = ['orderDetails','userDetails','status','created_at','manager_id']
 class UpdateOrderSerializer(serializers.ModelSerializer):
     class Meta : 
         model = Order
