@@ -16,6 +16,7 @@ from rest_framework.authentication import TokenAuthentication
 from django.http import JsonResponse
 from django.db.models import Q
 from itertools import chain
+from rest_framework import serializers
 
 class ChatViewSet(ModelViewSet):
     authentication_classes = [TokenAuthentication]
@@ -65,11 +66,23 @@ class ChatViewSet(ModelViewSet):
     def room(request):
         custid = request.kwargs['custId']
         mngid = request.kwargs['mngId']
-        room_name = f'{custid}&{mngid}'
+        room_name = f'{custid}_{mngid}'
         messages = Chat.objects.filter(room_name=room_name)
         # return render(request, 'chat/room.html', {'room_name': room_name, 'messages': messages})
         return render(request, {'room_name': room_name, 'messages': messages})
-
+def room(request,custId,mngId):
+    # custid = request.kwargs['custId']
+    # mngid = request.kwargs['mngId']
+    custid = custId
+    mngid = mngId
+    room_name = f'{custid}_{mngid}'
+    messages = Chat.objects.filter(room_name=room_name)
+    # return render(request, 'chat/room.html', {'room_name': room_name, 'messages': messages})
+    # return render(request, {'room_name': room_name, 'messages': messages})
+    # return HttpResponse( json.dumps( {'room_name': room_name, 'messages': messages} ) )
+    serializer = ChatSerializer(messages, many=True)
+    return HttpResponse(serializer.data,status=status.HTTP_200_OK)
+    return HttpResponse(data, content_type="application/json")
     
 def get_names(request,*args,**kwargs):
     uid = kwargs['user_id']
