@@ -367,7 +367,12 @@ class CommentAPI(APIView):
 
 class RestaurantCommentListAPIView(generics.ListAPIView):
     serializer_class = CommentSerializer
-
-    def get_queryset(self):
+    queryset = Comment.objects.all()
+    # def get_queryset(self):
+    #     restaurant_id = self.kwargs['restaurant_id']
+    #     return Comment.objects.filter(restaurant_id=restaurant_id)
+    def get(self, request, *args, **kwargs):
         restaurant_id = self.kwargs['restaurant_id']
-        return Comment.objects.filter(restaurant_id=restaurant_id)
+        comments = Comment.objects.filter(restaurant_id=restaurant_id)
+        serializer = self.get_serializer(comments, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
