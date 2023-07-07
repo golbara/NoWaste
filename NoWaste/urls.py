@@ -20,6 +20,6 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("user/", include('User.urls')),
     path("restaurant/", include('Restaurant.urls')),
-#     path("chat/", include("chat.urls")),
+    path("chat/", include("chat.urls")),
     # path('auth/', obtain_auth_token),
 ]
