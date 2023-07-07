@@ -316,11 +316,21 @@ def add_to_Order(request, *args, **kwargs):
 
 # @login_required
 def remove_from_Order(request, *args, **kwargs):
+    food = Food.objects.get(id = kwargs['food_id'])
     order  =  Order.objects.filter(restaurant_id=kwargs['restaurant_id'],userId_id = kwargs['userId'],status = 'notOrdered').first()
     # instance = OrderItem.objects.create()
     instance = order
+    context = {}
     if(order is None):
-        return HttpResponse("There is not any order between these user and restaurant" , status=status.HTTP_404_NOT_FOUND)
+        data = {
+            'name': food.name,
+            'price': str(food.price),
+            'message': "There is not any order between these user and restaurant",
+            'new_remainder': food.remainder
+        }
+
+        json_data = json.dumps(data)
+        return HttpResponse(json_data, content_type='application/json', status=status.HTTP_404_NOT_FOUND)
         # try:
         #     order = Order.objects.create(restaurant_id=kwargs['restaurant_id'],userId_id = kwargs['userId'])
         #     instance = OrderItem.objects.create(food_id = kwargs['food_id'], order_id = order.id)
@@ -330,7 +340,15 @@ def remove_from_Order(request, *args, **kwargs):
     else :
         instance = OrderItem.objects.filter(food_id = kwargs['food_id'], order_id = order.id).first()
         if (instance is None):
-            return HttpResponse("Customer didn't order this food" , status=status.HTTP_404_NOT_FOUND)
+            data = {
+            'name': food.name,
+            'price': str(food.price),
+            'message': "Customer didn't order this food",
+            'new_remainder': food.remainder
+            }
+
+            json_data = json.dumps(data)
+            return HttpResponse(json_data, content_type='application/json', status=status.HTTP_404_NOT_FOUND)
             # try:
             #     instance = OrderItem.objects.create(food_id = kwargs['food_id'], order_id = order.id)
             # except Exception as error:
@@ -339,10 +357,17 @@ def remove_from_Order(request, *args, **kwargs):
     try:
         instance.quantity = instance.quantity- 1
         instance.save()
-        print(instance.quantity)
         if (instance.quantity <= 0):
             instance.delete()
-            return HttpResponse("The order item deleted from order" , status=status.HTTP_200_OK)
+            data = {
+            'name': food.name,
+            'price': str(food.price),
+            'message': "The order item deleted from order",
+            'new_remainder': food.remainder
+            }
+            json_data = json.dumps(data)
+            return HttpResponse(json_data, content_type='application/json', status=status.HTTP_200_OK)
+        
         # if(instance.quantity < 0) :
         #     instance.quantity = 0 
         # instance.save()
@@ -351,7 +376,6 @@ def remove_from_Order(request, *args, **kwargs):
         print("An exception occurred:", error) 
     serializer = OrderItemSerializer(instance)
     serialized_data = serializer.data
-    food = Food.objects.get(id = kwargs['food_id'])
     # user = Customer.objects.get(id = kwargs['userId'])
     if instance.quantity > 0:
         food.remainder += 1
