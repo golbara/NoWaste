@@ -493,7 +493,7 @@ def search_nearest_restaurant(request):
     des_dist_list = []
     for i in range(des_len):
         des_dist_list.append((elements[i]['distance']['value'],destination_addresses[i]))
-    sorted_list = sorted(des_dist_list, key=lambda x: x[1])[:3]
+    sorted_list = sorted(des_dist_list, key=lambda x: x[1])[:5]
     return JsonResponse(sorted_list,safe= False)
 
 def get_addr(request):
