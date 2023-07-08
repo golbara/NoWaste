@@ -310,7 +310,11 @@ class AddRemoveFavorite(APIView):
                 user.list_of_favorites_res.add(restaurant)
             user.save()
             listOfFavorite = list(user.list_of_favorites_res.values_list('name', flat=True))
-            return Response({'list_of_favorites_res':listOfFavorite}, status=status.HTTP_200_OK)
+            result_fav = []
+            for r in listOfFavorite:
+                res = Restaurant.objects.get(name = r)
+                result_fav.append({'address': res.address, 'name': res.name, 'restaurant_image': res.restaurant_image, 'discount': res.discount, 'number': res.number, 'rate': res.rate, 'date_of_establishment': res.date_of_establishment, 'description': res.description, 'id': res.id})
+            return Response({'list_of_favorites_res':result_fav}, status=status.HTTP_200_OK)
         return Response("Error!", status=status.HTTP_400_BAD_REQUEST)
     def get(self, request):
         serializer = AddRemoveFavoriteSerializer()
