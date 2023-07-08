@@ -23,7 +23,7 @@ restaurant_router.register('food', FoodViewSet, basename='restaurant-food')
 urlpatterns = [
     path(r'', include(router.urls)),
     # path(r'', include(order_router.urls)),
-    path('<int:restaurant_id>/orderview/',RestaurantOrderViewAPI.as_view(),name = 'restaurant-orders-view'),
+    path('<int:manager_id>/orderview/',RestaurantOrderViewAPI.as_view(),name = 'restaurant-orders-view'),
     path('restaurant_view/<int:restaurant_id>/<int:userId>/order/',OrderAPIView.as_view(), name = 'order-detail'),
     path('restaurant_view/<int:restaurant_id>/<int:userId>/order/<uuid:order_id>/',UpdateOrderStatusAPI.as_view(), name = 'update-order-status'),
     path('restaurant_view/<int:restaurant_id>/<int:userId>/order/add_to_order/<int:food_id>/',add_to_Order, name = 'add-to-order'),
