@@ -504,17 +504,20 @@ class SearchNearestRestaurant(mixins.ListModelMixin):
         for i in range(des_len):
             des_dist_list.append((elements[i]['distance']['value'],destination_addresses[i]))
         sorted_list = sorted(des_dist_list, key=lambda x: x[1])[:5]
-        result = []
+        result = set()
         for e in sorted_list:
             lat ,long = e[1].split(',')
             for rest in restaurants:
+                if(len(result) > 5 ):
+                    data = serializers.serialize('json', result)
+                    return HttpResponse(data, content_type="application/json")
                 if (rest.lat == lat,rest.lon == long):
-                    result.append(rest)
-        # serializer = RestaurantSerializer(result, many=True)
+                    result.add(rest)
         data = serializers.serialize('json', result)
         return HttpResponse(data, content_type="application/json")
+        # serializer = RestaurantSerializer(result, many=True)
         # return Response({"status": "success", "data": serializer.data}, status=status.HTTP_200_OK)  
-        return Response(serializer.data)
+        # return Response(serializer.data)
     # serializer =  RestaurantSerializer(result,many = True)
     # return HttpResponse(serializer.data,status = status.HTTP_200_OK)
         # return JsonResponse(sorted_list,safe= False)
