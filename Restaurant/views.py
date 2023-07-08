@@ -25,6 +25,7 @@ import requests
 import json
 from django.http import JsonResponse
 import urllib
+from django.core.serializers import serialize
 class ChangePasswordView(generics.UpdateAPIView):
     # queryset = Restaurant.objects.all()
     authentication_classes = [TokenAuthentication]
@@ -494,7 +495,18 @@ def search_nearest_restaurant(request):
     for i in range(des_len):
         des_dist_list.append((elements[i]['distance']['value'],destination_addresses[i]))
     sorted_list = sorted(des_dist_list, key=lambda x: x[1])[:5]
-    return JsonResponse(sorted_list,safe= False)
+    result = []
+    for e in sorted_list:
+        lat ,long = e[1].split(',')
+        for rest in restaurants:
+            if (rest.lat == lat,rest.lon == long):
+                result.append(rest)
+    serializer =  RestaurantSerializer(result,many = True)
+    return HttpResponse(serializer.data,status = status.HTTP_200_OK)
+        # return JsonResponse(sorted_list,safe= False)
+    # serialized_data = serialize("json", result)
+    # # serialized_data = json.loads(serialized_data)
+    # return JsonResponse(serialized_data, safe=False, status=200)
 
 def get_addr(request):
 # def search_nearest_restaurant(request,origin):
