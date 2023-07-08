@@ -159,12 +159,12 @@ class GetOrderSerializer(serializers.ModelSerializer):
             quantities.append(item.quantity)
         Subtotal = sum(price)
         Grandtotal = Subtotal
-        if order.restaurant.discount == 0:
-            discount = 0
-        elif sum(quantities) < order.restaurant.purches_counts:
-            discount = 0
-        else : 
-            discount = order.restaurant.discount
+        # if order.restaurant.discount == 0:
+        #     discount = 0
+        # elif sum(quantities) < order.restaurant.purches_counts:
+        #     discount = 0
+        # else : 
+        discount = order.restaurant.discount
         if (discount != 0):
             Grandtotal =(1-discount) * Subtotal
         return Subtotal,Grandtotal,discount
