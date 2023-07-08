@@ -472,18 +472,20 @@ def search_nearest_restaurant(request):
 # def search_nearest_restaurant(request,origin):
     type_vehicle = 'car'
     origins = request.GET.get('origins')
-    destinations = '36.35067,59.5451965%7C36.337005,59.5300'
+    # destinations = '36.35067,59.5451965%7C36.337005,59.5300'
     # destinations = Restaurant.objects.values_list('lat', 'lon')
-    # destinations = '%7C'.join([urllib.parse.quote(dest) for dest in destinations])
-
+    restaurants = Restaurant.objects.all()
+    # destinations = '%7C'.join([urllib.parse.quote(str(dest)) for dest in destinations])
+    destinations = '|'.join([f"{restaurant.lat},{restaurant.lon}" for restaurant in restaurants])
     headers = {
         'Api-Key': 'service.f3f70682948d40999d64243013ff5b95',
     }
-    
+    print("*&&&&&&&&&&&&&&&&&&&&&&*",destinations)
     url = f'https://api.neshan.org/v1/distance-matrix/no-traffic?type={type_vehicle}&origins={origins}&destinations={destinations}'
     
     response = requests.get(url,headers= headers)
     data = response.json()
+    print("########################",data)
     elements = data['rows'][0]['elements']
     destination_addresses = data['destination_addresses']
     dists = [element['distance']['value'] for element in elements]
@@ -491,7 +493,7 @@ def search_nearest_restaurant(request):
     des_dist_list = []
     for i in range(des_len):
         des_dist_list.append((elements[i]['distance']['value'],destination_addresses[i]))
-    sorted_list = sorted(des_dist_list, key=lambda x: x[1])
+    sorted_list = sorted(des_dist_list, key=lambda x: x[1])[:3]
     return JsonResponse(sorted_list,safe= False)
 
 def get_addr(request):
