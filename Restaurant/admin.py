@@ -4,9 +4,9 @@ from .models import *
 
 class FoodAdmin(admin.ModelAdmin):
     ordering = ['name']
-    list_display = ['name', 'restaurant', 'type']
-    list_filter = ['type','restaurant']
-    search_fields = ('name','type')
+    list_display = ['name', 'restaurant']
+    list_filter = ['restaurant']
+    search_fields = ['name']
 
 class OrderAdmin(admin.ModelAdmin):
     ordering = ['created_at', 'userId']
@@ -19,7 +19,17 @@ class OrderItemAdmin(admin.ModelAdmin):
     list_display = ['food', 'order']
     list_filter = ['order', 'food','quantity']
     # search_fields = (,)
+
+class CommentAdmin(admin.ModelAdmin):
+    ordering = ['created_at']
+    list_display = ['writer', 'restaurant', 'created_at']
+    readonly_fields = ('created_at',)
+    list_filter = ['writer','restaurant']
+    search_fields = ('writer',)
+
+
 admin.site.register(Food,FoodAdmin)
 admin.site.register(Order, OrderAdmin)
 admin.site.register(OrderItem, OrderItemAdmin)
 
+admin.site.register(Comment, CommentAdmin)

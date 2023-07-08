@@ -12,6 +12,7 @@ class UserAdmin(BaseUserAdmin):
     # list_display_links = ('colored_role')
     def Role(self, obj):
         if obj.role == "customer":
+            
             return format_html (f'<span style="color:blue">{obj.role}</span>')
         else:
             return format_html (f'<span style="color:green">{obj.role}</span>')
@@ -34,7 +35,7 @@ class UserAdmin(BaseUserAdmin):
         obj.set_password(obj.password)
         super().save_model(request, obj, form, change)
 
-admin.site.register(MyAuthor, UserAdmin)
+# admin.site.register(MyAuthor, UserAdmin)
 
 # class UserAdmin(BaseUserAdmin):
 #     pass
@@ -74,3 +75,7 @@ admin.site.register(Customer,CustomerAdmin)
 admin.site.register(Restaurant,RestaurantAdmin)
 admin.site.register(VC_Codes,VC_CodesAdmin)
 admin.site.register(RestaurantManager,RestaurantManagerAdmin)
+admin.site.register(MyAuthor, UserAdmin)
+
+
+# admin.site.register(CountryCityDict)
