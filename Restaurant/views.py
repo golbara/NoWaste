@@ -358,6 +358,8 @@ def remove_from_Order(request, *args, **kwargs):
         instance.quantity = instance.quantity- 1
         instance.save()
         if (instance.quantity <= 0):
+            food.remainder += 1
+            food.save()
             instance.delete()
             data = {
             'name': food.name,
