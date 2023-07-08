@@ -368,14 +368,19 @@ class CustomerOrderViewAPI(generics.ListAPIView):
 
     def get_queryset(self):
         return Order.objects.filter(userId_id=self.kwargs['user_id']).select_related('restaurant')
-    
+       
 class RestaurantOrderViewAPI(generics.ListAPIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = RestaurantOrderViewSerializer
-
     def get_queryset(self):
-        return Order.objects.filter(restaurant_id=self.kwargs['restaurant_id']).select_related('userId')
+        queryset = Restaurant.objects.filter(manager_id = self.kwargs['manager_id']).prefetch_related('Orders')
+        ordersList = []
+        for restaurant in queryset:
+            orders = restaurant.Orders.all()
+            for order in orders:
+                ordersList.append(order)
+        return ordersList
 
 class UpdateOrderStatusAPI(generics.UpdateAPIView):
     authentication_classes = [TokenAuthentication]
