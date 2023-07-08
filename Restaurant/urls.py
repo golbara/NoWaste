@@ -37,7 +37,7 @@ urlpatterns = [
     path('comment/user_id/<int:user_id>/restaurant_id/<int:restaurant_id>/', CommentAPI.as_view(), name='comment'),
     path('restaurant_id/<int:restaurant_id>/comments/', RestaurantCommentListAPIView.as_view(), name='restaurant-comments'),
     # path('nearest_restaurant/<str:origin>',search_nearest_restaurant,name='search_nearest_restaurant'),
-    path('nearest_restaurant',search_nearest_restaurant,name='search_nearest_restaurant'),
+    path('nearest_restaurant',SearchNearestRestaurant.search_nearest_restaurant,name='search_nearest_restaurant'),
     path('getaddr',get_addr,name='get_addr'),
     path('<int:restaurant_id>/lat_long',LatLongUpdateRetreive.as_view(),name='get_update_lat_long'),
 ]
