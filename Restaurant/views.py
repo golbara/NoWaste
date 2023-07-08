@@ -26,6 +26,9 @@ import json
 from django.http import JsonResponse
 import urllib
 from django.core.serializers import serialize
+from rest_framework.decorators import api_view, renderer_classes
+from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer
+from django.core import serializers
 class ChangePasswordView(generics.UpdateAPIView):
     # queryset = Restaurant.objects.all()
     authentication_classes = [TokenAuthentication]
@@ -429,40 +432,49 @@ class RestaurantCommentListAPIView(generics.ListAPIView):
         restaurant_id = self.kwargs['restaurant_id']
         return Comment.objects.filter(restaurant_id=restaurant_id)
 
-def search_nearest_restaurant(request):
-# def search_nearest_restaurant(request,origin):
-    type_vehicle = 'car'
-    origins = request.GET.get('origins')
-    # destinations = '36.35067,59.5451965%7C36.337005,59.5300'
-    # destinations = Restaurant.objects.values_list('lat', 'lon')
-    restaurants = Restaurant.objects.all()
-    # destinations = '%7C'.join([urllib.parse.quote(str(dest)) for dest in destinations])
-    destinations = '|'.join([f"{restaurant.lat},{restaurant.lon}" for restaurant in restaurants])
-    headers = {
-        'Api-Key': 'service.f3f70682948d40999d64243013ff5b95',
-    }
-    print("*&&&&&&&&&&&&&&&&&&&&&&*",destinations)
-    url = f'https://api.neshan.org/v1/distance-matrix/no-traffic?type={type_vehicle}&origins={origins}&destinations={destinations}'
-    
-    response = requests.get(url,headers= headers)
-    data = response.json()
-    print("########################",data)
-    elements = data['rows'][0]['elements']
-    destination_addresses = data['destination_addresses']
-    dists = [element['distance']['value'] for element in elements]
-    des_len = len(destination_addresses)
-    des_dist_list = []
-    for i in range(des_len):
-        des_dist_list.append((elements[i]['distance']['value'],destination_addresses[i]))
-    sorted_list = sorted(des_dist_list, key=lambda x: x[1])[:5]
-    result = []
-    for e in sorted_list:
-        lat ,long = e[1].split(',')
-        for rest in restaurants:
-            if (rest.lat == lat,rest.lon == long):
-                result.append(rest)
-    serializer =  RestaurantSerializer(result,many = True)
-    return HttpResponse(serializer.data,status = status.HTTP_200_OK)
+class SearchNearestRestaurant(mixins.ListModelMixin):
+    # serializer_class = RestaurantSerializer
+    # @api_view(('GET',))
+    # @renderer_classes((TemplateHTMLRenderer, JSONRenderer))
+    def search_nearest_restaurant(request):
+    # def search_nearest_restaurant(request,origin):
+        type_vehicle = 'car'
+        origins = request.GET.get('origins')
+        # destinations = '36.35067,59.5451965%7C36.337005,59.5300'
+        # destinations = Restaurant.objects.values_list('lat', 'lon')
+        restaurants = Restaurant.objects.all()
+        # destinations = '%7C'.join([urllib.parse.quote(str(dest)) for dest in destinations])
+        destinations = '|'.join([f"{restaurant.lat},{restaurant.lon}" for restaurant in restaurants])
+        headers = {
+            'Api-Key': 'service.f3f70682948d40999d64243013ff5b95',
+        }
+        print("*&&&&&&&&&&&&&&&&&&&&&&*",destinations)
+        url = f'https://api.neshan.org/v1/distance-matrix/no-traffic?type={type_vehicle}&origins={origins}&destinations={destinations}'
+        
+        response = requests.get(url,headers= headers)
+        data = response.json()
+        print("########################",data)
+        elements = data['rows'][0]['elements']
+        destination_addresses = data['destination_addresses']
+        dists = [element['distance']['value'] for element in elements]
+        des_len = len(destination_addresses)
+        des_dist_list = []
+        for i in range(des_len):
+            des_dist_list.append((elements[i]['distance']['value'],destination_addresses[i]))
+        sorted_list = sorted(des_dist_list, key=lambda x: x[1])[:5]
+        result = []
+        for e in sorted_list:
+            lat ,long = e[1].split(',')
+            for rest in restaurants:
+                if (rest.lat == lat,rest.lon == long):
+                    result.append(rest)
+        # serializer = RestaurantSerializer(result, many=True)
+        data = serializers.serialize('json', result)
+        return HttpResponse(data, content_type="application/json")
+        # return Response({"status": "success", "data": serializer.data}, status=status.HTTP_200_OK)  
+        return Response(serializer.data)
+    # serializer =  RestaurantSerializer(result,many = True)
+    # return HttpResponse(serializer.data,status = status.HTTP_200_OK)
         # return JsonResponse(sorted_list,safe= False)
     # serialized_data = serialize("json", result)
     # # serialized_data = json.loads(serialized_data)
